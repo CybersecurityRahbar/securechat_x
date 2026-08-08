@@ -4904,7 +4904,7 @@ class CallManager {
         ],
       };
 
-      _pc = await createPeerConnection(configuration: config);
+      _pc = await flutter_webrtc.createPeerConnection(configuration: config);
       _pc!.onIceCandidate = (candidate) {
         Logger.logInfo('ICE Candidate: ${candidate.candidate}');
       };
