@@ -41,6 +41,7 @@ import 'package:go_router/go_router.dart';
 
 // BIP39
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:convert/convert.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
@@ -1644,17 +1645,18 @@ class BIP39Service {
     final entropy = bip39.mnemonicToEntropy(words);
   // في الإصدارات الجديدة، entropy هي List<int>، وفي القديمة String
     if (entropy is String) {
-      return Uint8List.fromList(entropy.codeUnits);
+      return hex.decode(entropy);
     } else if (entropy is List<int>) {
       return Uint8List.fromList(entropy);
     } else {
-      throw Exception('Unexpected entropy type');
+      throw Exception('Unexpected entropy type: $entropy');
     }
   }
 
 // الدالة entropyToWords (السطر 1648 تقريباً)
   String entropyToWords(Uint8List entropy) {
-    return bip39.entropyToMnemonic(entropy);
+    final hexString = hex.encode(entropy);
+    return bip39.entropyToMnemonic(hexString);
   }
 }
 
@@ -4902,7 +4904,7 @@ class CallManager {
   RTCVideoRenderer? _localRenderer;
   RTCVideoRenderer? _remoteRenderer;
 
-  Future<void> createPeerConnection({Map<String, dynamic>? configuration}) async {
+  Future<void> _initPeerConnection({Map<String, dynamic>? configuration}) async {
     try {
       final config = configuration ?? {
         'iceServers': [
@@ -5131,7 +5133,7 @@ class CallManager {
         await _pc!.close();
       }
       _pc = null;
-      await createPeerConnection();
+      await _initPeerConnection();
       if (_localStream != null) {
         for (final track in _localStream!.getTracks()) {
           await _pc!.addTrack(track, _localStream!);
@@ -9354,7 +9356,7 @@ class _CallScreenState extends ConsumerState<CallScreen> {
 
   Future<void> _initializeCall() async {
     try {
-      await _callManager.createPeerConnection();
+      await _callManager._initPeerConnection();
       await _callManager.startLocalStream(withVideo: _isVideo);
     } catch (e) {
       Logger.logError('Failed to initialize call', error: e);
