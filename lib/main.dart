@@ -1656,6 +1656,7 @@ class BIP39Service {
   String entropyToWords(Uint8List entropy) {
     return bip39.entropyToMnemonic(entropy);
   }
+}
 
 class DoubleRatchetService {
   late Uint8List _rootKey;
