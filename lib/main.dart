@@ -1645,7 +1645,7 @@ class BIP39Service {
     final entropy = bip39.mnemonicToEntropy(words);
   // في الإصدارات الجديدة، entropy هي List<int>، وفي القديمة String
     if (entropy is String) {
-      return hex.decode(entropy);
+      return Uint8List.fromList(hex.decode(entropy));
     } else if (entropy is List<int>) {
       return Uint8List.fromList(entropy);
     } else {
@@ -4914,7 +4914,7 @@ class CallManager {
         ],
       };
 
-      _pc = await createPeerConnection(configuration: config);
+      _pc = await createPeerConnection(config);
       _pc!.onIceCandidate = (candidate) {
         Logger.logInfo('ICE Candidate: ${candidate.candidate}');
       };
