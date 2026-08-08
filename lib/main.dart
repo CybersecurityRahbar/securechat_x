@@ -1639,17 +1639,23 @@ class BIP39Service {
     return Uint8List.fromList(bip39.mnemonicToSeed(words, passphrase: passphrase));
   }
 
+  // الدالة wordsToEntropy (السطر 1644 تقريباً)
   Uint8List wordsToEntropy(String words) {
     final entropy = bip39.mnemonicToEntropy(words);
-    return Uint8List.fromList(entropy);
+  // في الإصدارات الجديدة، entropy هي List<int>، وفي القديمة String
+    if (entropy is String) {
+      return Uint8List.fromList(entropy.codeUnits);
+    } else if (entropy is List<int>) {
+      return Uint8List.fromList(entropy);
+    } else {
+      throw Exception('Unexpected entropy type');
+    }
   }
 
+// الدالة entropyToWords (السطر 1648 تقريباً)
   String entropyToWords(Uint8List entropy) {
-    return bip39.entropyToMnemonic(entropy.toList());
+    return bip39.entropyToMnemonic(entropy);
   }
-
-  bool validateChecksum(String words) => validateMnemonic(words);
-}
 
 class DoubleRatchetService {
   late Uint8List _rootKey;
@@ -3441,6 +3447,7 @@ class NetworkNotifier extends StateNotifier<ConnectivityResult> {
     } else {
       _connectivity = ConnectivityResult.none;
     }
+    state = _connectivity; 
     
     _connectivityPlus.onConnectivityChanged.listen((event) {
       if (event is List<ConnectivityResult>) {
@@ -4904,7 +4911,7 @@ class CallManager {
         ],
       };
 
-      _pc = await flutter_webrtc.createPeerConnection(configuration: config);
+      _pc = await createPeerConnection(configuration: config);
       _pc!.onIceCandidate = (candidate) {
         Logger.logInfo('ICE Candidate: ${candidate.candidate}');
       };
