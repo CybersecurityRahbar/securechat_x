@@ -24,7 +24,9 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.yourcompany.securechat_x"   // غيّر إلى اسم الحزمة الفعلي
-    compileSdk 35
+    compileSdk 36
+
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -42,7 +44,7 @@ android {
     defaultConfig {
         applicationId "com.yourcompany.securechat_x"   // غيّر إلى اسم الحزمة الفعلي
         minSdk 21
-        targetSdk 34
+        targetSdk 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
