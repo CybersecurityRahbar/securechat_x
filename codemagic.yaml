@@ -1,23 +1,26 @@
 # codemagic.yaml
 workflows:
-  build-android: # اسم سير العمل
+  build-android:
     name: Build Android APK
     max_build_duration: 60
     environment:
       flutter: stable
       xcode: latest
       vars:
-        SECURECHAT_WS_URL: "wss://your-server.com/ws"     # غيّرها إلى رابط سيرفرك الحقيقي
-        SECURECHAT_API_URL: "https://your-server.com"     # غيّرها إلى رابط API
-        SECURECHAT_CERT_PIN: "YOUR_BASE64_PIN"           # ضع بصمة الشهادة إن وجدت
+        SECURECHAT_WS_URL: "wss://your-server.com/ws"
+        SECURECHAT_API_URL: "https://your-server.com"
+        SECURECHAT_CERT_PIN: "YOUR_BASE64_PIN"
       groups:
-        # إذا كان لديك مفاتيح توقيع (Keystore) مخزنة في Codemagic، ضعها في مجموعة البيئة هنا
         - android_credentials 
     scripts:
-      - name: تنظيف وتهيئة المشروع
+      - name: تنظيف وتهيئة المشروع بالكامل (حذف الكاش وحل التبعيات من الصفر)
         script: |
+          rm -rf .dart_tool
+          rm -rf build
+          rm -rf pubspec.lock
           flutter clean
           flutter pub get
+          
       - name: بناء APK (تطبيق قابل للتثبيت)
         script: |
           flutter build apk --release --dart-define=SECURECHAT_WS_URL=$SECURECHAT_WS_URL --dart-define=SECURECHAT_API_URL=$SECURECHAT_API_URL --dart-define=SECURECHAT_CERT_PIN=$SECURECHAT_CERT_PIN
@@ -26,4 +29,4 @@ workflows:
     publishing:
       email:
         recipients:
-          - your_email@example.com # غيّرها إلى بريدك ليصلك رابط التحميل
+          - your_email@example.com
