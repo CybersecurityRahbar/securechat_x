@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:securechat_x/app/app_dependencies.dart';
 import 'package:securechat_x/app/securechat_app.dart';
