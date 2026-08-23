@@ -1,6 +1,7 @@
 import '../core/network/transport.dart';
 import '../core/storage/storage_boundaries.dart';
 import '../data/database/database.dart';
+import '../services/background/lifecycle_service.dart';
 
 /// Phase 1 composition object.
 ///
@@ -8,17 +9,19 @@ import '../data/database/database.dart';
 /// prevent widgets from constructing infrastructure while making it impossible
 /// to mistake Phase 1 for a working messaging/security stack.
 final class AppDependencies {
-  const AppDependencies({
+  AppDependencies({
     required this.preferences,
     required this.secrets,
     required this.database,
     required this.transport,
-  });
+    LifecycleService? lifecycle,
+  }) : lifecycle = lifecycle ?? LifecycleService();
 
   final PreferencesStore preferences;
   final SecretStore secrets;
   final Database database;
   final Transport transport;
+  final LifecycleService lifecycle;
 
   factory AppDependencies.foundation() => AppDependencies(
         preferences: const _UnavailablePreferencesStore(),
@@ -26,6 +29,8 @@ final class AppDependencies {
         database: const _UnavailableDatabase(),
         transport: const _UnavailableTransport(),
       );
+
+  void dispose() => lifecycle.dispose();
 }
 
 final class _UnavailablePreferencesStore implements PreferencesStore {
