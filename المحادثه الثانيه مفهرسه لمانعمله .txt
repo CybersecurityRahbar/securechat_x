@@ -1,0 +1,2872 @@
+حسنا اذا راجعت المحادثه الاخيره سوف تعرف اننا توقفنا عن ارسال الرساله الثانيه الى codex لكي يقوم بانشاء الهيكل في المستودع في جيت هاب لمشروع تطبيق الدردشه المشفر اذا استطعت معرفه السياق بالكامل فهو افضل والى سوف ارفع لك السياق الى جيت هاب وانت اقرئه من هناك لمعرفه ماذا كنا نتحدث بالضبط بكل صغيره وكبيره المهم عندما ارسلت الرساله الى codex  ضهرت اخطاء في التنفيذ لا اعلم ماهي لذلك قمت بارسالها لك ولكنك في المحادثه السابقه لم تستطع  قرائتها وايضا تم ايقاف الدردشه بشكل كامل بسبب الحدود المجانيه لذلك سوف الصق كل الماحدثه السابقه والاخطاء الاخيره في جيت هاب وانت قم بقرائتها جيدا ومعرف الاسبابا والحل وماهو سبب الخطاء https://github.com/CybersecurityRahbar/securechat_x.gitوقد وضعته في جذر المشروع الرئيسي بعنوان فهرسة المحادثه والاخطاء فقم بقرائته بشكل كامل وتركيزا شديد للغايه 
+
+
+نعم، قرأت الآن الجزء الذي يحتوي على **نتيجة تنفيذ Phase 1 نفسها وأخطاء Codex الفعلية**، وليس مجرد التقرير السابق. والسبب واضح، وهناك أكثر من مشكلة، لكن **ليست المشكلة الأساسية في إعادة بناء الكود نفسه**.
+
+### ما الذي حدث بالضبط؟
+
+Codex قام فعلًا بإعادة البناء. السجل يوضح أنه حذف `main.dart` القديم تقريبًا بالكامل، وأنشأ بنية `app/core/data/domain/features/services`، وأنشأ ملفات الاختبارات والـ Threat Model والـ ADR وغيرها. كما وصل إلى commit محلي باسم:
+
+`feat: establish SecureChat X 2.0 foundation`
+
+مع `659 additions` و`10857 deletions`.
+
+لكن عند مرحلة التحقق والبناء ظهرت **ثلاث مشكلات بيئية واضحة**:
+
+#### 1. `./gradlew: Permission denied`
+
+ظهر:
+
+```text
+Running: ./gradlew build -x test
+... ./gradlew: Permission denied
+```
+
+هذا يعني أن ملف:
+
+```text
+android/gradlew
+```
+
+ليس لديه صلاحية التنفيذ `executable bit` في بيئة Codex.
+
+هذه ليست مشكلة Flutter أو Kotlin أو التشفير؛ إنها مشكلة صلاحيات Git/Linux للملف.
+
+والحل الصحيح هو أن يكون `android/gradlew` محفوظًا في Git بصلاحية تنفيذ، أي عمليًا `100755` بدل `100644`.
+
+---
+
+#### 2. `android/local.properties` غير موجود
+
+بعد أن حاول Codex استخدام Gradle مباشرة ظهر:
+
+```text
+/settings.gradle line: 4
+
+android/local.properties (No such file or directory)
+```
+
+والسبب أن `android/settings.gradle` في المشروع يعتمد على:
+
+```gradle
+file("local.properties")
+```
+
+ويبحث داخله عن:
+
+```text
+flutter.sdk
+```
+
+وهذا الملف **محلي** في مشاريع Flutter عادةً، وليس ملفًا ينبغي أن نضعه في GitHub.
+
+المشكلة هنا أن بيئة Codex لم يكن فيها Flutter مضبوطًا، وبالتالي لم يتم إنشاء `local.properties`.
+
+---
+
+#### 3. والأهم: Flutter و Dart غير موجودين أصلًا في بيئة التنفيذ
+
+السجل نفسه يقول:
+
+```text
+/bin/bash: line 1: flutter: command not found
+/bin/bash: line 1: dart: command not found
+```
+
+وبالتالي Codex **لم يستطع تنفيذ**:
+
+```text
+flutter analyze
+flutter test
+flutter build
+dart format
+```
+
+وهذه ليست نتيجة فشل في كود SecureChat X بحد ذاته؛ بل نتيجة أن بيئة التنفيذ التي كان Codex يعمل فيها لم يكن فيها Flutter/Dart متاحين.
+
+### إذن هل Phase 1 فشلت؟
+
+**ليس بالمعنى الذي يبدو من رسالة الخطأ.**
+
+التنفيذ الفعلي لإعادة البناء حدث، لكن **مرحلة التحقق لم تكتمل** بسبب البيئة.
+
+وهناك نقطة مهمة جدًا اكتشفتها أثناء مراجعة المستودع الحالي:
+
+Codex سجّل commit محليًا:
+
+```text
+[work 7312b63] feat: establish SecureChat X 2.0 foundation
+```
+
+لكن هذا لا يعني أن التغيير أصبح على `main` في GitHub.
+
+وقد تحققت من `main` الحالي، وما زال `lib/main.dart` القديم الكبير موجودًا هناك، وليس النسخة الجديدة التي بناها Codex.
+
+أي أن الوضع حاليًا أقرب إلى:
+
+```text
+GitHub main
+    │
+    └── النسخة القديمة
+
+Codex worktree
+    │
+    └── SecureChat X 2.0 Foundation الجديدة
+         └── commit 7312b63
+```
+
+وهذا مهم جدًا قبل أن نعمل أي شيء آخر.
+
+### وهناك مشكلة إضافية يجب الانتباه لها
+
+السجل يبين أيضًا أن Codex عدّل Android package إلى:
+
+```text
+com/securechatx/
+```
+
+وحذف:
+
+```text
+com/example/securechat_x/MainActivity.kt
+```
+
+وهذا يبدو جزءًا مقصودًا من إعادة البناء، لكن **يجب مراجعة توافق `namespace` و`applicationId` ومسار `MainActivity` وAndroidManifest قبل اعتماد الـ commit**. لا أريد أن نعتبر هذه النقطة سليمة فقط لأن Codex أنشأها.
+
+### ماذا نفعل الآن؟
+
+**لا ترسل Phase 1 من جديد، ولا تبدأ Phase 2.**
+
+الشيء الصحيح الآن هو أن نجعل Codex يفحص نتيجة Phase 1 نفسها، ويصلح فقط ما يمكن إصلاحه من داخل المستودع، وبالأخص:
+
+```text
+1. تثبيت executable permission لـ android/gradlew
+2. مراجعة android/settings.gradle بحيث لا ينهار برسالة غامضة عندما لا توجد Flutter environment
+3. مراجعة package/namespace/MainActivity/Manifest
+4. تشغيل static checks الممكنة
+5. عدم اختراع local.properties أو إضافته إلى Git
+6. عدم اعتبار Phase 1 ناجحة نهائيًا حتى تكون حالة البناء واضحة
+7. إظهار commit 7312b63 كـ candidate لا كنسخة نهائية
+```
+
+لكن **قبل أن نرسل له رسالة إصلاح**، أريد أن أراجع التغييرات التي أنشأها Codex نفسها، لأن الخطأ البيئي شيء، وصحة الـ foundation الجديدة شيء آخر. ولا أريد أن نعالج خطأ `gradlew` ثم نكتشف أن `main.dart` الجديد أو `MainActivity` أو `pubspec` فيه أخطاء معمارية.
+
+المرحلة التالية عندي الآن هي **مراجعة commit 7312b63 كاملًا ملفًا بملف**، ثم أعطيك رسالة دقيقة جدًا لـ Codex لإصلاح ما يلزم قبل اعتماد Phase 1.
+
+
+
+
+
+
+ماذا اعمل الان هيا الان هل codex استطاع ان يبداء البناء او التعديل في جيت هاب مباشره ام لا ماذا يستطيع ان يعمل هل يستطيع التنفيذ في جيت هاب مباشره ام لا لان العمل انا اريده والتعديلات في مشروعي مباشره الان ماذا اعمل بالضبط 
+
+
+
+
+
+
+نعم، اتضحت الصورة الآن بالكامل، وهناك فرق مهم جدًا بين **أن Codex عدّل المشروع في بيئة عمله** وبين **أن التعديلات أصبحت داخل مستودع GitHub الرئيسي**.
+
+### ماذا حدث فعليًا؟
+
+Codex **استطاع تنفيذ إعادة البناء بالفعل** داخل بيئة العمل الخاصة بالمهمة. الدليل أنه حذف `lib/main.dart` القديم تقريبًا بالكامل، وأنشأ عشرات الملفات الجديدة، وسجّل commit:
+
+```text
+7312b63
+feat: establish SecureChat X 2.0 foundation
+```
+
+والسجل يعرض أيضًا زر **«إنشاء طلب سحب»**.
+
+لكن **هذا الـ commit لم يصل إلى `main` في GitHub حتى الآن**. عند فحص المستودع، ما زال `main` يحتوي على `lib/main.dart` القديم الكبير.
+
+إذن الوضع الحالي هو:
+
+```text
+GitHub / main
+      │
+      └── المشروع القديم
+
+        ↕
+
+Codex Worktree
+      │
+      └── SecureChat X 2.0 Foundation
+          └── commit 7312b63
+```
+
+### هل Codex يستطيع تعديل GitHub مباشرة؟
+
+**نعم، يستطيع العمل على المستودع وإنشاء commits ورفع تغييرات عبر branch/PR، لكن ليس معنى ذلك أن كل تغيير يقوم به يصبح تلقائيًا في `main`.**
+
+في حالتك الحالية، واضح أن Codex نفّذ التعديلات في بيئة عمله وأنشأ commit، ثم بقيت التغييرات غير مدمجة في `main`. وجود زر **«إنشاء طلب سحب»** يؤكد أن الخطوة التالية هي إخراج هذه التغييرات إلى مستودع GitHub عبر Pull Request.
+
+### ماذا تفعل الآن بالضبط؟
+
+**لا تبدأ مهمة جديدة ولا تعيد Phase 1.**
+
+في صفحة مهمة Codex الحالية التي ترى فيها:
+
+> `+659 -10857`
+
+اضغط:
+
+**«إنشاء طلب سحب»**
+
+هذا هو المسار الصحيح الآن.
+
+بعدها سيُنشأ Pull Request من التغييرات التي نفذها Codex إلى `main`.
+
+لكن **لا تضغط Merge مباشرة**؛ لأن هناك مشكلة ثانية يجب أن نعالجها أولًا:
+
+```text
+flutter: command not found
+dart: command not found
+./gradlew: Permission denied
+android/local.properties: No such file
+```
+
+أي أن Codex استطاع **التعديل والبناء الهيكلي**، لكنه لم يستطع إجراء التحقق النهائي لأن بيئته لا تحتوي Flutter/Dart بشكل صحيح، ولأن Gradle واجه إعدادات محلية.
+
+### أفضل ترتيب الآن
+
+نفذ فقط:
+
+**Codex → «إنشاء طلب سحب»**
+
+ثم **لا تدمج الطلب بعد**.
+
+بعد إنشاء الـ PR، أعطني **رابط الـ Pull Request**.
+
+عندها أستطيع فحص التغييرات الموجودة في الـ PR داخل GitHub، ملفًا بملف، وأتأكد من أن إعادة البناء صحيحة قبل دمجها في `main`.
+
+وهكذا يصبح سير العمل الذي سنستخدمه من الآن:
+
+```text
+أنت
+ ↓
+Codex
+ ↓
+يعدل المشروع فعليًا
+ ↓
+Commit
+ ↓
+Pull Request
+ ↓
+أنا أراجع التغييرات من GitHub
+ ↓
+تصحيح أي أخطاء
+ ↓
+Merge إلى main
+ ↓
+المرحلة التالية
+```
+
+**لا نريد العمل بطريقة تجعل Codex يكتب شيئًا في بيئة مؤقتة ثم نفقده؛ الـ PR هو الجسر الذي ينقل العمل فعليًا إلى مستودعك.**
+
+
+
+
+
+حسنا ضغطت طلب سحب وبعدها في نفس المكان ضهر عرض طلب السحب بعدها ضغطته وضهر هذا الان ماذا اعمل ماهي الخطوة التاليه [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/pull/1#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulls)[**Pull requests1**](https://github.com/CybersecurityRahbar/securechat_x/pulls)[ (1)](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svgActions](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+# **Phase 1: Establish SecureChat X 2.0 foundation — replace monolith and add layered app shell- #1**
+
+**#1**
+
+**Pull requestOpen**
+
+[**CybersecurityRahbar**](https://github.com/CybersecurityRahbar)**wants to merge 1 commit into**
+
+[**main**](https://github.com/CybersecurityRahbar/securechat_x/tree/main)**from**
+
+[**codex/rebuild-securechat-x-2.0-foundation**](https://github.com/CybersecurityRahbar/securechat_x/tree/codex/rebuild-securechat-x-2.0-foundation)
+
+**+659-10,857Lines changed: 659 additions & 10857 deletions**
+
+[**svgConversation0 (0)**](https://github.com/CybersecurityRahbar/securechat_x/pull/1)[**svgCommits1 (1)**](https://github.com/CybersecurityRahbar/securechat_x/pull/1/commits)[**svgChecks0 (0)**](https://github.com/CybersecurityRahbar/securechat_x/pull/1/checks)[**svgFiles changed48 (48)**](https://github.com/CybersecurityRahbar/securechat_x/pull/1/changes)
+
+## Conversation
+
+[@CybersecurityRahbar](https://github.com/CybersecurityRahbar) ([image](https://avatars.githubusercontent.com/u/226722721?s=80\&v=4))
+
+### [**CybersecurityRahbar**](https://github.com/CybersecurityRahbar)commented[2 minutes ago](https://github.com/CybersecurityRahbar/securechat_x/pull/1#issue-5228796699)
+
+**Show options**
+
+**Owner**
+
+### Motivation
+
+- Replace the legacy monolithic `main.dart` with a small, secure, reviewable application entry and establish clear layer boundaries for app, core, data, domain, features and services as required by the Phase 1 specification.
+- Prevent accidental reuse of insecure legacy code or false security claims by introducing conservative security defaults and explicit interfaces for future cryptography, storage and transport work.
+- Provide a runnable, testable foundation (routing, theme, lifecycle, DI scope, design tokens and basic UI components) so later phases can implement identity, DB, protocol and messaging without architectural debt.
+
+### Description
+
+- Replaced the giant legacy `lib/main.dart` with a small bootstrap that calls `bootstrapSecureChat()` and added a layered folder structure under `lib/app`, `lib/core`, `lib/data`, `lib/domain`, `lib/features`, and `lib/services` with typed contracts (e.g., `CryptoEngine`, `Transport`, `Database`, `SecretStore`, `PreferencesStore`).
+- Added typed failure hierarchy and presenter (`lib/core/errors/*`), conservative `SecurityPolicy` defaults, environment/configuration parsing (`lib/app/environment.dart`), an `AppScope` composition root, an `AppDependencies` composition type and a lifecycle service.
+- Implemented a basic routed application shell with `AppRouter`, `SecureChatApp`, foundation destinations (Home, Chats, Contacts, Calls, Security, Settings) and reusable design tokens + foundational widgets (theme, colors, spacing, buttons, cards, loading/error/empty states, security status indicator).
+- Hardened Android baseline and project identity by changing the application package to `com.securechatx.app`, disabling cleartext traffic, removing legacy external-storage/permissions and removing debug signing from the release build type; removed many legacy runtime dependencies from `pubspec.yaml` and documented the decision in ADRs.
+- Added Phase 1 documentation: `docs/SECURECHAT_X_2.0_THREAT_MODEL.md`, `docs/SECURECHAT_X_2.0_MIGRATION_RISK_REGISTER.md`, and ADRs under `docs/adr/` and added README updates clarifying Phase 1 scope and development commands.
+- Added unit/widget/integration tests and test scaffolding focused on configuration parsing, failure presentation, security policy defaults, app scope, lifecycle and the application shell routing (`test/` and `integration_test/`).
+
+### Testing
+
+- Ran repository and static sanity checks: `git diff --check` and targeted scans for insecure defaults and plaintext logging passed (no found `usesCleartextTraffic="true"`, legacy endpoints, or obvious print/debugPrint usages in the new foundation).
+- Added automated tests covering `AppEnvironment` validation, typed failures, `FailurePresenter`, `SecurityPolicy` defaults, `LifecycleService` and the app shell widget tests; these tests are included under `test/` and `integration_test/`.
+- Could not execute `dart format`, `flutter analyze`, `flutter test` or produce a local APK in this environment because `dart` and `flutter` are not installed here, and GitHub CLI authentication was not available for PR publishing; test files and commands are present and ready to run in a developer environment or CI with Flutter installed.
+
+---
+
+[Codex Task](https://chatgpt.com/codex/cloud/tasks/task_e_6a8b4342c86c8330afe01b4d335e53b1)
+
+**svg**
+
+svg
+
+[@CybersecurityRahbar](https://github.com/CybersecurityRahbar) ([image](https://avatars.githubusercontent.com/u/226722721?s=40\&v=4))
+
+[`feat: establish SecureChat X 2.0 foundation`](https://github.com/CybersecurityRahbar/securechat_x/pull/1/commits/ebb040ff9542f7ba6f54d80eccd8c33d42b72366 "feat: establish SecureChat X 2.0 foundation")
+
+[`ebb040f`](https://github.com/CybersecurityRahbar/securechat_x/pull/1/commits/ebb040ff9542f7ba6f54d80eccd8c33d42b72366)
+
+svg
+
+[@CybersecurityRahbar](https://github.com/CybersecurityRahbar) ([image](https://avatars.githubusercontent.com/u/226722721?s=40\&v=4)) [**CybersecurityRahbar**](https://github.com/CybersecurityRahbar) added the [**codex**](https://github.com/CybersecurityRahbar/securechat_x/issues?q=state%3Aopen%20label%3Acodex) label [2 minutes ago](https://github.com/CybersecurityRahbar/securechat_x/pull/1#event-29880015575) — with [image](https://avatars.githubusercontent.com/in/1144995?s=32\&u=13d3e3932f73875e9aa2123d3cc7b7a53496c87c\&v=4) [**ChatGPT Codex Connector**](https://github.com/apps/chatgpt-codex-connector)
+
+## Merge info
+
+Ready to merge
+
+svg
+
+### No conflicts with base branch
+
+Merging can be performed automatically.
+
+You can also merge this with the command line. 
+
+Still in progress?
+
+[@CybersecurityRahbar](https://github.com/CybersecurityRahbar) ([image](https://avatars.githubusercontent.com/u/226722721?s=80\&v=4))
+
+#### Add a comment
+
+**Comment**
+
+**svg**
+
+**svg**
+
+**svg**
+
+**svg**
+
+**svg**
+
+**svg**
+
+---
+
+**svg**
+
+**svg**
+
+**svg**
+
+---
+
+**svg**
+
+**svg**
+
+**svg**
+
+**svg**
+
+**svg**
+
+**svg**
+
+Add your comment here...
+
+[**svg**](https://docs.github.com/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+
+**svg**
+
+**svg**
+
+svgRemember, contributions to this repository should follow our [GitHub Community Guidelines](https://docs.github.com/articles/github-community-guidelines).
+
+svg **ProTip!** Add [.patch](https://github.com/CybersecurityRahbar/securechat_x/pull/1.patch) or [.diff](https://github.com/CybersecurityRahbar/securechat_x/pull/1.diff) to the end of URLs for Git’s plaintext views.
+
+**svgReviewers**No reviews
+
+Still in progress?
+
+**svgAssignees**No one—
+
+**svgLabels**
+
+[**codex**](https://github.com/CybersecurityRahbar/securechat_x/issues?q=state%3Aopen%20label%3Acodex)
+
+**svgProjects**
+
+None yet
+
+**svgMilestone**No milestone
+
+**svgDevelopment**
+
+Successfully merging this pull request may close these issues.
+
+None yet
+
+**Notifications**
+
+**Customize**
+
+**svg**
+
+You’re receiving notifications because you authored the thread.
+
+### 1 participant
+
+[@CybersecurityRahbar](https://github.com/CybersecurityRahbar) ([image](https://avatars.githubusercontent.com/u/226722721?s=52\&v=4))
+
+**svg**
+
+## Footer
+
+[svg](https://github.com/)© 2026 GitHub, Inc.
+
+### Footer navigation
+
+- [Terms](https://docs.github.com/site-policy/github-terms/github-terms-of-service)
+- [Privacy](https://docs.github.com/site-policy/privacy-policies/github-privacy-statement)
+- [Security](https://github.com/security)
+- [Status](https://www.githubstatus.com/)
+- [Community](https://github.community/)
+- [Docs](https://docs.github.com/)
+- [Contact](https://support.github.com/?tags=dotcom-footer)
+- Manage cookies
+- Do not share my personal information
+
+
+نحن الآن **لا ندمج الـ PR بعد**.
+
+راجعت الـ PR نفسه، وليس فقط وصفه. الـ PR مفتوح، يستهدف `main`، ولا توجد تعارضات، والفرع يحتوي commit `ebb040f`.
+
+لكن وجدت نقطة مهمة جدًا تجعلني أريد إيقاف الدمج مؤقتًا:
+
+في `lib/app/main_bootstrap.dart` قام Codex بكتابة:
+
+```dart
+FlutterError.onError = (_) {};
+```
+
+وكذلك:
+
+```dart
+runZonedGuarded(
+  () => runApp(...),
+  (_, __) {},
+);
+```
+
+أي أنه **يسكت أخطاء Flutter والأخطاء غير المعالجة بالكامل** بدل تسجيلها بطريقة آمنة أو تقديمها إلى نظام diagnostics أحمرّد لاحقًا. هذا غير مناسب لأساس تطبيق أمني؛ قد يخفي أخطاء حقيقية أثناء التطوير والإنتاج.
+
+وهناك نقطة أخرى: `SecureChatApp` يدعم حاليًا `en` فقط، رغم أن المواصفات الأصلية تتطلب أساسًا يدعم العربية/الإنجليزية، لكن هذه ليست مانع دمج وحدها؛ يمكن علاجها في المرحلة المناسبة.
+
+### ماذا تفعل الآن؟
+
+**لا تضغط Merge.**
+
+في صفحة PR #1، استخدم زر **Files changed** أولًا فقط للمراجعة. لا تغلق الـ PR ولا تحذف الفرع.
+
+ثم افتح Codex من رابط المهمة الموجود داخل الـ PR، وأرسل له هذه المهمة:
+
+```text
+Review and correct the existing Phase 1 PR before merge.
+
+Do NOT start Phase 2.
+Do NOT implement database, identity, cryptography, messaging, WebSocket, groups, media, or calls.
+
+Inspect the current Phase 1 implementation and fix only issues that make the foundation unsafe, incorrect, misleading, or architecturally unsound.
+
+Critical issue already identified:
+lib/app/main_bootstrap.dart currently suppresses all Flutter and zone errors:
+
+FlutterError.onError = (_) {};
+runZonedGuarded(..., (_, __) {});
+
+This must NOT silently discard errors.
+
+Replace this with a safe, redacted error-reporting boundary appropriate for a development/production foundation:
+- development must remain debuggable
+- production must not expose secrets or plaintext
+- no private keys, recovery phrases, session keys, plaintext messages, or decrypted media may be logged
+- errors must remain observable through a typed/redacted diagnostics boundary
+- do not invent a fake telemetry system
+
+Also review:
+1. bootstrap failure handling
+2. AppScope/dependency composition
+3. routing
+4. configuration validation
+5. security defaults
+6. Android package/namespace/applicationId consistency
+7. MainActivity path and manifest consistency
+8. dependency declarations
+9. test correctness
+10. integration-test correctness
+11. documentation accuracy
+12. any compile-time/API issues you can identify statically
+
+Important:
+Flutter/Dart are unavailable in the current Codex environment, so do not claim that analyze/test/build passed.
+
+Do not add fake test results.
+
+Make the required corrections directly in the PR branch.
+
+After the corrections:
+- inspect the final diff
+- report every file changed
+- report what was fixed and why
+- report anything that still cannot be validated because Flutter/Dart are unavailable
+
+Do not merge the PR.
+Stop after updating the PR branch.
+```
+
+### لماذا نعمل هذا قبل الدمج؟
+
+لأننا نريد أن يكون `main` عند دمج Phase 1 **قاعدة نظيفة فعلًا**، لا مجرد هيكل يبدو جيدًا.
+
+وبالمناسبة، الـ PR فعل أشياء صحيحة فعلًا: أزال `cleartext traffic`، أزال debug signing من release، نقل `MainActivity` إلى package جديد، فصل البنية، وأضاف threat model وmigration register واختبارات أساسية.
+
+بعد أن ينتهي Codex من هذه المراجعة، **لا تدمج أيضًا مباشرة**. أرسل لي نتيجة المهمة/التغييرات الجديدة، وسأراجع الـ PR مرة ثانية، وبعدها نعطيك القرار النهائي: **Merge أو تصحيح آخر**.
+
+
+
+حسنا هل انت عارف وفاهم لما كنا نخطط في المحادثه السابقه هل قريت المستند الذي رفعته لك في جيت هاب جيدا هل انت عاف لكل خطوه نخطوها وما هي التعديلات والاضافات وبنيه التطبيق بشكل كامل 
+
+
+
+
+
+نعم. راجعت السياق الذي وضعته في المستودع، وبالأخص ملف **«فهرسة المحادثه والاخطاء .txt»**، وكذلك راجعت مستودع `securechat_x` والـ Master Specification والـ Roadmap والـ AGENTS والـ PR الخاص بـ Phase 1.
+
+والصورة التي أعمل عليها الآن هي:
+
+**SecureChat X 2.0** ليس مجرد إعادة تنظيم لمشروع Flutter قديم، بل إعادة بناء كاملة للعميل داخل نفس المستودع، مع اعتبار النسخة القديمة Prototype غير موثوق.
+
+### ما ثبتناه في الخطة
+
+```text
+Phase 0
+Audit + Specification + Threat Model
+        ↓
+Phase 1
+Foundation / Architecture
+        ↓
+Phase 2
+Design System + Complete UI/UX
+        ↓
+Phase 3
+Secure Storage + Database
+        ↓
+Phase 4
+Identity + Devices + Recovery
+        ↓
+Phase 5
+Cryptographic Protocol
+        ↓
+Phase 6
+Session Manager / Ratcheting
+        ↓
+Phase 7
+Messaging Engine
+        ↓
+Phase 8
+Offline-first Synchronization
+        ↓
+Phase 9
+Contacts + Verification
+        ↓
+Phase 10
+Private Groups
+        ↓
+Phase 11
+Public Community
+        ↓
+Phase 12
+Media + Files
+        ↓
+Phase 13
+Voice Messages
+        ↓
+Phase 14
+Voice + Video Calls
+        ↓
+Phase 15
+Security Center
+        ↓
+Phase 16
+Advanced Settings / Privacy / Network / Storage
+        ↓
+Phase 17
+Hardening + Comprehensive Testing
+        ↓
+Phase 18
+Client/Server Protocol Freeze
+        ↓
+Phase 19
+New Server
+        ↓
+Phase 20
+End-to-End Integration
+        ↓
+Phase 21
+Release Security Review
+```
+
+وهذا متوافق مع الـ Roadmap الموجود في المستودع.
+
+### وأعرف أيضًا البنية المستهدفة
+
+لن يعود المشروع إلى `main.dart` الضخم. البنية المقصودة هي طبقات واضحة:
+
+```text
+lib/
+├── main.dart
+├── app/
+├── core/
+│   ├── crypto/
+│   ├── network/
+│   ├── security/
+│   ├── storage/
+│   ├── errors/
+│   └── utils/
+├── data/
+│   ├── database/
+│   ├── datasources/
+│   ├── models/
+│   └── repositories/
+├── domain/
+│   ├── entities/
+│   ├── repositories/
+│   └── usecases/
+├── features/
+│   ├── onboarding/
+│   ├── identity/
+│   ├── devices/
+│   ├── home/
+│   ├── messaging/
+│   ├── contacts/
+│   ├── groups/
+│   ├── community/
+│   ├── media/
+│   ├── calls/
+│   ├── security/
+│   └── settings/
+└── services/
+    ├── websocket/
+    ├── notifications/
+    ├── background/
+    └── connectivity/
+```
+
+وهذه ليست مجلدات شكلية؛ الهدف فصل UI عن domain وعن database وعن crypto وعن network، وهو ما ينص عليه الـ Master Specification.
+
+### وأعرف المتطلبات الوظيفية التي اتفقنا عليها
+
+التطبيق النهائي يجب أن يدعم:
+
+**المراسلة**
+
+* نصوص.
+* رسائل صوتية.
+* صور.
+* فيديو.
+* مستندات.
+* ملفات بأنواعها.
+* إرسال واستقبال في وضع الاتصال والانقطاع.
+* طوابير ورسائل معلقة ومزامنة.
+* حالات الإرسال والتسليم والقراءة.
+
+**الاتصالات**
+
+* مكالمات صوتية مباشرة.
+* مكالمات فيديو.
+* WebRTC مع signaling صحيح.
+* حالات الاتصال والرفض والانقطاع وإعادة الاتصال.
+
+**المجموعات**
+
+* مجموعات خاصة.
+* إدارة الأعضاء.
+* تغييرات العضوية بأمان.
+* نظام مفاتيح مناسب للمجموعات، وليس static shared secret.
+
+**المجتمع العام**
+
+* مجتمع عام مدمج اختياري.
+* يظهر للمستخدم الجديد.
+* يستطيع الانضمام أو إخفاءه.
+* يمكن التحكم بمدة إعادة ظهوره، حتى شهر.
+* ويظل منفصلًا أمنيًا ومعماريًا عن المحادثات الخاصة.
+
+**الهوية والأجهزة**
+
+* هوية ثابتة.
+* أجهزة متعددة.
+* مفاتيح منفصلة لكل جهاز.
+* Signed Pre-Key.
+* One-Time Pre-Keys.
+* Device revocation.
+* Identity verification.
+* QR / fingerprint / numeric comparison.
+* تحذير عند تغير الهوية.
+* Recovery حقيقي وليس إنشاء هوية جديدة مزيفة.
+
+هذه المتطلبات موثقة في الـ Master Specification.
+
+### وأعرف ما نريده من ناحية التشفير
+
+النقطة المهمة هنا: **لن نخترع خوارزمية خاصة بنا**.
+
+التصميم المستهدف يقوم على:
+
+```text
+Identity
+   ↓
+Device Identity
+   ↓
+Pre-Key Infrastructure
+   ↓
+Authenticated Asynchronous Key Establishment
+   ↓
+Ratchet Session
+   ↓
+Per-message Keys
+   ↓
+AEAD Envelope
+```
+
+مع:
+
+* Key separation.
+* Forward secrecy.
+* Post-compromise recovery حيث يدعم البروتوكول المختار.
+* Replay protection.
+* Out-of-order handling.
+* Session reset.
+* Versioning.
+* Downgrade protection.
+* Transcript/context binding.
+* Secure key lifecycle.
+* Platform secure storage.
+
+لكن **اختيار البروتوكول والمكتبة النهائية ليس قرارًا اتخذناه عشوائيًا بعد**؛ يجب أن يكون له ADR ومراجعة مستقلة واختبارات vectors قبل أن يدّعي التطبيق أنه E2EE. هذا تحديدًا موجود في المواصفة.
+
+### وأعرف رؤيتنا الأمنية
+
+المشروع يجب أن يحتوي على **Security Center حقيقي** وليس صفحة إعدادات عادية:
+
+```text
+SECURITY CENTER
+├── Identity Status
+├── Device Trust
+├── Active Sessions
+├── Session Health
+├── Key Status
+├── Pre-Key Health
+├── Recovery State
+├── Security Audit
+├── Identity Verification
+├── Security Alerts
+└── Emergency Controls
+```
+
+مع إعدادات منفصلة لـ:
+
+```text
+Privacy
+Security
+Network
+Storage
+Notifications
+Devices
+Sessions
+Backup / Recovery
+Messaging
+Media
+Appearance
+Diagnostics
+```
+
+وكل toggle يجب أن يكون حقيقيًا؛ لا نعرض `Encrypted` أو `Verified` أو `Secure` ما لم تكن الحالة فعليًا متحققة. هذه قاعدة صريحة في `AGENTS.md` وMaster Specification.
+
+### وأعرف الاتجاه البصري
+
+ليس المطلوب Telegram/WhatsApp مع لون مختلف.
+
+نريد:
+
+* Dark-first.
+* Premium.
+* Intelligence-oriented.
+* احترافي وليس "واجهة هاكر".
+* بدون neon مبالغ فيه.
+* Motion system مدروس.
+* Micro-interactions.
+* Security indicators.
+* Command/Search interface.
+* Responsive layouts.
+* Accessibility.
+* Reduced motion.
+* Chat UI متقدم.
+* Composer متطور.
+* واجهات اتصال ومكالمات حديثة.
+* Security Center كواجهة رئيسية في التجربة الأمنية.
+
+وهذا أيضًا موثق وليس مجرد فكرة عامة.
+
+### والأهم: أعرف أين نحن الآن
+
+نحن **لسنا في بداية المشروع**.
+
+حاليًا:
+
+```text
+Phase 0  ✅
+        Audit + Master Specification + Roadmap + AGENTS
+
+Phase 1  🔄
+        Foundation PR #1
+```
+
+وPR #1 أعاد بناء الأساس، وحذف الـ monolithic `main.dart` وأنشأ طبقات التطبيق، لكنه **لم ينفذ بعد التشفير أو قاعدة البيانات أو الرسائل أو المكالمات**؛ وهذا كان مقصودًا في هذه المرحلة.
+
+وأنا أيضًا أعرف أن هناك نقطة لم نعتمدها بعد بشكل نهائي: **PR #1 لا ينبغي دمجه قبل مراجعة بعض التفاصيل وتصحيح مشكلة إسكات أخطاء bootstrap التي وجدتها في `main_bootstrap.dart`.**
+
+لذلك نعم، **لدي الآن السياق الهندسي الكامل الذي نحتاجه لمواصلة المشروع، والخطوات التالية لن تكون عشوائية**؛ كل Phase لها هدف محدد، وما نبنيه في Phase معينة يجب أن يكون متوافقًا مع ما سيأتي بعدها.
+
+
+
+
+
+حسنا الان لقد قمت بارسال الرساله الى codex التي قلت لي عليها وهذا ما عمل انضر الان ماذا نعمل 
+
+
+**Rebuild SecureChat X 2.0 foundation**
+
+23 أغسطس·securechat\_x·main·
+
+**+888-10857**
+
+**svgأرشفة**
+
+**svgمشاركة**
+
+**svg**
+
+**تحديث الفرع**
+
+**svg**
+
+svg
+
+PHASE 1 — SECURECHAT X 2.0 FULL FOUNDATION REBUILD\n\nThe Phase 0 audit has been completed and reviewed.\n\nWe are now starting the actual SecureChat X 2.0 rebuild.\n\nIMPORTANT:\nThe existing application is considered a legacy prototype and is NOT authoritative.\n\nYou are allowed and expected to:\n- rewrite files\n- delete obsolete files\n- split large files\n- replace the existing main.dart\n- replace broken architecture\n- remove obsolete code\n- introduce new architecture\n- modify Android configuration where required\n- modify dependencies where justified\n- create new files and directories\n\nI have a complete backup of the original repository, so preserving the current main.dart or legacy architecture is NOT a requirement.\n\nHowever, do NOT perform a careless mass rewrite.\nEvery change must serve the SecureChat X 2.0 specification.\n\nREAD FIRST:\n1. AGENTS.md\n2. docs/SECURECHAT\_X\_2.0\_MASTER\_SPECIFICATION.md\n3. docs/SECURECHAT\_X\_2.0\_IMPLEMENTATION\_ROADMAP.md\n4. The complete Phase 0 audit that you just produced\n\n==================================================\nPRIMARY OBJECTIVE\n==================================================\n\nTransform the current legacy Flutter application into the real architectural foundation of SecureChat X 2.0.\n\nThis is NOT a cosmetic refactor.\n\nThe result must be a functioning application foundation on which the real database, identity, cryptography, messaging, groups, community, media and calling systems can be built.\n\nDo not leave the project as a collection of empty folders or fake placeholder screens.\n\n==================================================\n1. REPLACE THE LEGACY MONOLITH\n==================================================\n\nThe current giant main.dart must no longer contain the application architecture.\n\nReplace it with a minimal application entry point.\n\nCreate a clean layered architecture approximately:\n\nlib/\n  app/\n    main\_bootstrap.dart\n    securechat\_app.dart\n    router.dart\n    app\_scope.dart\n    environment.dart\n\n  core/\n    crypto/\n    network/\n    security/\n    storage/\n    errors/\n    utils/\n\n  data/\n    database/\n    datasources/\n    models/\n    repositories/\n\n  domain/\n    entities/\n    repositories/\n    usecases/\n\n  features/\n    onboarding/\n    identity/\n    devices/\n    home/\n    messaging/\n    contacts/\n    groups/\n    community/\n    media/\n    calls/\n    security/\n    settings/\n\n  services/\n    websocket/\n    notifications/\n    background/\n    connectivity/\n\nAdjust this structure if the Phase 0 audit identifies a technically superior structure, but preserve the separation of responsibilities.\n\n==================================================\n2. BUILD A REAL APPLICATION SHELL\n==================================================\n\nCreate a functioning application shell.\n\nIt must include:\n\n- application bootstrap\n- environment/configuration loading\n- dependency composition\n- routing\n- navigation\n- lifecycle handling\n- connectivity state\n- global error boundary\n- theme system\n- localization foundation\n- accessibility foundation\n\nDo not create a fake application that only displays a static page.\n\nThe application must start successfully and navigate between the foundational areas.\n\n==================================================\n3. BUILD THE FOUNDATION OF THE NEW UI SYSTEM\n==================================================\n\nAlthough the complete UI redesign is Phase 2, Phase 1 must establish the design-system foundation.\n\nCreate semantic design tokens for:\n\n- colors\n- typography\n- spacing\n- radii\n- elevation\n- animation durations\n- motion curves\n- icons\n- security status indicators\n\nCreate reusable foundational components where appropriate:\n\n- SecureChat button\n- SecureChat icon button\n- SecureChat card\n- SecureChat text field\n- SecureChat dialog\n- SecureChat bottom sheet\n- loading state\n- error state\n- empty state\n- security status indicator\n\nThe visual system must be compatible with the final intelligence-oriented design described in the master specification.\n\nDo NOT fill the application with generic Material widgets styled randomly.\n\n==================================================\n4. BUILD THE NAVIGATION FOUNDATION\n==================================================\n\nCreate the navigation structure required for the final product.\n\nIt should be possible to navigate to foundational destinations such as:\n\n- Home\n- Chats\n- Contacts\n- Calls\n- Security\n- Settings\n\nThe screens may initially be architectural shells, but they must be real routed features with proper state/error/loading/empty boundaries.\n\nDo not implement the full final UI yet.\n\n==================================================\n5. BUILD REAL APPLICATION STATE BOUNDARIES\n==================================================\n\nEstablish a consistent state-management strategy.\n\nSeparate:\n\nUI\n→ presentation/state\n→ domain/use cases\n→ repositories\n→ data/services\n\nWidgets must not directly own:\n- database logic\n- cryptographic operations\n- WebSocket implementation\n- persistence\n- authentication\n- platform security operations\n\nDo not introduce unnecessary state-management complexity.\nUse one coherent approach throughout the project.\n\n==================================================\n6. BUILD TYPED ERROR HANDLING\n==================================================\n\nCreate a real failure/error hierarchy.\n\nAt minimum:\n\n- NetworkFailure\n- CryptoFailure\n- DatabaseFailure\n- ProtocolFailure\n- AuthenticationFailure\n- PermissionFailure\n- StorageFailure\n- ConfigurationFailure\n- ValidationFailure\n- SessionFailure\n- MediaFailure\n- CallFailure\n- UnknownFailure\n\nErrors must support safe user-facing messages and developer diagnostics.\n\nNever include:\n- private keys\n- session keys\n- recovery phrases\n- plaintext messages\n- authentication secrets\n\ninside error messages or logs.\n\n==================================================\n7. BUILD CONFIGURATION PROPERLY\n==================================================\n\nCreate an environment/configuration layer.\n\nIt must support future environments such as:\n\n- development\n- staging\n- production\n\nDo NOT hard-code server URLs, credentials, certificates or secrets into UI files.\n\nThe server will be redesigned later.\n\nFor now create the configuration architecture only.\n\n==================================================\n8. ESTABLISH SECURE STORAGE BOUNDARIES\n==================================================\n\nDo NOT implement the final cryptographic key-management system yet.\n\nHowever, establish the architecture/interfaces that the future implementation will use.\n\nSeparate:\n\n- ordinary application preferences\n- sensitive secrets\n- identity keys\n- session state\n- recovery material\n\nDo not store sensitive cryptographic material in ordinary SharedPreferences-like storage.\n\nDo not migrate the legacy application's cryptographic secrets.\n\nLegacy cryptographic/session state must be treated as untrusted legacy data.\n\n==================================================\n9. ESTABLISH DATABASE BOUNDARIES\n==================================================\n\nDo NOT blindly migrate the existing Hive/database implementation.\n\nCreate the new database abstraction/repository boundaries.\n\nDocument the database technology decision if it has not yet been finalized.\n\nPrepare:\n\n- entities\n- repositories\n- data sources\n- migration strategy\n- pagination interfaces\n- transaction boundaries\n\nDo not create a fake "encrypted database" claim.\n\nThe actual secure database implementation will be completed in the database phase.\n\n==================================================\n10. REMOVE BROKEN LEGACY ARCHITECTURE\n==================================================\n\nRemove obsolete or dangerous legacy components where they are no longer needed.\n\nExamples include:\n- dead code\n- duplicated services\n- UI widgets containing business logic\n- fake security implementations\n- broken crypto/session code\n- hard-coded network logic\n- obsolete storage wrappers\n- duplicated models\n- unused imports\n- obsolete dependencies\n\nDO NOT preserve broken cryptographic code merely because it already exists.\n\nDo not claim that old encryption is secure.\n\n==================================================\n11. CRYPTOGRAPHY RULE\n==================================================\n\nDO NOT implement the final SecureChat X cryptographic protocol during Phase 1.\n\nSpecifically do not implement:\n- final X3DH\n- final Double Ratchet\n- final group encryption\n- final key exchange\n- final recovery cryptography\n\nInstead:\n\nCreate clean interfaces and architecture boundaries for the future cryptographic subsystem.\n\nThe actual protocol will be selected, documented, implemented and tested in the dedicated cryptography phase.\n\nNEVER invent a proprietary cryptographic algorithm.\n\n==================================================\n12. NETWORK RULE\n==================================================\n\nDo NOT build the final server yet.\n\nDo NOT make the current broken server protocol the foundation of SecureChat X 2.0.\n\nCreate clean interfaces for:\n\n- transport\n- connection state\n- authentication\n- protocol messages\n- synchronization\n- signalling\n\nThe final protocol will be designed after the client architecture and security model are established.\n\n==================================================\n13. ANDROID FOUNDATION\n==================================================\n\nCorrect foundational Android problems identified during the audit.\n\nIn particular:\n\n- disable cleartext traffic by default\n- remove inappropriate legacy storage configuration where safe\n- correct namespace/application identity where appropriate\n- correct build configuration inconsistencies\n- do not use debug signing as a production release strategy\n- do not create fake release credentials\n- document remaining release signing requirements\n- preserve development build functionality\n\nDo not weaken security merely to make the build pass.\n\n==================================================\n14. DEPENDENCY REVIEW\n==================================================\n\nReview pubspec.yaml carefully.\n\nFor every important dependency determine:\n\n- why it exists\n- whether it is actually used\n- whether it is security-sensitive\n- whether it conflicts with another dependency\n- whether it should remain\n- whether it should be replaced later\n\nRemove clearly obsolete dependencies when safe.\n\nDo not add large numbers of packages without justification.\n\n==================================================\n15. TEST INFRASTRUCTURE\n==================================================\n\nCreate real testing infrastructure.\n\nAdd:\n\ntest/\nintegration\_test/\n\nCreate meaningful tests for:\n\n- application bootstrap\n- configuration validation\n- routing\n- error mapping\n- dependency boundaries\n- basic application lifecycle\n- critical security policy defaults\n\nDo NOT write meaningless tests that only prove that a function returns true.\n\nThe project must pass:\n\nflutter analyze\nflutter test\n\nand appropriate build validation if available.\n\n==================================================\n16. SECURITY DOCUMENTATION\n==================================================\n\nCreate or update:\n\ndocs/SECURECHAT\_X\_2.0\_THREAT\_MODEL.md\n\ndocs/SECURECHAT\_X\_2.0\_MIGRATION\_RISK\_REGISTER.md\n\ndocs/adr/\n\nDocument:\n\n- malicious server\n- network observer\n- MITM\n- identity substitution\n- replay\n- downgrade\n- stolen device\n- rooted device\n- compromised contact\n- backup compromise\n- notification leakage\n- clipboard leakage\n- attachment threats\n- group membership threats\n- call signalling threats\n- metadata leakage\n\nFor every mitigation clearly distinguish:\n\nPLANNED\nIMPLEMENTED\nNOT IMPLEMENTED\n\nNever claim security functionality that does not yet exist.\n\n==================================================\n17. NO FAKE SECURITY\n==================================================\n\nThis rule is absolute.\n\nDo NOT create UI that says:\n\n"Encrypted"\n"Secure"\n"Verified"\n"Protected"\n\nunless the corresponding security state is actually established.\n\nIf a feature is not implemented, the UI must not falsely represent it as active.\n\n==================================================\n18. NO FAKE FEATURES\n==================================================\n\nDo not create fake:\n- messaging\n- calls\n- encryption\n- database\n- identity\n- community\n- groups\n- synchronization\n\nPlaceholder architecture is acceptable where necessary, but it must be explicitly marked as not implemented and must not pretend to be production functionality.\n\n==================================================\n19. PREPARE FOR PHASE 2\n==================================================\n\nAt the end of Phase 1, the project must be ready for:\n\nPHASE 2:\nComplete modern SecureChat X UI/UX redesign.\n\nPhase 2 will build the actual high-end intelligence-oriented interface including:\n\n- Home Command Center\n- modern chat interface\n- advanced message composer\n- contact identity interface\n- verification screens\n- device management\n- security center\n- advanced settings\n- community\n- groups\n- voice messages\n- call interfaces\n- video-call interfaces\n- media/file interfaces\n- animated interactions\n- responsive layouts\n- accessibility\n- dark-first visual system\n\nDo not implement the complete Phase 2 visual design yet.\n\n==================================================\n20. CODE QUALITY\n==================================================\n\nRequirements:\n\n- sound null safety\n- strict typing\n- no unnecessary dynamic\n- no giant classes\n- no giant files\n- no duplicated business logic\n- no hidden global mutable state\n- clear naming\n- documentation for security-sensitive interfaces\n- formatting\n- analyzer-clean code\n\n==================================================\n21. VALIDATION\n==================================================\n\nBefore finishing:\n\nRun:\n\ndart format .\nflutter analyze\nflutter test\n\nRun an Android debug build if possible.\n\nCheck:\n\n- application starts\n- routing works\n- no fatal startup errors\n- no obvious dependency conflicts\n- no security secrets in source\n- no legacy crypto accidentally imported into the new architecture\n- no plaintext logging\n- no cleartext network configuration\n\n==================================================\n22. FINAL REPORT\n==================================================\n\nWhen finished, provide a detailed report containing:\n\nA. Files created\nB. Files modified\nC. Files deleted\nD. Legacy components removed\nE. New architecture\nF. New application shell\nG. UI foundation\nH. Dependency changes\nI. Android changes\nJ. Security changes\nK. Tests created\nL. Commands executed\nM. Command results\nN. Remaining known issues\nO. Items intentionally deferred to Phase 2+\nP. Recommended Phase 2 implementation sequence\n\nDo NOT automatically start Phase 2.\n\nStop after Phase 1 and wait for review.\n\nThe goal is a real, clean, functioning foundation — not an empty folder structure and not a superficial refactor.PHASE 1 — SECURECHAT X 2.0 FULL FOUNDATION REBUILD\n\nThe Phase 0 audit has been completed and reviewed.\n\nWe are now starting the actual SecureChat X 2.0 rebuild.\n\nIMPORTANT:\nThe existing application is considered a legacy prototype and is NOT authoritative.\n\nYou are allowed and expected to:\n- rewrite files\n- delete obsolete files\n- split large files\n- replace the existing main.dart\n- replace broken architecture\n- remove obsolete code\n- introduce new architecture\n- modify Android configuration where required\n- modify dependencies where justified\n- create new files and directories\n\nI have a complete backup of the original repository, so preserving the current main.dart or legacy architecture is NOT a requirement.\n\nHowever, do NOT perform a careless mass rewrite.\nEvery change must serve the SecureChat X 2.0 specification.\n\nREAD FIRST:\n1. AGENTS.md\n2. docs/SECURECHAT\_X\_2.0\_MASTER\_SPECIFICATION.md\n3. docs/SECURECHAT\_X\_2.0\_IMPLEMENTATION\_ROADMAP.md\n4. The complete Phase 0 audit that you just produced\n\n==================================================\nPRIMARY OBJECTIVE\n==================================================\n\nTransform the current legacy Flutter application into the real architectural foundation of SecureChat X 2.0.\n\nThis is NOT a cosmetic refactor.\n\nThe result must be a functioning application foundation on which the real database, identity, cryptography, messaging, groups, community, media and calling systems can be built.\n\nDo not leave the project as a collection of empty folders or fake placeholder screens.\n\n==================================================\n1. REPLACE THE LEGACY MONOLITH\n==================================================\n\nThe current giant main.dart must no longer contain the application architecture.\n\nReplace it with a minimal application entry point.\n\nCreate a clean layered architecture approximately:\n\nlib/\n  app/\n    main\_bootstrap.dart\n    securechat\_app.dart\n    router.dart\n    app\_scope.dart\n    environment.dart\n\n  core/\n    crypto/\n    network/\n    security/\n    storage/\n    errors/\n    utils/\n\n  data/\n    database/\n    datasources/\n    models/\n    repositories/\n\n  domain/\n    entities/\n    repositories/\n    usecases/\n\n  features/\n    onboarding/\n    identity/\n    devices/\n    home/\n    messaging/\n    contacts/\n    groups/\n    community/\n    media/\n    calls/\n    security/\n    settings/\n\n  services/\n    websocket/\n    notifications/\n    background/\n    connectivity/\n\nAdjust this structure if the Phase 0 audit identifies a technically superior structure, but preserve the separation of responsibilities.\n\n==================================================\n2. BUILD A REAL APPLICATION SHELL\n==================================================\n\nCreate a functioning application shell.\n\nIt must include:\n\n- application bootstrap\n- environment/configuration loading\n- dependency composition\n- routing\n- navigation\n- lifecycle handling\n- connectivity state\n- global error boundary\n- theme system\n- localization foundation\n- accessibility foundation\n\nDo not create a fake application that only displays a static page.\n\nThe application must start successfully and navigate between the foundational areas.\n\n==================================================\n3. BUILD THE FOUNDATION OF THE NEW UI SYSTEM\n==================================================\n\nAlthough the complete UI redesign is Phase 2, Phase 1 must establish the design-system foundation.\n\nCreate semantic design tokens for:\n\n- colors\n- typography\n- spacing\n- radii\n- elevation\n- animation durations\n- motion curves\n- icons\n- security status indicators\n\nCreate reusable foundational components where appropriate:\n\n- SecureChat button\n- SecureChat icon button\n- SecureChat card\n- SecureChat text field\n- SecureChat dialog\n- SecureChat bottom sheet\n- loading state\n- error state\n- empty state\n- security status indicator\n\nThe visual system must be compatible with the final intelligence-oriented design described in the master specification.\n\nDo NOT fill the application with generic Material widgets styled randomly.\n\n==================================================\n4. BUILD THE NAVIGATION FOUNDATION\n==================================================\n\nCreate the navigation structure required for the final product.\n\nIt should be possible to navigate to foundational destinations such as:\n\n- Home\n- Chats\n- Contacts\n- Calls\n- Security\n- Settings\n\nThe screens may initially be architectural shells, but they must be real routed features with proper state/error/loading/empty boundaries.\n\nDo not implement the full final UI yet.\n\n==================================================\n5. BUILD REAL APPLICATION STATE BOUNDARIES\n==================================================\n\nEstablish a consistent state-management strategy.\n\nSeparate:\n\nUI\n→ presentation/state\n→ domain/use cases\n→ repositories\n→ data/services\n\nWidgets must not directly own:\n- database logic\n- cryptographic operations\n- WebSocket implementation\n- persistence\n- authentication\n- platform security operations\n\nDo not introduce unnecessary state-management complexity.\nUse one coherent approach throughout the project.\n\n==================================================\n6. BUILD TYPED ERROR HANDLING\n==================================================\n\nCreate a real failure/error hierarchy.\n\nAt minimum:\n\n- NetworkFailure\n- CryptoFailure\n- DatabaseFailure\n- ProtocolFailure\n- AuthenticationFailure\n- PermissionFailure\n- StorageFailure\n- ConfigurationFailure\n- ValidationFailure\n- SessionFailure\n- MediaFailure\n- CallFailure\n- UnknownFailure\n\nErrors must support safe user-facing messages and developer diagnostics.\n\nNever include:\n- private keys\n- session keys\n- recovery phrases\n- plaintext messages\n- authentication secrets\n\ninside error messages or logs.\n\n==================================================\n7. BUILD CONFIGURATION PROPERLY\n==================================================\n\nCreate an environment/configuration layer.\n\nIt must support future environments such as:\n\n- development\n- staging\n- production\n\nDo NOT hard-code server URLs, credentials, certificates or secrets into UI files.\n\nThe server will be redesigned later.\n\nFor now create the configuration architecture only.\n\n==================================================\n8. ESTABLISH SECURE STORAGE BOUNDARIES\n==================================================\n\nDo NOT implement the final cryptographic key-management system yet.\n\nHowever, establish the architecture/interfaces that the future implementation will use.\n\nSeparate:\n\n- ordinary application preferences\n- sensitive secrets\n- identity keys\n- session state\n- recovery material\n\nDo not store sensitive cryptographic material in ordinary SharedPreferences-like storage.\n\nDo not migrate the legacy application's cryptographic secrets.\n\nLegacy cryptographic/session state must be treated as untrusted legacy data.\n\n==================================================\n9. ESTABLISH DATABASE BOUNDARIES\n==================================================\n\nDo NOT blindly migrate the existing Hive/database implementation.\n\nCreate the new database abstraction/repository boundaries.\n\nDocument the database technology decision if it has not yet been finalized.\n\nPrepare:\n\n- entities\n- repositories\n- data sources\n- migration strategy\n- pagination interfaces\n- transaction boundaries\n\nDo not create a fake "encrypted database" claim.\n\nThe actual secure database implementation will be completed in the database phase.\n\n==================================================\n10. REMOVE BROKEN LEGACY ARCHITECTURE\n==================================================\n\nRemove obsolete or dangerous legacy components where they are no longer needed.\n\nExamples include:\n- dead code\n- duplicated services\n- UI widgets containing business logic\n- fake security implementations\n- broken crypto/session code\n- hard-coded network logic\n- obsolete storage wrappers\n- duplicated models\n- unused imports\n- obsolete dependencies\n\nDO NOT preserve broken cryptographic code merely because it already exists.\n\nDo not claim that old encryption is secure.\n\n==================================================\n11. CRYPTOGRAPHY RULE\n==================================================\n\nDO NOT implement the final SecureChat X cryptographic protocol during Phase 1.\n\nSpecifically do not implement:\n- final X3DH\n- final Double Ratchet\n- final group encryption\n- final key exchange\n- final recovery cryptography\n\nInstead:\n\nCreate clean interfaces and architecture boundaries for the future cryptographic subsystem.\n\nThe actual protocol will be selected, documented, implemented and tested in the dedicated cryptography phase.\n\nNEVER invent a proprietary cryptographic algorithm.\n\n==================================================\n12. NETWORK RULE\n==================================================\n\nDo NOT build the final server yet.\n\nDo NOT make the current broken server protocol the foundation of SecureChat X 2.0.\n\nCreate clean interfaces for:\n\n- transport\n- connection state\n- authentication\n- protocol messages\n- synchronization\n- signalling\n\nThe final protocol will be designed after the client architecture and security model are established.\n\n==================================================\n13. ANDROID FOUNDATION\n==================================================\n\nCorrect foundational Android problems identified during the audit.\n\nIn particular:\n\n- disable cleartext traffic by default\n- remove inappropriate legacy storage configuration where safe\n- correct namespace/application identity where appropriate\n- correct build configuration inconsistencies\n- do not use debug signing as a production release strategy\n- do not create fake release credentials\n- document remaining release signing requirements\n- preserve development build functionality\n\nDo not weaken security merely to make the build pass.\n\n==================================================\n14. DEPENDENCY REVIEW\n==================================================\n\nReview pubspec.yaml carefully.\n\nFor every important dependency determine:\n\n- why it exists\n- whether it is actually used\n- whether it is security-sensitive\n- whether it conflicts with another dependency\n- whether it should remain\n- whether it should be replaced later\n\nRemove clearly obsolete dependencies when safe.\n\nDo not add large numbers of packages without justification.\n\n==================================================\n15. TEST INFRASTRUCTURE\n==================================================\n\nCreate real testing infrastructure.\n\nAdd:\n\ntest/\nintegration\_test/\n\nCreate meaningful tests for:\n\n- application bootstrap\n- configuration validation\n- routing\n- error mapping\n- dependency boundaries\n- basic application lifecycle\n- critical security policy defaults\n\nDo NOT write meaningless tests that only prove that a function returns true.\n\nThe project must pass:\n\nflutter analyze\nflutter test\n\nand appropriate build validation if available.\n\n==================================================\n16. SECURITY DOCUMENTATION\n==================================================\n\nCreate or update:\n\ndocs/SECURECHAT\_X\_2.0\_THREAT\_MODEL.md\n\ndocs/SECURECHAT\_X\_2.0\_MIGRATION\_RISK\_REGISTER.md\n\ndocs/adr/\n\nDocument:\n\n- malicious server\n- network observer\n- MITM\n- identity substitution\n- replay\n- downgrade\n- stolen device\n- rooted device\n- compromised contact\n- backup compromise\n- notification leakage\n- clipboard leakage\n- attachment threats\n- group membership threats\n- call signalling threats\n- metadata leakage\n\nFor every mitigation clearly distinguish:\n\nPLANNED\nIMPLEMENTED\nNOT IMPLEMENTED\n\nNever claim security functionality that does not yet exist.\n\n==================================================\n17. NO FAKE SECURITY\n==================================================\n\nThis rule is absolute.\n\nDo NOT create UI that says:\n\n"Encrypted"\n"Secure"\n"Verified"\n"Protected"\n\nunless the corresponding security state is actually established.\n\nIf a feature is not implemented, the UI must not falsely represent it as active.\n\n==================================================\n18. NO FAKE FEATURES\n==================================================\n\nDo not create fake:\n- messaging\n- calls\n- encryption\n- database\n- identity\n- community\n- groups\n- synchronization\n\nPlaceholder architecture is acceptable where necessary, but it must be explicitly marked as not implemented and must not pretend to be production functionality.\n\n==================================================\n19. PREPARE FOR PHASE 2\n==================================================\n\nAt the end of Phase 1, the project must be ready for:\n\nPHASE 2:\nComplete modern SecureChat X UI/UX redesign.\n\nPhase 2 will build the actual high-end intelligence-oriented interface including:\n\n- Home Command Center\n- modern chat interface\n- advanced message composer\n- contact identity interface\n- verification screens\n- device management\n- security center\n- advanced settings\n- community\n- groups\n- voice messages\n- call interfaces\n- video-call interfaces\n- media/file interfaces\n- animated interactions\n- responsive layouts\n- accessibility\n- dark-first visual system\n\nDo not implement the complete Phase 2 visual design yet.\n\n==================================================\n20. CODE QUALITY\n==================================================\n\nRequirements:\n\n- sound null safety\n- strict typing\n- no unnecessary dynamic\n- no giant classes\n- no giant files\n- no duplicated business logic\n- no hidden global mutable state\n- clear naming\n- documentation for security-sensitive interfaces\n- formatting\n- analyzer-clean code\n\n==================================================\n21. VALIDATION\n==================================================\n\nBefore finishing:\n\nRun:\n\ndart format .\nflutter analyze\nflutter test\n\nRun an Android debug build if possible.\n\nCheck:\n\n- application starts\n- routing works\n- no fatal startup errors\n- no obvious dependency conflicts\n- no security secrets in source\n- no legacy crypto accidentally imported into the new architecture\n- no plaintext logging\n- no cleartext network configuration\n\n==================================================\n22. FINAL REPORT\n==================================================\n\nWhen finished, provide a detailed report containing:\n\nA. Files created\nB. Files modified\nC. Files deleted\nD. Legacy components removed\nE. New architecture\nF. New application shell\nG. UI foundation\nH. Dependency changes\nI. Android changes\nJ. Security changes\nK. Tests created\nL. Commands executed\nM. Command results\nN. Remaining known issues\nO. Items intentionally deferred to Phase 2+\nP. Recommended Phase 2 implementation sequence\n\nDo NOT automatically start Phase 2.\n\nStop after Phase 1 and wait for review.\n\nThe goal is a real, clean, functioning foundation — not an empty folder structure and not a superficial refactor.
+
+svgنسخ
+
+## Phase 1 Foundation Rebuild Report
+
+### Summary
+
+- Replaced the 10,773-line legacy **`main.dart`** monolith with a minimal bootstrap entry point and introduced an application bootstrap that resolves non-secret environment configuration, installs a safe global error UI, and composes the root application scope. svgsvg
+- Created the layered Phase 1 architecture under **`app`**, **`core`**, **`data`**, **`domain`**, **`features`**, and **`services`**, including explicit contracts for future crypto, storage, database transactions/pagination, repositories, transport, WebSocket, connectivity, and lifecycle work. These are interfaces only—no fake cryptographic, database, transport, or persistence implementation is claimed. svgsvgsvgsvg
+- Added typed failures for network, crypto, database, protocol, authentication, permission, storage, configuration, validation, session, media, call, and unknown errors, plus a presenter that maps unexpected errors to redacted user-safe text. svgsvg
+- Built a functional application shell with routed Home, Chats, Contacts, Calls, Security, and Settings destinations; a lifecycle service; stock localization delegates; and a dark-first semantic theme. Unimplemented product capabilities explicitly state that they are unavailable rather than claiming encryption, verification, messaging, or calling. svgsvg
+- Established UI-system tokens and reusable foundation components for color, spacing, radii, motion, icons, cards, buttons, text fields, dialogs, bottom sheets, loading/error/empty states, and truthful security-status indicators. svgsvg
+- Removed the legacy runtime dependency set—including unreviewed crypto, Hive, networking, WebRTC, media, and state/router packages—and retained only Flutter SDK dependencies required by the Phase 1 shell. The reasoning is documented in ADR 0002. svgsvg
+- Hardened the Android baseline: changed the namespace/application ID to **`com.securechatx.app`**, moved **`MainActivity`** to the matching package, disabled cleartext traffic, removed legacy external-storage and premature feature permissions, and removed debug signing from the release build type. svgsvg
+- Added Phase 1 threat-model, migration-risk, and architecture/dependency ADR documentation. These documents clearly distinguish **IMPLEMENTED**, **PLANNED**, and **NOT IMPLEMENTED** controls and explicitly defer protocol, identity, storage, and server guarantees. svgsvgsvg
+- Added unit/widget/integration test infrastructure covering environment validation, typed-error presentation, security defaults, application scope, lifecycle transitions, bounded pagination defaults, routed shell navigation, and application rendering. svgsvgsvgsvg
+- Deleted the legacy Android activity package file and the monolithic legacy application architecture. The legacy remote endpoint, certificate pin configuration, Hive usage, crypto code, WebSocket/WebRTC implementation, and feature logic are no longer imported into the executable client foundation.
+
+### Commit and Pull Request
+
+- Committed the complete Phase 1 foundation on the current **`work`** branch: **`7312b63 feat: establish SecureChat X 2.0 foundation`**.
+- Pull-request creation was attempted after committing, but this environment has no configured GitHub authentication or remote and does not expose the requested **`make_pr`** tool. The **`gh pr create`** command reported that **`gh auth login`** or **`GH_TOKEN`** is required; therefore no PR URL could be created.
+
+### Remaining Known Issues / Intentional Deferrals
+
+- **Deferred to Phase 2:** complete intelligence-oriented UI/UX, responsive layouts, richer motion, feature-specific presentation state, and accessibility refinement.
+- **Deferred to Phase 3+:** real secure-storage implementation, database technology selection/migrations, identity/device lifecycle, reviewed cryptographic protocol, session manager, messaging, sync, contacts/verification, groups, community, media, voice, calls, Security Center, settings, and the client/server protocol.
+- No screenshot was captured because the Flutter SDK is not installed in this environment, so the runnable application could not be launched.
+- Recommended Phase 2 sequence: finalize the design-token contract → responsive application shell/navigation refinements → command-center information architecture → feature shell layouts and accessible loading/empty/error states → reusable dialog/sheet/form patterns → motion and reduced-motion validation.
+
+**Testing**
+
+- ✅ **`git diff --check`**
+- ✅ **`! rg -n 'usesCleartextTraffic="true"|requestLegacyExternalStorage|ngrok-free|pinnedCertSha256|wsUrl|apiBaseUrl' android lib pubspec.yaml`**
+- ✅ **`! rg -n 'print\\s*\\(|debugPrint\\s*\\(' lib`**
+- ⚠️ **`dart format .`** — could not run because **`dart`** is not installed in the environment.
+- ⚠️ **`flutter analyze`** — could not run because **`flutter`** is not installed in the environment.
+- ⚠️ **`flutter test`** — could not run because **`flutter`** is not installed in the environment.
+- ⚠️ **`flutter build apk --debug`** — could not run because **`flutter`** is not installed in the environment.
+- ⚠️ **`gh pr create --title "Phase 1: establish SecureChat X 2.0 foundation" ...`** — blocked because GitHub CLI authentication/**`GH_TOKEN`** is unavailable.
+
+**ملفًا (48)**
+
+svg
+
+Review and correct the existing Phase 1 PR before merge.\n\nDo NOT start Phase 2.\nDo NOT implement database, identity, cryptography, messaging, WebSocket, groups, media, or calls.\n\nInspect the current Phase 1 implementation and fix only issues that make the foundation unsafe, incorrect, misleading, or architecturally unsound.\n\nCritical issue already identified:\nlib/app/main\_bootstrap.dart currently suppresses all Flutter and zone errors:\n\nFlutterError.onError = (\_) {};\nrunZonedGuarded(..., (\_, \_\_) {});\n\nThis must NOT silently discard errors.\n\nReplace this with a safe, redacted error-reporting boundary appropriate for a development/production foundation:\n- development must remain debuggable\n- production must not expose secrets or plaintext\n- no private keys, recovery phrases, session keys, plaintext messages, or decrypted media may be logged\n- errors must remain observable through a typed/redacted diagnostics boundary\n- do not invent a fake telemetry system\n\nAlso review:\n1. bootstrap failure handling\n2. AppScope/dependency composition\n3. routing\n4. configuration validation\n5. security defaults\n6. Android package/namespace/applicationId consistency\n7. MainActivity path and manifest consistency\n8. dependency declarations\n9. test correctness\n10. integration-test correctness\n11. documentation accuracy\n12. any compile-time/API issues you can identify statically\n\nImportant:\nFlutter/Dart are unavailable in the current Codex environment, so do not claim that analyze/test/build passed.\n\nDo not add fake test results.\n\nMake the required corrections directly in the PR branch.\n\nAfter the corrections:\n- inspect the final diff\n- report every file changed\n- report what was fixed and why\n- report anything that still cannot be validated because Flutter/Dart are unavailable\n\nDo not merge the PR.\nStop after updating the PR branch.
+
+svgنسخ
+
+## Phase 1 PR Correction Complete
+
+Updated the existing PR branch with commit:
+
+- **`1b70617 fix: add redacted bootstrap diagnostics`**
+
+The PR was **not merged** and no Phase 2 work was started.
+
+### What Was Fixed
+
+- Replaced the silent **`FlutterError.onError = (_) {};`** and empty zone-error handler with a real redacted diagnostics boundary. Framework errors and uncaught zone errors are now recorded instead of discarded. svg
+- Added bootstrap configuration-failure handling: invalid environment/configuration is recorded with a typed redacted diagnostic code and renders a safe configuration-failure screen rather than continuing into an undefined startup state. svgsvg
+- Added environment-aware diagnostics behavior:
+  - **Development:** emits only an allow-listed diagnostic code, runtime type, and stack trace for debugging.
+  - **Staging/production:** retains diagnostics in a bounded in-process reporter without logging raw errors or creating telemetry.
+  - Exception messages, **`AppFailure.diagnosticDetail`**, and arbitrary diagnostic codes are never emitted by this boundary. svgsvgsvg
+- Added an explicit **`DiagnosticsReporter`** dependency to **`AppScope`**, so the diagnostics boundary is available through the application composition scope rather than existing as hidden global behavior. svg
+- Added typed diagnostic-code mapping for all existing Phase 1 failure categories. This preserves observability without forwarding potentially unsafe failure detail strings. svg
+- Corrected the integration-test setup to use **`integration_test`** and initialize **`IntegrationTestWidgetsFlutterBinding`**; added the required Flutter SDK dependency declaration. svgsvg
+- Updated tests for the new required **`AppScope.diagnostics`** dependency and added diagnostics tests proving that failure detail and unapproved diagnostic codes are redacted. svgsvg
+- Corrected security documentation and the Phase 1 architecture ADR to accurately describe the new bounded redacted diagnostics boundary and to continue distinguishing it from telemetry. svgsvg
+
+## Every File Changed in This Correction
+
+1. **`docs/SECURECHAT_X_2.0_THREAT_MODEL.md`**
+2. **`docs/adr/0001-phase-1-foundation-boundaries.md`**
+3. **`integration_test/app_launch_test.dart`**
+4. **`lib/app/app_scope.dart`**
+5. **`lib/app/main_bootstrap.dart`**
+6. **`lib/core/errors/diagnostics.dart`** *(new)*
+7. **`pubspec.yaml`**
+8. **`test/app_scope_test.dart`**
+9. **`test/diagnostics_test.dart`** *(new)*
+
+## Review Findings Addressed
+
+- **Bootstrap failure handling:** configuration failures are now caught, redacted, observable through the reporter, and displayed safely. svg
+- **Error observability:** framework and zone errors are no longer silently discarded. svg
+- **Redaction safety:** diagnostics retain only an allow-listed code, error runtime type, timestamp, and optional stack trace; no exception message, user-facing content, private material, or **`diagnosticDetail`** is stored. svgsvgsvg
+- **Dependency composition:** **`AppScope`** now explicitly composes environment and diagnostics dependencies. svg
+- **Integration test correctness:** the test now uses the appropriate integration-test binding and dependency. svgsvg
+- **Android identity consistency:** rechecked namespace, application ID, manifest package, and Kotlin package; all remain **`com.securechatx.app`**. Cleartext traffic remains disabled. svgsvgsvg
+
+## Validation Performed
+
+- ✅ **`git diff --check`**
+- ✅ **`rg -n 'FlutterError\\.onError|runZonedGuarded|DiagnosticsReporter|debugPrint' lib/app/main_bootstrap.dart lib/core/errors/diagnostics.dart`**
+- ✅ **`! rg -n 'FlutterError\\.onError\\s*=\\s*\\(_\\)\\s*=>\\s*\\{\\}|runZonedGuarded\\([\\s\\S]*\\(_, __\\)\\s*\\{\\}' lib/app`**
+- ✅ **`rg -n 'com\\.securechatx\\.app|usesCleartextTraffic' android/app/build.gradle android/app/src/main/AndroidManifest.xml android/app/src/main/kotlin/com/securechatx/app/MainActivity.kt`**
+- ✅ **`git diff --cached --check`**
+
+## Still Not Validated in This Environment
+
+The environment still does not provide Flutter or Dart, so I did **not** claim the following passed:
+
+- ⚠️ **`dart format .`** — not run; **`dart`** is unavailable.
+- ⚠️ **`flutter analyze`** — not run; **`flutter`** is unavailable.
+- ⚠️ **`flutter test`** — not run; **`flutter`** is unavailable.
+- ⚠️ **`flutter test integration_test/app_launch_test.dart`** — not run; **`flutter`** is unavailable.
+- ⚠️ **`flutter build apk --debug`** — not run; **`flutter`** is unavailable.
+
+The corrected branch is ready for those checks in a Flutter-enabled CI or developer environment.
+
+**ملفًا (50)**
+
+svg
+
+- **README.md**README.md
+
+  **+28-1**
+- **build.gradle**android/app/build.gradle
+
+  **+5-8**
+- **AndroidManifest.xml**android/app/src/main/AndroidManifest.xml
+
+  **+3-23**
+- **MainActivity.kt**android/app/src/main/kotlin/com/example/securechat\_x/MainActivity.kt
+
+  تم الحذف
+- **MainActivity.kt**android/app/src/main/kotlin/com/securechatx/app/MainActivity.kt
+
+  جديد
+- **SECURECHAT\_X\_2.0\_MIGRATION\_RISK\_REGISTER.md**
+
+  جديد
+- **SECURECHAT\_X\_2.0\_THREAT\_MODEL.md**
+
+  جديد
+- **0001-phase-1-foundation-boundaries.md**
+
+  جديد
+- **0002-dependency-baseline.md**docs/adr/0002-dependency-baseline.md
+
+  جديد
+- **app\_launch\_test.dart**integration\_test/app\_launch\_test.dart
+
+  جديد
+- **app\_dependencies.dart**lib/app/app\_dependencies.dart
+
+  جديد
+- **app\_scope.dart**lib/app/app\_scope.dart
+
+  جديد
+- **environment.dart**lib/app/environment.dart
+
+  جديد
+- **main\_bootstrap.dart**lib/app/main\_bootstrap.dart
+
+  جديد
+- **router.dart**lib/app/router.dart
+
+  جديد
+- **securechat\_app.dart**lib/app/securechat\_app.dart
+
+  جديد
+- **crypto\_engine.dart**lib/core/crypto/crypto\_engine.dart
+
+  جديد
+- **app\_failure.dart**lib/core/errors/app\_failure.dart
+
+  جديد
+- **diagnostics.dart**lib/core/errors/diagnostics.dart
+
+  جديد
+- **failure\_presenter.dart**lib/core/errors/failure\_presenter.dart
+
+  جديد
+- **transport.dart**lib/core/network/transport.dart
+
+  جديد
+- **security\_policy.dart**lib/core/security/security\_policy.dart
+
+  جديد
+- **storage\_boundaries.dart**lib/core/storage/storage\_boundaries.dart
+
+  جديد
+- **database.dart**lib/data/database/database.dart
+
+  جديد
+- **README.md**lib/data/datasources/README.md
+
+  جديد
+- **README.md**lib/data/models/README.md
+
+  جديد
+- **README.md**lib/data/repositories/README.md
+
+  جديد
+- **foundation\_destination.dart**lib/domain/entities/foundation\_destination.dart
+
+  جديد
+- **app\_status\_repository.dart**lib/domain/repositories/app\_status\_repository.dart
+
+  جديد
+- **README.md**lib/domain/usecases/README.md
+
+  جديد
+- **README.md**lib/features/README.md
+
+  جديد
+- **design\_tokens.dart**lib/features/design\_system/design\_tokens.dart
+
+  جديد
+- **foundation\_widgets.dart**lib/features/design\_system/foundation\_widgets.dart
+
+  جديد
+- **foundation\_screen.dart**lib/features/foundation/foundation\_screen.dart
+
+  جديد
+- **main.dart**lib/main.dart
+
+  **+2-10772**
+- **README.md**lib/services/background/README.md
+
+  جديد
+- **lifecycle\_service.dart**lib/services/background/lifecycle\_service.dart
+
+  جديد
+- **connectivity\_service.dart**lib/services/connectivity/connectivity\_service.dart
+
+  جديد
+- **README.md**lib/services/notifications/README.md
+
+  جديد
+- **websocket\_service.dart**lib/services/websocket/websocket\_service.dart
+
+  جديد
+- **pubspec.yaml**pubspec.yaml
+
+  **+3-41**
+- **app\_scope\_test.dart**test/app\_scope\_test.dart
+
+  جديد
+- **app\_shell\_test.dart**test/app\_shell\_test.dart
+
+  جديد
+- **database\_boundary\_test.dart**test/database\_boundary\_test.dart
+
+  جديد
+- **diagnostics\_test.dart**test/diagnostics\_test.dart
+
+  جديد
+- **environment\_test.dart**test/environment\_test.dart
+
+  جديد
+- **error\_failure\_test.dart**test/error\_failure\_test.dart
+
+  جديد
+- **failure\_presenter\_test.dart**test/failure\_presenter\_test.dart
+
+  جديد
+- **lifecycle\_service\_test.dart**test/lifecycle\_service\_test.dart
+
+  جديد
+- **security\_policy\_test.dart**test/security\_policy\_test.dart
+
+  جديد
+
+**svgsvg**
+
+svg
+
+**الاختلافاتسجلات**
+
+**svg**
+
+**svg**
+
+**README.mdREADME.md**
+
+**svg**
+
+**+28-1**
+
+**svg**
+
+**svg**
+
+**android/app/build.gradleandroid/app/build.gradle**
+
+**svg**
+
+**+5-8**
+
+**svg**
+
+**svg**
+
+**android/app/src/main/AndroidManifest.xmlandroid/app/src/main/AndroidManifest.xml**
+
+**svg**
+
+**+3-23**
+
+**svg**
+
+**svg**
+
+**android/app/src/main/kotlin/com/example/securechat\_x/MainActivity.kt…oid/app/src/main/kotlin/com/example/securechat\_x/MainActivity.kt**
+
+**تم الحذف**
+
+**svg**
+
+**+0-12**
+
+**svg**
+
+**svg**
+
+**android/app/src/main/kotlin/com/securechatx/app/MainActivity.ktandroid/app/src/main/kotlin/com/securechatx/app/MainActivity.kt**
+
+**جديد**
+
+**svg**
+
+**+5-0**
+
+**svg**
+
+**svg**
+
+**docs/SECURECHAT\_X\_2.0\_MIGRATION\_RISK\_REGISTER.mddocs/SECURECHAT\_X\_2.0\_MIGRATION\_RISK\_REGISTER.md**
+
+**جديد**
+
+**svg**
+
+**+11-0**
+
+**svg**
+
+**svg**
+
+**docs/SECURECHAT\_X\_2.0\_THREAT\_MODEL.mddocs/SECURECHAT\_X\_2.0\_THREAT\_MODEL.md**
+
+**جديد**
+
+**svg**
+
+**+24-0**
+
+**svg**
+
+**svg**
+
+**docs/adr/0001-phase-1-foundation-boundaries.mddocs/adr/0001-phase-1-foundation-boundaries.md**
+
+**جديد**
+
+**svg**
+
+**+15-0**
+
+**svg**
+
+**svg**
+
+**docs/adr/0002-dependency-baseline.mddocs/adr/0002-dependency-baseline.md**
+
+**جديد**
+
+**svg**
+
+**+13-0**
+
+**svg**
+
+**svg**
+
+**integration\_test/app\_launch\_test.dartintegration\_test/app\_launch\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+11-0**
+
+**svg**
+
+**svg**
+
+**lib/app/app\_dependencies.dartlib/app/app\_dependencies.dart**
+
+**جديد**
+
+**svg**
+
+**+18-0**
+
+**svg**
+
+**svg**
+
+**lib/app/app\_scope.dartlib/app/app\_scope.dart**
+
+**جديد**
+
+**svg**
+
+**+22-0**
+
+**svg**
+
+**svg**
+
+**lib/app/environment.dartlib/app/environment.dart**
+
+**جديد**
+
+**svg**
+
+**+36-0**
+
+**svg**
+
+**svg**
+
+**lib/app/main\_bootstrap.dartlib/app/main\_bootstrap.dart**
+
+**جديد**
+
+**svg**
+
+**+92-0**
+
+**svg**
+
+**svg**
+
+**lib/app/router.dartlib/app/router.dart**
+
+**جديد**
+
+**svg**
+
+**+33-0**
+
+**svg**
+
+**svg**
+
+**lib/app/securechat\_app.dartlib/app/securechat\_app.dart**
+
+**جديد**
+
+**svg**
+
+**+25-0**
+
+**svg**
+
+**svg**
+
+**lib/core/crypto/crypto\_engine.dartlib/core/crypto/crypto\_engine.dart**
+
+**جديد**
+
+**svg**
+
+**+4-0**
+
+**svg**
+
+**svg**
+
+**lib/core/errors/app\_failure.dartlib/core/errors/app\_failure.dart**
+
+**جديد**
+
+**svg**
+
+**+22-0**
+
+**svg**
+
+**svg**
+
+**lib/core/errors/diagnostics.dartlib/core/errors/diagnostics.dart**
+
+**جديد**
+
+**svg**
+
+**+112-0**
+
+**svg**
+
+**svg**
+
+**lib/core/errors/failure\_presenter.dartlib/core/errors/failure\_presenter.dart**
+
+**جديد**
+
+**svg**
+
+**+11-0**
+
+**svg**
+
+**svg**
+
+**lib/core/network/transport.dartlib/core/network/transport.dart**
+
+**جديد**
+
+**svg**
+
+**+7-0**
+
+**svg**
+
+**svg**
+
+**lib/core/security/security\_policy.dartlib/core/security/security\_policy.dart**
+
+**جديد**
+
+**svg**
+
+**+8-0**
+
+**svg**
+
+**svg**
+
+**lib/core/storage/storage\_boundaries.dartlib/core/storage/storage\_boundaries.dart**
+
+**جديد**
+
+**svg**
+
+**+15-0**
+
+**svg**
+
+**svg**
+
+**lib/data/database/database.dartlib/data/database/database.dart**
+
+**جديد**
+
+**svg**
+
+**+17-0**
+
+**svg**
+
+**svg**
+
+**lib/data/datasources/README.mdlib/data/datasources/README.md**
+
+**جديد**
+
+**svg**
+
+**+3-0**
+
+**svg**
+
+**svg**
+
+**lib/data/models/README.mdlib/data/models/README.md**
+
+**جديد**
+
+**svg**
+
+**+3-0**
+
+**svg**
+
+**svg**
+
+**lib/data/repositories/README.mdlib/data/repositories/README.md**
+
+**جديد**
+
+**svg**
+
+**+3-0**
+
+**svg**
+
+**svg**
+
+**lib/domain/entities/foundation\_destination.dartlib/domain/entities/foundation\_destination.dart**
+
+**جديد**
+
+**svg**
+
+**+1-0**
+
+**svg**
+
+**svg**
+
+**lib/domain/repositories/app\_status\_repository.dartlib/domain/repositories/app\_status\_repository.dart**
+
+**جديد**
+
+**svg**
+
+**+6-0**
+
+**svg**
+
+**svg**
+
+**lib/domain/usecases/README.mdlib/domain/usecases/README.md**
+
+**جديد**
+
+**svg**
+
+**+3-0**
+
+**svg**
+
+**svg**
+
+**lib/features/README.mdlib/features/README.md**
+
+**جديد**
+
+**svg**
+
+**+3-0**
+
+**svg**
+
+**svg**
+
+**lib/features/design\_system/design\_tokens.dartlib/features/design\_system/design\_tokens.dart**
+
+**جديد**
+
+**svg**
+
+**+59-0**
+
+**svg**
+
+**svg**
+
+**lib/features/design\_system/foundation\_widgets.dartlib/features/design\_system/foundation\_widgets.dart**
+
+**جديد**
+
+**svg**
+
+**+45-0**
+
+**svg**
+
+**svg**
+
+**lib/features/foundation/foundation\_screen.dartlib/features/foundation/foundation\_screen.dart**
+
+**جديد**
+
+**svg**
+
+**+38-0**
+
+**svg**
+
+**svg**
+
+**lib/main.dartlib/main.dart**
+
+**svg**
+
+**+2-10772**
+
+**svg**
+
+**svg**
+
+**lib/services/background/README.mdlib/services/background/README.md**
+
+**جديد**
+
+**svg**
+
+**+3-0**
+
+**svg**
+
+**svg**
+
+**lib/services/background/lifecycle\_service.dartlib/services/background/lifecycle\_service.dart**
+
+**جديد**
+
+**svg**
+
+**+13-0**
+
+**svg**
+
+**svg**
+
+**lib/services/connectivity/connectivity\_service.dartlib/services/connectivity/connectivity\_service.dart**
+
+**جديد**
+
+**svg**
+
+**+3-0**
+
+**svg**
+
+**svg**
+
+**lib/services/notifications/README.mdlib/services/notifications/README.md**
+
+**جديد**
+
+**svg**
+
+**+3-0**
+
+**svg**
+
+**اختلافات كبيرة**3 أسطر
+
+**تحميل الاختلافات**
+
+**svg**
+
+**lib/services/websocket/websocket\_service.dartlib/services/websocket/websocket\_service.dart**
+
+**جديد**
+
+**svg**
+
+**+3-0**
+
+**svg**
+
+**اختلافات كبيرة**3 أسطر
+
+**تحميل الاختلافات**
+
+**svg**
+
+**pubspec.yamlpubspec.yaml**
+
+**svg**
+
+**+3-41**
+
+**svg**
+
+**اختلافات كبيرة**66 أسطر
+
+**تحميل الاختلافات**
+
+**svg**
+
+**test/app\_scope\_test.darttest/app\_scope\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+20-0**
+
+**svg**
+
+**اختلافات كبيرة**20 أسطر
+
+**تحميل الاختلافات**
+
+**svg**
+
+**test/app\_shell\_test.darttest/app\_shell\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+13-0**
+
+**svg**
+
+**اختلافات كبيرة**13 أسطر
+
+**تحميل الاختلافات**
+
+**svg**
+
+**test/database\_boundary\_test.darttest/database\_boundary\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+10-0**
+
+**svg**
+
+**اختلافات كبيرة**10 أسطر
+
+**تحميل الاختلافات**
+
+**svg**
+
+**test/diagnostics\_test.darttest/diagnostics\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+33-0**
+
+**svg**
+
+**اختلافات كبيرة**33 أسطر
+
+**تحميل الاختلافات**
+
+**svg**
+
+**test/environment\_test.darttest/environment\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+22-0**
+
+**svg**
+
+**اختلافات كبيرة**22 أسطر
+
+**تحميل الاختلافات**
+
+**svg**
+
+**test/error\_failure\_test.darttest/error\_failure\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+14-0**
+
+**svg**
+
+**svg**
+
+**test/failure\_presenter\_test.darttest/failure\_presenter\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+18-0**
+
+**svg**
+
+**svg**
+
+**test/lifecycle\_service\_test.darttest/lifecycle\_service\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+16-0**
+
+**svg**
+
+**svg**
+
+**test/security\_policy\_test.darttest/security\_policy\_test.dart**
+
+**جديد**
+
+**svg**
+
+**+11-0**
+
+**svg**
+
+
+
+
+
+الآن أصبحت الصورة أوضح، وراجعت أيضًا الفرع نفسه في GitHub بعد نتيجة Codex الأخيرة.
+
+**لا تضغط Merge حتى الآن.**
+
+هناك تناقض مهم جدًا في نتيجة Codex التي أرسلتها: Codex يقول إنه أنشأ commit جديدًا `1b70617` وصحح المشكلة، لكن الفرع الموجود فعليًا على GitHub ما زال يعرض `main_bootstrap.dart` القديم الذي يحتوي على:
+
+```dart
+FlutterError.onError = (_) {};
+```
+
+و:
+
+```dart
+(_, __) {}
+```
+
+كما أن ملف `diagnostics.dart` الذي قال Codex إنه أنشأه غير موجود على فرع GitHub عند فحصه.
+
+إذن **الإصلاح موجود في بيئة Codex، لكنه لم يصل فعليًا إلى فرع GitHub/PR**. وهذا يتفق مع مشكلة Codex التي ظهرت سابقًا عنده: بيئة العمل تستطيع إنشاء commit محليًا، لكن عملية `git push`/GitHub CLI قد لا تكون متاحة لها. توجد تقارير حديثة عن نفس الفصل بين وصول Codex للمستودع وبين صلاحية Git داخل بيئة Cloud. ([OpenAI Developer Community][1])
+
+### ماذا تفعل الآن؟
+
+في مهمة Codex التي أرسلت إليها آخر رسالة، لديك غالبًا زر:
+
+**«تحديث الفرع»**
+
+اضغط **«تحديث الفرع»**، وليس Merge.
+
+الهدف من هذا الزر هو أن تجعل نتيجة مهمة Codex الحالية تُحدّث فرع الـ PR، بدل أن تبقى فقط داخل بيئة المهمة.
+
+بعد الضغط، انتظر حتى يظهر أن الفرع تم تحديثه، ثم افتح PR #1 مرة أخرى.
+
+### بعدها افحص شيئًا واحدًا
+
+افتح:
+
+**Files changed**
+
+ويجب أن ترى ضمن التغييرات الجديدة:
+
+```text
+lib/core/errors/diagnostics.dart
+```
+
+ويجب أن يتغير:
+
+```text
+lib/app/main_bootstrap.dart
+```
+
+بحيث لا يحتوي على handlers فارغة تسكت الأخطاء.
+
+إذا ظهر هذا، فحينها أصبح الإصلاح فعليًا داخل PR.
+
+### وإذا ضغطت «تحديث الفرع» ولم يحدث شيء؟
+
+لا تفعل أي شيء آخر ولا تدمج.
+
+أرسل لي فقط ما ظهر بعد الضغط، وسأحدد لك المسار التالي.
+
+وأيضًا، **عدد التغييرات `+888 -10857` ليس سببًا للقلق بحد ذاته**؛ حذف الـ `main.dart` القديم الذي كان 10,773 سطرًا جزء متعمد من إعادة البناء. المهم الآن أن النسخة الجديدة وصلت فعلًا إلى GitHub وأنها متماسكة.
+
+وبعد التأكد من وصول commit `1b70617` إلى PR، سأراجع **Phase 1 بالكامل مرة أخرى** قبل أن نعطي Codex الإذن بالانتقال إلى Phase 2.
+
+[1]: https://community.openai.com/t/codex-cloud-task-completed-successfully-but-no-diff-create-pr-download-handoff-is-available/1391037?utm_source=chatgpt.com "Codex Cloud task completed successfully, but no diff / Create PR / download handoff is available - Bugs - OpenAI Developer Community"
+
+
+
+
+حسنا لقد قمت بالضغط على تحديث الفرع الان ماذا اعمل هل تستطيع الوصول الى PR   Files changed   ومعرفه التغييرات 
+
+
+
+
+
+
+نعم، أستطيع الوصول إلى **PR #1 → Files changed** ومراجعة التغييرات مباشرة من GitHub، وهذا ما فعلته الآن بعد ضغطك على **تحديث الفرع**.
+
+والأهم: **التحديث وصل فعلًا إلى الـ PR الآن.**
+
+حالة PR الحالية:
+
+* مفتوح ولم يُدمج.
+* `mergeable = true`.
+* أصبح يحتوي على **2 commits** بدل 1.
+* أصبح **50 ملفًا** متغيرًا.
+* `+888 / -10857`.
+* رأس الفرع الآن هو `3290a5dd...`.
+
+وهذا يعني أن الإصلاح الذي طلبناه **وصل إلى فرع الـ PR** بالفعل.
+
+### والأفضل: أستطيع رؤية التغيير الذي كنا ننتظره
+
+`lib/core/errors/diagnostics.dart` موجود الآن في الـ PR، ويحتوي على `DiagnosticsReporter` وذاكرة تشخيص محدودة مع redaction.
+
+وكذلك `main_bootstrap.dart` لم يعد يحتوي على handlers فارغة؛ أصبح يسجل الأخطاء عبر `DiagnosticsReporter` ويعرض شاشة فشل آمنة عند فشل التهيئة.
+
+لكن أثناء مراجعتي وجدت **مشكلة جديدة مهمة** لا أريد تجاهلها:
+
+في `diagnostics.dart` أضاف Codex في بيئة التطوير:
+
+```dart
+debugPrint(...)
+debugPrintStack(...)
+```
+
+بينما تقريره يقول إنه فحص `lib` بحثًا عن `print`/`debugPrint` ولم يجدها. هذا غير صحيح لأن الكود الجديد يحتوي عليها فعلًا.
+
+هذا ليس بالضرورة ثغرة بحد ذاته، لأن ما يُطبع هو code/type/stack وليس أسرارًا، لكن **التقرير غير دقيق، ونحتاج أن تكون سياسة التشخيص مكتوبة ومختبرة بوضوح قبل الدمج**.
+
+لذلك **لا ندمج PR بعد**.
+
+الخطوة التالية الصحيحة هي أن أقوم الآن بمراجعة ملفات الـ PR المهمة كاملة، خصوصًا:
+
+`main.dart`، bootstrap، diagnostics، AppScope، router، environment، design system، storage/database contracts، Android configuration، `pubspec.yaml`، والاختبارات؛ ثم أحدد لك بالضبط هل Phase 1 جاهزة للدمج أم تحتاج تصحيحًا آخر.
+
+
+
+حسنا الان قم بالمراجعه بشكل كامل وعميق وسرديه كبيره في التفكير وقرائة الملفات والاكواد والاخطاء هيا نريد ان نتقدم الى الامام 
+
+
+
+
+
+
+نعم. راجعت الـPR الحالي نفسه ومررت على الملفات المضافة والمعدلة الأساسية، وليس مجرد وصف Codex. النتيجة: **Phase 1 تحسنت بوضوح، لكنها ليست جاهزة للدمج بعد**. هناك أخطاء يمكن أن تمنع البناء، ونقاط معمارية يجب تصحيحها الآن قبل أن ننتقل إلى Phase 2.
+
+## الحكم النهائي
+
+الوضع الحالي:
+
+```text
+Phase 0  ✅ مكتملة
+Phase 1  🟡 جيدة من حيث الاتجاه، غير جاهزة للـ Merge
+Phase 2  ⛔ لا نبدأها بعد
+```
+
+الـPR نفسه ما زال مفتوحًا، غير مدمج، والفرع محدث إلى commit `3290a5d...` ويحتوي 50 ملفًا.
+
+### أولًا: ما الذي أنجزه Codex بشكل صحيح؟
+
+إعادة البناء الأساسية صحيحة في اتجاهها.
+
+تم التخلص من `main.dart` القديم الضخم، وإقامة طبقات `app/core/data/domain/features/services`، وإبعاد crypto/database/network القديم عن التنفيذ الجديد. كما أزيلت مكتبات كثيرة من `pubspec.yaml` بدل إبقاء الـprototype القديم مختبئًا داخل المشروع.
+
+Android أيضًا تحسن في نقاط مهمة: تم توحيد `namespace/applicationId` إلى `com.securechatx.app`، نقل `MainActivity` إلى الحزمة المطابقة، وتعطيل cleartext traffic، وإزالة debug signing من release.
+
+كذلك أصبح هناك Threat Model وMigration Risk Register وADR للـarchitecture والـdependencies، وهذا جيد جدًا لأنه يمنعنا من اختراع قرارات أثناء المراحل القادمة.
+
+ومن ناحية الأمان، أصبح واضحًا في الوثائق أن E2EE والهوية والـdatabase والمراسلة **غير منفذة بعد**، بدل الادعاء الكاذب بأنها جاهزة. هذا يتفق تمامًا مع ما اتفقنا عليه.
+
+---
+
+# لكن لدينا مشكلات حقيقية الآن
+
+## 1. هناك خطأ compile محتمل واضح في الـNavigation
+
+في:
+
+`lib/features/foundation/foundation_screen.dart`
+
+يوجد:
+
+```dart
+Navigator.of(context).pushReplacementNamed(
+  AppRouter.paths[FoundationDestination.values[index]]
+);
+```
+
+لكن:
+
+```dart
+AppRouter.paths[...]
+```
+
+ترجع `String?` لأن `Map` قد لا تحتوي المفتاح.
+
+بينما `pushReplacementNamed` يحتاج `String`.
+
+إذن هذا مرشح قوي جدًا لخطأ null-safety في `flutter analyze`.
+
+والحل ليس مجرد وضع `!` عشوائيًا؛ الأفضل أن يكون لدينا route map مضمونة أو دالة `pathFor()` تعيد `String` غير nullable مع invariant واضح.
+
+وهذه نقطة مهمة لأن Codex **لم يستطع تشغيل `flutter analyze` أصلًا**. تقريره نفسه يقول إن Flutter/Dart غير موجودين في البيئة.
+
+---
+
+# 2. الـAppScope ليس Composition Root فعليًا بعد
+
+لدينا:
+
+```dart
+AppDependencies
+```
+
+وفيه:
+
+```dart
+PreferencesStore
+SecretStore
+Database
+Transport
+```
+
+لكن `AppScope` نفسه يحتوي فقط:
+
+```dart
+AppEnvironment
+DiagnosticsReporter
+```
+
+وليس `AppDependencies`.
+
+إذًا التقرير يقول إن هناك "dependency composition"، لكن فعليًا **الـdependency graph غير مركب بعد**.
+
+هذا ليس كارثيًا في Phase 1، لكنه يجب إصلاحه قبل أن نبني Phase 2+؛ وإلا سنبدأ لاحقًا بحقن كل خدمة بطريقة مختلفة.
+
+القرار الصحيح:
+
+```text
+AppScope
+ ├── Environment
+ ├── Diagnostics
+ └── AppDependencies
+      ├── Preferences
+      ├── SecretStore
+      ├── Database
+      ├── Transport
+      └── ...
+```
+
+ثم كل Feature تتلقى احتياجاتها من هذه الحدود، وليس إنشاء الخدمات داخل الـwidgets.
+
+`AppDependencies` موجود حاليًا ولكنه غير مستخدم فعليًا.
+
+---
+
+# 3. `SecureChatApp` ما زال ينشئ خدمة مباشرة
+
+في:
+
+```dart
+final LifecycleService _lifecycle = LifecycleService();
+```
+
+داخل الـwidget نفسه.
+
+هذا يخالف جزئيًا القاعدة التي وضعناها:
+
+```text
+UI
+↓
+presentation
+↓
+domain
+↓
+services
+```
+
+الخدمة هنا ما زالت مملوكة مباشرة للـwidget.
+
+الأصح لاحقًا أن تأتي من composition root.
+
+مرة أخرى: ليست مشكلة أمنية حرجة الآن، لكنها **ديْن معماري**، وإذا تركناه سيتكرر في كل الخدمات القادمة.
+
+---
+
+# 4. التوطين حاليًا غير جاهز للمتطلبات التي اتفقنا عليها
+
+`SecureChatApp` يعلن:
+
+```dart
+supportedLocales: const [Locale('en')]
+```
+
+فقط.
+
+هذا يتعارض مع الرؤية التي اتفقنا عليها للتطبيق، والتي تشمل دعم العربية والإنجليزية من أساس الـUI.
+
+كما أن كل النصوص الحالية تقريبًا hard-coded باللغة الإنجليزية.
+
+هذا يمكن تأجيل تفاصيله إلى Phase 2، لكن **ينبغي أن تكون البنية localization-ready الآن** بدل بناء شاشات كاملة لاحقًا ثم إعادة استخراج عشرات النصوص.
+
+---
+
+# 5. الـDesign System ما زال Foundation بسيطًا جدًا
+
+هذا مقبول من حيث المرحلة، لكنه مهم أن نكون واضحين:
+
+الموجود حاليًا:
+
+* Colors.
+* Spacing.
+* Radii.
+* Motion.
+* Icons.
+* Theme.
+* بعض widgets.
+
+لكن ليس لدينا بعد:
+
+```text
+Typography system كامل
+Responsive breakpoints
+Component states
+Focus/keyboard states
+Accessibility tokens
+Elevation semantics
+Interaction states
+Motion policy
+Reduced-motion policy
+Density system
+Navigation system
+Security visual language
+```
+
+إذن هذا **ليس التصميم النهائي**، وهذا صحيح حسب الخطة.
+
+لا نحتاج مطالبة Codex الآن ببناء الواجهة النهائية؛ هذه Phase 2.
+
+---
+
+# 6. شاشة Foundation الحالية صحيحة وظيفيًا، لكنها ليست UI نهائية
+
+في `FoundationScreen` توجد حالات مثل:
+
+```text
+Messaging is not implemented
+Calling not implemented
+Contacts not implemented
+```
+
+وهذا جيد جدًا من ناحية الصدق الأمني.
+
+لكن الواجهة نفسها ما زالت prototype foundation وليست الواجهة الاستخباراتية النهائية التي صممناها.
+
+وهذا **ليس عيبًا في Phase 1**.
+
+بالعكس، يجب ألا نحاول الآن تحويلها إلى واجهة كاملة بينما architecture لم تثبت.
+
+---
+
+# 7. diagnostics أصبحت أفضل بكثير، لكن هناك ملاحظة مهمة
+
+الإصلاح الجديد جيد من حيث الفكرة:
+
+```dart
+MemoryDiagnosticsReporter
+```
+
+مع buffer محدود، وredaction، وعدم تخزين `diagnosticDetail`.
+
+وهذا ممتاز.
+
+ولكن Development reporter يستخدم:
+
+```dart
+debugPrint(...)
+debugPrintStack(...)
+```
+
+وهذا ليس بالضرورة خطأ أمنيًا لأن ما يُخرج هو code/type/stack وليس الرسائل أو المفاتيح.
+
+لكن تقرير Codex السابق قال إنه لم يجد `debugPrint` في `lib`، بينما الكود الحالي يحتوي عليه. إذن **تقرير الاختبار نفسه غير دقيق**.
+
+وأنا أريد من الآن قاعدة صارمة:
+
+> لا نعتبر التقرير صحيحًا لمجرد أن Codex قال "passed".
+
+نقارن دائمًا التقرير بالكود.
+
+---
+
+# 8. هناك مشكلة أكثر دقة في diagnostics
+
+الـ`DiagnosticsReporter` يخزن:
+
+```dart
+StackTrace?
+```
+
+في الذاكرة.
+
+هذا مقبول مبدئيًا، لكن يجب أن نوثق أن الـstack trace هو diagnostics وليس بيانات تطبيق.
+
+وفي مراحل لاحقة، يجب ألا نجعل هذه البيانات تصل إلى persistent storage أو telemetry بدون سياسة مستقلة.
+
+---
+
+# 9. `CryptoEngine` حاليًا ضعيف جدًا كـcontract
+
+حاليًا:
+
+```dart
+abstract interface class CryptoEngine {
+  Future<void> initialize();
+}
+```
+
+هذا صحيح بأنه placeholder، لكن واجهة بهذا الشكل لا تعبر عن الحدود التي سنحتاجها لاحقًا.
+
+لن نبني crypto حقيقي الآن، لكن قبل Phase 4/5 يجب إعادة تعريف العقد ليغطي بوضوح:
+
+```text
+Identity
+Key material
+PreKeys
+Key agreement
+Session creation
+Session state
+Encryption
+Decryption
+Verification
+Protocol version
+```
+
+هذا لا يعني أن نضيفها الآن كلها؛ بل فقط لا نريد أن ننسى أن `initialize()` وحدها ليست architecture فعلية لـcrypto.
+
+---
+
+# 10. Storage contracts جيدة كبداية، لكن lifecycle ناقص
+
+لدينا:
+
+```text
+PreferencesStore
+SecretStore
+IdentityKeyStore
+SessionStateStore
+RecoveryMaterialStore
+```
+
+وهذا اتجاه جيد.
+
+لكن عندما نصل إلى Phase 3/4 يجب أن نحسم:
+
+```text
+key identifiers
+atomicity
+versioning
+deletion
+rotation
+backup exclusion
+hardware-backed availability
+memory lifetime
+error semantics
+```
+
+وهذا يجب ألا نقحم فيه الآن.
+
+---
+
+# 11. Database boundary جيدة لكنها غير كافية حتى كمواصفة
+
+حاليًا:
+
+```dart
+transaction()
+migrate()
+```
+
+و:
+
+```dart
+PageRequest
+Page<T>
+```
+
+هذا جيد كحد أولي.
+
+لكن لا يوجد حتى الآن:
+
+```text
+query contract
+read/write abstraction
+migration version
+transaction isolation policy
+corruption handling
+database open/close
+schema version
+```
+
+مرة أخرى، ليس مطلوبًا تنفيذها الآن؛ لكن Phase 3 يجب أن تكون إعادة بناء حقيقية وليس مجرد استبدال Hive بـSQLite شكليًا.
+
+---
+
+# 12. Connectivity service مجرد interface بلا lifecycle
+
+حاليًا:
+
+```dart
+abstract interface class ConnectivityService {
+  Stream<bool> get status;
+}
+```
+
+ليس سيئًا، لكن لا يوجد:
+
+```text
+start
+dispose
+current state
+unknown state
+reconnect policy
+network type
+```
+
+وسيحتاج ذلك عندما نصل إلى Offline-first.
+
+---
+
+# 13. أخطر نقطة Android لم تُحسم بالكامل
+
+Codex أصلح:
+
+```text
+applicationId
+namespace
+MainActivity
+usesCleartextTraffic
+release signing
+```
+
+لكن لم نرَ في PR تغييرات لمعالجة **صلاحية `gradlew`** التي ظهرت سابقًا:
+
+```text
+./gradlew: Permission denied
+```
+
+وهذه مشكلة Git file mode، وليست محتوى Gradle.
+
+لذلك حتى لو كان الكود سليمًا، بيئة البناء قد تستمر في الفشل بسبب أن:
+
+```text
+android/gradlew
+```
+
+ليس executable.
+
+هذه يجب أن تُفحص وتُعالج.
+
+---
+
+# 14. لدينا مشكلة Android ثانية: الإصدارات تحتاج توحيدًا
+
+الـPR عدّل:
+
+```text
+android/app/build.gradle
+```
+
+لكن بقيت إعدادات المشروع الأساسية التي كانت في audit السابق، بما فيها اختلافات Kotlin/Gradle التي أشار إليها Codex.
+
+وبما أننا **لم نستطع تشغيل Gradle/Flutter فعليًا**، فلا يجوز أن نقول إن Android foundation صالح 100%.
+
+هذه نقطة يجب أن نطلب من Codex فحصها static، ثم نتحقق منها في بيئة Flutter حقيقية أو CI.
+
+---
+
+# 15. إزالة dependencies القديمة كانت صحيحة، لكن قرار إزالة كل شيء يحتاج حذرًا
+
+الـPR حذف تقريبًا كل dependencies القديمة، وأبقى Flutter localization وintegration_test وlints.
+
+هذا جيد لأننا لا نريد حمل crypto/Hive/WebRTC القديم.
+
+لكن لاحقًا عند كل Phase سنعيد إضافة packages **واحدًا واحدًا وبـADR مناسب**:
+
+```text
+Database
+Secure Storage
+Crypto
+BIP39 / Recovery
+WebSocket
+WebRTC
+Media
+Notifications
+Biometrics
+...
+```
+
+وهذا أفضل بكثير من إعادة الـ`pubspec.yaml` الضخم القديم.
+
+---
+
+# 16. الاختبارات جيدة كبداية، لكنها لم تختبر التطبيق فعليًا
+
+الاختبارات الحالية تختبر:
+
+* environment
+* failures
+* diagnostics
+* lifecycle
+* routing
+* shell
+* security defaults
+
+وهذا جيد.
+
+لكن لا يوجد دليل حالي على:
+
+```text
+flutter test ✅
+flutter analyze ✅
+APK build ✅
+```
+
+لأن Flutter/Dart غير موجودين في بيئة Codex.
+
+وتقرير PR نفسه يقول ذلك صراحة.
+
+لذلك لا يجوز أن نعتبر Phase 1 "build verified".
+
+---
+
+# 17. والأهم: لا يوجد CI حقيقي يحل المشكلة
+
+أحد أسباب أننا عالقون هو:
+
+```text
+Codex environment
+    Flutter ❌
+    Dart ❌
+
+GitHub PR
+    checks غير موجودة/غير كافية
+```
+
+نحن بحاجة قبل الدخول في مراحل كبيرة إلى **GitHub Actions Flutter CI** على الأقل يقوم عند كل PR بـ:
+
+```text
+flutter pub get
+dart format --output=none --set-exit-if-changed .
+flutter analyze
+flutter test
+flutter build apk --debug
+```
+
+لاحقًا:
+
+```text
+integration tests
+```
+
+وبهذه الطريقة لن نعتمد مرة أخرى على "Codex لم يكن عنده Flutter".
+
+---
+
+# الحكم على Phase 1
+
+أصنف ما لدينا هكذا:
+
+| الجانب                  | الحالة              |
+| ----------------------- | ------------------- |
+| إزالة monolith          | ✅                   |
+| layered architecture    | ✅                   |
+| إزالة legacy crypto     | ✅                   |
+| إزالة legacy network    | ✅                   |
+| security baseline       | ✅ جيد               |
+| Android hardening       | 🟡                  |
+| diagnostics             | 🟢 بعد الإصلاح      |
+| composition root        | 🟡 ناقص             |
+| localization foundation | 🟡                  |
+| routing                 | 🟡 يوجد تصحيح مطلوب |
+| testing                 | 🟡 لم يُشغّل فعليًا |
+| build verification      | ❌ غير متحقق         |
+| CI                      | ❌                   |
+| Phase 2 readiness       | 🟡 بعد التصحيحات    |
+
+## لذلك: لا ندمج PR الآن.
+
+والأفضل الآن ألا نطلب من Codex إعادة بناء Phase 1 من جديد. نطلب منه **Correction Pass نهائي** على نفس الفرع.
+
+أرسل له هذه الرسالة:
+
+```text
+FINAL PHASE 1 REVIEW — CORRECTION PASS
+
+Do NOT start Phase 2.
+Do NOT implement database, identity, cryptography, messaging, WebSocket, groups, media, calls, or the final UI.
+
+This is the final correctness pass before merging Phase 1.
+
+Review the current PR branch against:
+- AGENTS.md
+- docs/SECURECHAT_X_2.0_MASTER_SPECIFICATION.md
+- docs/SECURECHAT_X_2.0_IMPLEMENTATION_ROADMAP.md
+
+Fix all Phase 1 correctness issues you can identify.
+
+Required checks:
+
+1. FIX ROUTING TYPE SAFETY
+Review lib/features/foundation/foundation_screen.dart.
+Do not pass nullable route values into Navigator APIs.
+Use a non-null route resolver or an equivalent invariant-preserving approach.
+
+2. FIX DEPENDENCY COMPOSITION
+AppScope must expose the actual AppDependencies composition object rather than only Environment/Diagnostics.
+Do not create a fake DI implementation.
+Keep the interfaces technology-neutral.
+
+3. FIX LIFECYCLE OWNERSHIP
+Do not make the UI layer unnecessarily construct infrastructure services directly.
+Move LifecycleService ownership to the composition boundary where practical for Phase 1.
+
+4. REVIEW BOOTSTRAP AND DIAGNOSTICS
+Keep the redacted DiagnosticsReporter design.
+Do not silently discard Flutter or zone errors.
+Do not log exception messages, diagnosticDetail, plaintext, keys, recovery material, or user data.
+Development diagnostics may expose only an allow-listed code, runtime error type, and stack trace.
+
+5. REVIEW ANDROID FOUNDATION
+Verify:
+- namespace
+- applicationId
+- Manifest package
+- MainActivity package/path
+- cleartext traffic disabled
+- no legacy external storage flag
+- no debug signing for release
+- Gradle/Kotlin configuration consistency
+- gradlew executable permission
+- no accidental dependency on local-only files being committed
+
+Do not add secrets or fake signing credentials.
+
+6. REVIEW LOCALIZATION FOUNDATION
+Do not build Phase 2 UI yet, but establish a proper localization-ready foundation for Arabic and English.
+Do not hard-code the architecture around English-only localization.
+
+7. REVIEW TESTS
+Inspect every Phase 1 test for meaningful assertions.
+Do not create tests that only test implementation details.
+Fix any compile-time/API issues you can identify statically.
+
+8. REVIEW ALL SMALL CONTRACT FILES
+Review:
+- crypto_engine.dart
+- transport.dart
+- storage_boundaries.dart
+- database.dart
+- connectivity_service.dart
+- app_dependencies.dart
+
+Ensure they represent clean future boundaries and do not claim implemented security functionality.
+
+9. REVIEW REPORT ACCURACY
+Do not report Flutter/Dart/analyze/test/build as passed unless the commands were actually executed successfully.
+Clearly distinguish:
+PASS
+NOT RUN
+BLOCKED BY ENVIRONMENT
+FAIL
+
+10. ADD CI FOUNDATION
+Create a minimal GitHub Actions workflow for Flutter validation if appropriate for Phase 1.
+It must run in a Flutter-enabled GitHub environment and verify:
+- formatting
+- flutter analyze
+- flutter test
+- debug APK build
+
+Do not add secrets.
+
+11. STATIC AUDIT
+Perform repository scans for:
+- debugPrint
+- print
+- cleartext network
+- legacy endpoint references
+- old crypto imports
+- Hive imports
+- obsolete dependencies
+- secrets
+- recovery phrases
+- hard-coded credentials
+
+12. FINAL VALIDATION
+If Flutter/Dart are unavailable in the current Codex environment:
+DO NOT fake the results.
+Still perform all possible static validation.
+
+Do not merge the PR.
+
+At the end provide:
+A. Every file changed
+B. Every issue fixed
+C. Every issue intentionally deferred
+D. Static checks executed
+E. Commands not executed and why
+F. Exact remaining blockers before Phase 1 merge
+
+Stop after this correction pass.
+```
+
+### بعد هذه الخطوة
+
+عندما ينتهي Codex، **لا تضغط Merge** حتى نراجع النتيجة مرة أخيرة.
+
+وبعد أن تصبح Phase 1 سليمة، ستكون الخطوة التالية فعلًا:
+
+**Phase 2 — Complete Modern UI/UX Rebuild**
+
+وعندها لن نعطي Codex مجرد أمر "صمم واجهات". سنبني معه الشاشة تلو الشاشة: **Command Center، Chats، Contact Verification، Security Center، Settings، Calls، Media، Community، Groups، Motion System، Responsive Layouts، Accessibility** وفق المواصفة، ثم نراجعها قبل الانتقال إلى قاعدة البيانات والتشفير.
+
+
+
+
+
+
+اوه الان لقد لصقت الرساله في codex  ولكنه ضهرت رساله تقول لقد تجاوزت حد الاستخدام المسموح الان توقف العمل على codex   بالكامل ماذا اعمل الان هل اضغط على **Merge**    لكي نحفض الموجود من الهيكل الذي بناه ونكمل العمل بانفسنا من هنا 
+
+
+
+
+نعم، **في وضعنا الحالي أنصحك الآن بضغط `Merge`**.
+
+السبب أن Codex وصل إلى حد الاستخدام وتوقف، لكن الـPR الحالي يحتوي بالفعل على الجزء الأكبر من Phase 1 الذي نحتاج الحفاظ عليه: إزالة `main.dart` القديم، إنشاء الهيكل الجديد، عقود crypto/storage/database/network، diagnostics، الاختبارات، وتهيئة Android. الـPR حاليًا مفتوح وغير مدمج، ويحتوي آخر نسخة وصلت إلى GitHub.
+
+لكن انتبه إلى نقطة مهمة:
+
+**نحن لا نعتبر Phase 1 مكتملة لمجرد الدمج.** نحن سنستخدم الدمج لحفظ العمل على `main`، ثم نكمل التصحيحات بأنفسنا من هنا، لأن Codex توقف بسبب حد الاستخدام.
+
+### افعل الآن
+
+اضغط:
+
+**Merge pull request**
+
+ثم:
+
+**Confirm merge**
+
+واستخدم **Merge commit** العادي، وليس Squash أو Rebase؛ أريد الاحتفاظ بتاريخ الـcommits الحالي واضحًا، خصوصًا لأن هذه إعادة بناء كبيرة.
+
+بعد الدمج ستصبح البنية الجديدة موجودة فعليًا في:
+
+```text
+main
+└── SecureChat X 2.0 Foundation
+```
+
+بدل أن تبقى في فرع الـPR فقط.
+
+### وبعد الدمج ماذا سنفعل؟
+
+لن نعيد المشروع إلى Codex الآن.
+
+سنكمل مباشرة على GitHub، وأنا أستطيع الوصول إلى المستودع وتعديل الملفات ومراجعتها معك.
+
+سنقوم أولًا بإصلاح النقاط التي اكتشفتها قبل أن نفكر في Phase 2، وأهمها:
+
+```text
+1. إصلاح مشكلة routing/null-safety
+2. إكمال AppDependencies داخل AppScope
+3. تنظيف ownership الخاص بـ LifecycleService
+4. إكمال localization foundation للعربية والإنجليزية
+5. مراجعة Android/Gradle
+6. التحقق من gradlew permissions
+7. إضافة GitHub Actions لـ Flutter
+8. مراجعة الاختبارات
+9. إجراء static security audit جديد
+10. بعد ذلك فقط اعتماد Phase 1
+```
+
+وهناك شيء مهم جدًا: بما أن Flutter/Dart لم يكونا متوفرين في بيئة Codex، **لن أعتبر المشروع قابلًا للبناء حتى نثبت ذلك فعليًا عبر CI أو بيئة Flutter حقيقية**. تقرير Codex نفسه يقر بأن `flutter analyze` و`flutter test` و`flutter build` لم تُنفذ.
+
+### الخلاصة
+
+**نعم: اضغط Merge الآن.**
+
+لا تحذف الـPR ولا الفرع، ولا تبدأ Phase 2.
+
+بعد أن يصبح `main` مدموجًا، أرسل لي فقط أنه تم الدمج، وسأبدأ معك مباشرة **مرحلة تثبيت Phase 1 يدويًا على GitHub قبل البناء التالي**.
+
+
+
+
+الان لقد قمت بالدمج بنجاح الان قم بالمراجعه للمستودع بعد الدمج وبعدها نقوم بالتعديل او اذا امكنك التعديل على الاخطاء والملفات التي فيها اخطاء قم بذلك ولكن مع فهم كامل للمدمجات الان هيا اريد العمل بسياق كبير وتفكير عميق لكي نتقدم الى خ
+
+
+
+
+
+تم. راجعت المستودع بعد الدمج، ثم **أجريت الإصلاحات مباشرة داخل `main`** بدل تركها معلقة مع Codex.
+
+### ما وجدته بعد الدمج
+
+البنية الجديدة أصبحت فعلًا هي الموجودة في `main`:
+
+```text
+lib/main.dart
+   ↓
+app/
+core/
+data/
+domain/
+features/
+services/
+```
+
+و`main.dart` أصبح نقطة دخول صغيرة جدًا تستدعي `bootstrapSecureChat()`، وهو بالضبط ما أردناه.
+
+كما أن `pubspec.yaml` أصبح نظيفًا جدًا، ولم يعد يحمل مكتبات الـprototype القديمة مثل Hive وPointyCastle وWebRTC وRiverpod وغيرها في Phase 1.
+
+### الإصلاحات التي نفذتها مباشرة
+
+**1. أصلحت مشكلة routing المحتملة**
+
+كان هناك تمرير لقيمة `String?` إلى `pushReplacementNamed`. أنشأت الآن:
+
+```dart
+AppRouter.pathFor(...)
+```
+
+يعيد `String` غير nullable مع invariant واضح، وأصبح التنقل يعتمد عليه بدل الوصول المباشر إلى `Map`. هذا يزيل مشكلة null-safety التي كان من الممكن أن تظهر في `flutter analyze`.
+
+**2. أكملت الـDependency Composition**
+
+قبل الإصلاح كان لدينا `AppDependencies` كتعريف فقط، لكن `AppScope` لم يكن يحملها فعليًا. الآن أصبح المسار:
+
+```text
+Bootstrap
+   ↓
+AppDependencies
+   ↓
+AppScope
+   ↓
+Application
+```
+
+كما أضفت implementations خاصة بـPhase 1 تحمل اسمًا واضحًا بأنها **غير منفذة**؛ فهي لا تدعي وجود Database أو Secure Storage أو Transport حقيقي. استدعاؤها يفشل صراحة بدل أن تتظاهر بأنها تعمل. وهذا متوافق مع قاعدة `AGENTS.md` التي تمنع fake security/features.
+
+**3. نقلت Lifecycle ownership من الـUI إلى composition**
+
+كان `SecureChatApp` ينشئ `LifecycleService` داخله مباشرة. نقلت ownership إلى `AppDependencies`، وأصبح التطبيق يستقبل الـlifecycle من bootstrap.
+
+هذا يجعل الحدود أقرب إلى:
+
+```text
+Composition Root
+      ↓
+Dependencies
+      ↓
+Application
+      ↓
+UI
+```
+
+بدل إنشاء infrastructure داخل widget.
+
+**4. أصلحت أساس التوطين**
+
+التطبيق كان يعلن:
+
+```dart
+supportedLocales: [Locale('en')]
+```
+
+أصبحت foundation تدعم:
+
+```text
+English
+Arabic
+```
+
+من البداية، دون الادعاء بأن كل النصوص النهائية مترجمة؛ الترجمة الكاملة جزء من إعادة بناء UI في Phase 2.
+
+**5. عدلت الاختبارات لتتوافق مع الـDI الجديد**
+
+بعد تغيير `SecureChatApp` و`AppScope` كان هناك اختبار قديم سيكسر البناء لأنه لم يمرر dependencies. عدلت `app_shell_test` و`app_launch_test` و`app_scope_test` لتستخدم composition الجديد.
+
+### وأضفت شيئًا مهمًا جدًا: CI
+
+أنشأت:
+
+```text
+.github/workflows/flutter_ci.yml
+```
+
+وهو الآن يطلب من GitHub تنفيذ:
+
+```text
+flutter pub get
+dart format
+flutter analyze
+flutter test
+flutter build apk --debug
+```
+
+وقبل Gradle يقوم أيضًا بـ:
+
+```text
+chmod +x android/gradlew
+```
+
+وهذا يعالج عمليًا مشكلة `Permission denied` التي كانت ظهرت في بيئة Codex.
+
+### لماذا لم أصلح `android/gradlew` نفسه؟
+
+فحصته، ومحتواه صحيح كسكربت Gradle wrapper، لكن المشكلة السابقة كانت **Git executable permission** وليست محتوى الملف. الـGitHub file API الذي نملك وصولًا إليه لا يعطينا مسارًا مباشرًا لتغيير file mode إلى `100755` من خلال تعديل محتوى الملف. لذلك وضعت `chmod +x` داخل CI كحل تحقق عملي.
+
+### ملاحظتان ما زالتا مقصودتين وليستا أخطاء
+
+`android/settings.gradle` ما زال يعتمد على `android/local.properties` لمعرفة مسار Flutter SDK. هذا طبيعي كمكوّن محلي ولا ينبغي أن نضع `local.properties` داخل GitHub.
+
+كذلك الـcrypto/database/network الحالية **ليست implementations حقيقية**، وهذا متعمد. نحن لم نقفز إلى Phase 3–8 لمجرد جعل المشروع يبدو مكتملًا. وهذا مطابق لقواعد المشروع.
+
+### أين وصلنا الآن؟
+
+أصبحت الحالة:
+
+```text
+Phase 0                    ✅
+Phase 1 architecture       ✅
+Phase 1 corrective fixes   ✅
+CI foundation              ✅
+Real Flutter validation    ⏳
+Phase 2                    ⛔ لم نبدأها بعد
+```
+
+الأهم أن **التعديلات الأخيرة موجودة الآن مباشرة في `main`** وليست في Codex branch.
+
+لكن يوجد شيء واحد لا أريد أن أزعم أنه تم: **لم نستلم بعد نتيجة GitHub Actions**. عند آخر فحص لم تكن هناك workflow run ظاهرة للـcommit الأحدث، لذلك لا أستطيع القول إن `flutter analyze` و`flutter test` و`flutter build apk` نجحت فعليًا بعد الإصلاحات. هذا بالضبط هو الاختبار الذي أضفناه الآن لكي يحسم الأمر بشكل حقيقي.
+
+### الخطوة التالية
+
+الآن لا نضيف ميزات جديدة.
+
+**ننتظر نتيجة GitHub Actions للـmain.** إذا ظهرت أخطاء، سنصلحها مباشرة من المستودع. بعد أن تصبح:
+
+```text
+format       ✅
+analyze      ✅
+test         ✅
+debug APK    ✅
+```
+
+نعتبر Phase 1 مستقرة، وبعدها نبدأ **Phase 2: إعادة بناء UI/UX الكاملة** وفق التصميم الذي خططنا له، وليس مجرد تحسين شاشة الـFoundation الحالية.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
