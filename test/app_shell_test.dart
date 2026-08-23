@@ -9,9 +9,10 @@ void main() {
       final AppDependencies dependencies = AppDependencies.foundation();
       await tester.pumpWidget(SecureChatApp(lifecycle: dependencies.lifecycle));
       await tester.pumpAndSettle();
-      expect(find.text('Command Center'), findsOneWidget);
+      expect(find.byKey(const Key('foundation-screen-title')), findsOneWidget);
+      expect(find.text('Command Center'), findsWidgets);
 
-      await tester.tap(find.text('Chats'));
+      await tester.tap(find.text('Chats').last);
       await tester.pumpAndSettle();
       expect(
         find.text(
