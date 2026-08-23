@@ -3,7 +3,8 @@ import 'package:securechat_x/core/errors/app_failure.dart';
 import 'package:securechat_x/core/errors/diagnostics.dart';
 
 void main() {
-  test('diagnostics emit typed redacted metadata without error detail', () async {
+  test('diagnostics emit typed redacted metadata without error detail',
+      () async {
     final MemoryDiagnosticsReporter reporter = MemoryDiagnosticsReporter();
     final Future<DiagnosticEvent> event = reporter.events.first;
     const ConfigurationFailure failure = ConfigurationFailure(
@@ -12,7 +13,9 @@ void main() {
       diagnosticDetail: 'The rejected value is confidential.',
     );
 
-    reporter.record(code: diagnosticCodeFor(failure, fallback: 'unexpected'), error: failure);
+    reporter.record(
+        code: diagnosticCodeFor(failure, fallback: 'unexpected'),
+        error: failure);
 
     final DiagnosticEvent recorded = await event;
     expect(recorded.code, 'failure.configuration');

@@ -25,7 +25,8 @@ final class AppRouter {
   }
 
   static Route<void> onGenerateRoute(RouteSettings settings) {
-    final FoundationDestination destination = _destinationForPath(settings.name);
+    final FoundationDestination destination =
+        _destinationForPath(settings.name);
     return MaterialPageRoute<void>(
       settings: settings,
       builder: (_) => FoundationScreen(destination: destination),

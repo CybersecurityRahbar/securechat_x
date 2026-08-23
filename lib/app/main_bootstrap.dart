@@ -18,16 +18,19 @@ Future<void> bootstrapSecureChat({
   late final AppEnvironment resolvedEnvironment;
   late final DiagnosticsReporter reporter;
   try {
-    resolvedEnvironment = environment ?? AppEnvironment.fromDartDefines(
-      name: const String.fromEnvironment('SECURECHAT_ENV', defaultValue: 'development'),
-      protocolVersion: const String.fromEnvironment(
-        'SECURECHAT_PROTOCOL_VERSION',
-        defaultValue: '1',
-      ),
-    );
+    resolvedEnvironment = environment ??
+        AppEnvironment.fromDartDefines(
+          name: const String.fromEnvironment('SECURECHAT_ENV',
+              defaultValue: 'development'),
+          protocolVersion: const String.fromEnvironment(
+            'SECURECHAT_PROTOCOL_VERSION',
+            defaultValue: '1',
+          ),
+        );
     reporter = diagnostics ?? _reporterFor(resolvedEnvironment.kind);
   } on Object catch (error, stackTrace) {
-    final DiagnosticsReporter fallbackReporter = diagnostics ?? _bootstrapReporter();
+    final DiagnosticsReporter fallbackReporter =
+        diagnostics ?? _bootstrapReporter();
     fallbackReporter.record(
       code: diagnosticCodeFor(error, fallback: 'bootstrap.configuration'),
       error: error,
@@ -41,7 +44,8 @@ Future<void> bootstrapSecureChat({
 
   ErrorWidget.builder = (FlutterErrorDetails details) {
     reporter.record(
-      code: diagnosticCodeFor(details.exception, fallback: 'framework.unhandled'),
+      code:
+          diagnosticCodeFor(details.exception, fallback: 'framework.unhandled'),
       error: details.exception,
       stackTrace: details.stack,
     );
@@ -52,7 +56,8 @@ Future<void> bootstrapSecureChat({
 
   FlutterError.onError = (FlutterErrorDetails details) {
     reporter.record(
-      code: diagnosticCodeFor(details.exception, fallback: 'framework.unhandled'),
+      code:
+          diagnosticCodeFor(details.exception, fallback: 'framework.unhandled'),
       error: details.exception,
       stackTrace: details.stack,
     );
@@ -75,9 +80,12 @@ Future<void> bootstrapSecureChat({
   );
 }
 
-DiagnosticsReporter _reporterFor(Environment environment) => switch (environment) {
+DiagnosticsReporter _reporterFor(Environment environment) =>
+    switch (environment) {
       Environment.development => DevelopmentDiagnosticsReporter(),
-      Environment.staging || Environment.production => MemoryDiagnosticsReporter(),
+      Environment.staging ||
+      Environment.production =>
+        MemoryDiagnosticsReporter(),
     };
 
 DiagnosticsReporter _bootstrapReporter() {
@@ -97,7 +105,8 @@ class _BootstrapFailureApp extends StatelessWidget {
   Widget build(BuildContext context) => const MaterialApp(
         home: Scaffold(
           body: ErrorState(
-            message: 'The application configuration is invalid. Please contact support.',
+            message:
+                'The application configuration is invalid. Please contact support.',
           ),
         ),
       );

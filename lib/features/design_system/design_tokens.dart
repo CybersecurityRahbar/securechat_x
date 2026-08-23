@@ -50,10 +50,21 @@ ThemeData secureChatTheme() => ThemeData(
         error: SecureChatColors.danger,
       ),
       textTheme: const TextTheme(
-        headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: SecureChatColors.text),
-        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: SecureChatColors.text),
-        bodyMedium: TextStyle(fontSize: 14, height: 1.4, color: SecureChatColors.muted),
+        headlineSmall: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: SecureChatColors.text),
+        titleMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: SecureChatColors.text),
+        bodyMedium:
+            TextStyle(fontSize: 14, height: 1.4, color: SecureChatColors.muted),
       ),
-      cardTheme: const CardThemeData(color: SecureChatColors.surface, elevation: 0, shape: RoundedRectangleBorder(borderRadius: SecureChatRadii.card)),
-      inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder(borderRadius: SecureChatRadii.control)),
+      cardTheme: const CardThemeData(
+          color: SecureChatColors.surface,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: SecureChatRadii.card)),
+      inputDecorationTheme: const InputDecorationTheme(
+          border: OutlineInputBorder(borderRadius: SecureChatRadii.control)),
     );

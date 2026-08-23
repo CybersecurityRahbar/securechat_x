@@ -11,5 +11,7 @@ abstract interface class SecretStore {
 }
 
 abstract interface class IdentityKeyStore extends SecretStore {}
+
 abstract interface class SessionStateStore extends SecretStore {}
+
 abstract interface class RecoveryMaterialStore extends SecretStore {}

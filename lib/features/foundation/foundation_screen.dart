@@ -9,15 +9,18 @@ class FoundationScreen extends StatelessWidget {
   const FoundationScreen({required this.destination, super.key});
   final FoundationDestination destination;
 
-  static const Map<FoundationDestination, ({String title, String detail, IconData icon})> _content = {
+  static const Map<FoundationDestination,
+      ({String title, String detail, IconData icon})> _content = {
     FoundationDestination.home: (
       title: 'Command Center',
-      detail: 'Foundation status and operational context will be assembled here in Phase 2.',
+      detail:
+          'Foundation status and operational context will be assembled here in Phase 2.',
       icon: SecureChatIcons.home,
     ),
     FoundationDestination.chats: (
       title: 'Chats',
-      detail: 'Messaging is not implemented. No conversations or message content are available yet.',
+      detail:
+          'Messaging is not implemented. No conversations or message content are available yet.',
       icon: SecureChatIcons.chats,
     ),
     FoundationDestination.contacts: (
@@ -32,19 +35,22 @@ class FoundationScreen extends StatelessWidget {
     ),
     FoundationDestination.security: (
       title: 'Security Center',
-      detail: 'Security state will be available after identity, storage, and protocol phases are implemented.',
+      detail:
+          'Security state will be available after identity, storage, and protocol phases are implemented.',
       icon: SecureChatIcons.security,
     ),
     FoundationDestination.settings: (
       title: 'Settings',
-      detail: 'Settings are intentionally unavailable until persistent, actionable settings are implemented.',
+      detail:
+          'Settings are intentionally unavailable until persistent, actionable settings are implemented.',
       icon: SecureChatIcons.settings,
     ),
   };
 
   @override
   Widget build(BuildContext context) {
-    final ({String title, String detail, IconData icon}) content = _content[destination]!;
+    final ({String title, String detail, IconData icon}) content =
+        _content[destination]!;
 
     return Scaffold(
       appBar: AppBar(
@@ -68,7 +74,8 @@ class FoundationScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(content.title, style: Theme.of(context).textTheme.headlineSmall),
+              Text(content.title,
+                  style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: SecureChatSpace.md),
               SecureChatCard(
                 child: Row(
@@ -82,7 +89,8 @@ class FoundationScreen extends StatelessWidget {
                         children: [
                           Text(content.detail),
                           const SizedBox(height: SecureChatSpace.md),
-                          const SecurityStatusIndicator(status: SecurityStatus.notImplemented),
+                          const SecurityStatusIndicator(
+                              status: SecurityStatus.notImplemented),
                         ],
                       ),
                     ),
@@ -92,7 +100,8 @@ class FoundationScreen extends StatelessWidget {
               const Expanded(
                 child: EmptyState(
                   title: 'No local data yet',
-                  message: 'This area will receive data only after its supporting security and persistence foundations are implemented.',
+                  message:
+                      'This area will receive data only after its supporting security and persistence foundations are implemented.',
                 ),
               ),
             ],
@@ -102,12 +111,16 @@ class FoundationScreen extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: FoundationDestination.values.indexOf(destination),
         onDestinationSelected: (int index) {
-          final FoundationDestination next = FoundationDestination.values[index];
+          final FoundationDestination next =
+              FoundationDestination.values[index];
           Navigator.of(context).pushReplacementNamed(AppRouter.pathFor(next));
         },
-        destinations: FoundationDestination.values.map((FoundationDestination item) {
-          final ({String title, String detail, IconData icon}) value = _content[item]!;
-          return NavigationDestination(icon: Icon(value.icon), label: value.title);
+        destinations:
+            FoundationDestination.values.map((FoundationDestination item) {
+          final ({String title, String detail, IconData icon}) value =
+              _content[item]!;
+          return NavigationDestination(
+              icon: Icon(value.icon), label: value.title);
         }).toList(),
       ),
     );

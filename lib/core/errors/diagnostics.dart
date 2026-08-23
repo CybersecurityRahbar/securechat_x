@@ -22,7 +22,8 @@ final class DiagnosticEvent {
 }
 
 abstract interface class DiagnosticsReporter {
-  void record({required String code, required Object error, StackTrace? stackTrace});
+  void record(
+      {required String code, required Object error, StackTrace? stackTrace});
   Stream<DiagnosticEvent> get events;
   void dispose();
 }
@@ -42,7 +43,8 @@ class MemoryDiagnosticsReporter implements DiagnosticsReporter {
   Stream<DiagnosticEvent> get events => _controller.stream;
 
   @override
-  void record({required String code, required Object error, StackTrace? stackTrace}) {
+  void record(
+      {required String code, required Object error, StackTrace? stackTrace}) {
     final String redactedCode = _redactedCode(code);
     if (_events.length == capacity) _events.removeAt(0);
     _events.add(DiagnosticEvent(
@@ -63,11 +65,14 @@ class MemoryDiagnosticsReporter implements DiagnosticsReporter {
 /// Development-only reporter that exposes redacted error type, code and stack.
 final class DevelopmentDiagnosticsReporter extends MemoryDiagnosticsReporter {
   @override
-  void record({required String code, required Object error, StackTrace? stackTrace}) {
+  void record(
+      {required String code, required Object error, StackTrace? stackTrace}) {
     super.record(code: code, error: error, stackTrace: stackTrace);
-    debugPrint('SecureChat diagnostic [${_redactedCode(code)}] (${error.runtimeType})');
+    debugPrint(
+        'SecureChat diagnostic [${_redactedCode(code)}] (${error.runtimeType})');
     if (stackTrace != null) {
-      debugPrintStack(stackTrace: stackTrace, label: 'SecureChat redacted stack');
+      debugPrintStack(
+          stackTrace: stackTrace, label: 'SecureChat redacted stack');
     }
   }
 }
@@ -94,7 +99,8 @@ const Set<String> _allowedCodes = <String>{
 String _redactedCode(String code) =>
     _allowedCodes.contains(code) ? code : 'diagnostic.redacted';
 
-String diagnosticCodeFor(Object error, {required String fallback}) => switch (error) {
+String diagnosticCodeFor(Object error, {required String fallback}) =>
+    switch (error) {
       NetworkFailure() => 'failure.network',
       CryptoFailure() => 'failure.crypto',
       DatabaseFailure() => 'failure.database',

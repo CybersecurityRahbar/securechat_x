@@ -37,28 +37,28 @@ final class _UnavailablePreferencesStore implements PreferencesStore {
   const _UnavailablePreferencesStore();
 
   @override
-  Future<String?> read(String key) =>
-      Future<String?>.error(StateError('Phase 3 preferences are not implemented.'));
+  Future<String?> read(String key) => Future<String?>.error(
+      StateError('Phase 3 preferences are not implemented.'));
 
   @override
-  Future<void> write(String key, String value) =>
-      Future<void>.error(StateError('Phase 3 preferences are not implemented.'));
+  Future<void> write(String key, String value) => Future<void>.error(
+      StateError('Phase 3 preferences are not implemented.'));
 }
 
 final class _UnavailableSecretStore implements SecretStore {
   const _UnavailableSecretStore();
 
   @override
-  Future<void> writeSecret(String key, List<int> secret) =>
-      Future<void>.error(StateError('Secure secret storage is not implemented.'));
+  Future<void> writeSecret(String key, List<int> secret) => Future<void>.error(
+      StateError('Secure secret storage is not implemented.'));
 
   @override
-  Future<List<int>?> readSecret(String key) =>
-      Future<List<int>?>.error(StateError('Secure secret storage is not implemented.'));
+  Future<List<int>?> readSecret(String key) => Future<List<int>?>.error(
+      StateError('Secure secret storage is not implemented.'));
 
   @override
-  Future<void> deleteSecret(String key) =>
-      Future<void>.error(StateError('Secure secret storage is not implemented.'));
+  Future<void> deleteSecret(String key) => Future<void>.error(
+      StateError('Secure secret storage is not implemented.'));
 }
 
 final class _UnavailableDatabase implements Database {
@@ -80,8 +80,8 @@ final class _UnavailableTransport implements Transport {
   Stream<ConnectionState> get states => const Stream<ConnectionState>.empty();
 
   @override
-  Future<void> connect() =>
-      Future<void>.error(StateError('Transport is not implemented in Phase 1.'));
+  Future<void> connect() => Future<void>.error(
+      StateError('Transport is not implemented in Phase 1.'));
 
   @override
   Future<void> disconnect() async {}

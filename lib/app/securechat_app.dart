@@ -14,7 +14,8 @@ class SecureChatApp extends StatefulWidget {
   State<SecureChatApp> createState() => _SecureChatAppState();
 }
 
-class _SecureChatAppState extends State<SecureChatApp> with WidgetsBindingObserver {
+class _SecureChatAppState extends State<SecureChatApp>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();

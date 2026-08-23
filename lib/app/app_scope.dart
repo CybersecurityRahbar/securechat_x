@@ -18,8 +18,10 @@ final class AppScope extends InheritedWidget {
   final DiagnosticsReporter diagnostics;
 
   static AppScope of(BuildContext context) {
-    final AppScope? scope = context.dependOnInheritedWidgetOfExactType<AppScope>();
-    assert(scope != null, 'AppScope must be an ancestor of the requested context.');
+    final AppScope? scope =
+        context.dependOnInheritedWidgetOfExactType<AppScope>();
+    assert(scope != null,
+        'AppScope must be an ancestor of the requested context.');
     return scope!;
   }
 
