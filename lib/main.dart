@@ -66,13 +66,13 @@ class AppConfig {
   /// WebSocket signalling + relay server.
   static const String wsUrl = String.fromEnvironment(
     'SECURECHAT_WS_URL',
-    defaultValue: 'wss://server.securechat.example.com/ws',
+    defaultValue: 'wss://yin-spender-percent.ngrok-free.dev/ws',
   );
 
   /// REST base url used for encrypted file upload / download.
   static const String apiBaseUrl = String.fromEnvironment(
     'SECURECHAT_API_URL',
-    defaultValue: 'https://server.securechat.example.com',
+    defaultValue: 'https://yin-spender-percent.ngrok-free.dev',
   );
 
   /// SHA-256 fingerprints (base64) of the certificates we accept.
@@ -425,12 +425,18 @@ class MessageEntity {
       type: json['type'] as int,
       content: json['content'] as String?,
       mediaPath: json['mediaPath'] as String?,
-      mediaKey: json['mediaKey'] != null ? base64.decode(json['mediaKey'] as String) : null,
+      mediaKey: json['mediaKey'] != null
+          ? base64.decode(json['mediaKey'] as String)
+          : null,
       timestamp: DateTime.parse(json['timestamp'] as String),
       isOutgoing: json['isOutgoing'] as bool,
       status: json['status'] as int,
-      readAt: json['readAt'] != null ? DateTime.parse(json['readAt'] as String) : null,
-      deliveredAt: json['deliveredAt'] != null ? DateTime.parse(json['deliveredAt'] as String) : null,
+      readAt: json['readAt'] != null
+          ? DateTime.parse(json['readAt'] as String)
+          : null,
+      deliveredAt: json['deliveredAt'] != null
+          ? DateTime.parse(json['deliveredAt'] as String)
+          : null,
       replyToMessageId: json['replyToMessageId'] as String?,
       burnTimerSeconds: json['burnTimerSeconds'] as int?,
       isPinned: json['isPinned'] as bool,
@@ -513,8 +519,10 @@ class SessionState {
     return SessionState(
       rootKey: rootKey ?? this.rootKey,
       chainKey: chainKey ?? this.chainKey,
-      senderEphemeralPrivate: senderEphemeralPrivate ?? this.senderEphemeralPrivate,
-      receiverEphemeralPublic: receiverEphemeralPublic ?? this.receiverEphemeralPublic,
+      senderEphemeralPrivate:
+          senderEphemeralPrivate ?? this.senderEphemeralPrivate,
+      receiverEphemeralPublic:
+          receiverEphemeralPublic ?? this.receiverEphemeralPublic,
       previousCounter: previousCounter ?? this.previousCounter,
       localDHPrivate: localDHPrivate ?? this.localDHPrivate,
     );
@@ -535,8 +543,10 @@ class SessionState {
     return SessionState(
       rootKey: base64.decode(json['rootKey'] as String),
       chainKey: base64.decode(json['chainKey'] as String),
-      senderEphemeralPrivate: base64.decode(json['senderEphemeralPrivate'] as String),
-      receiverEphemeralPublic: base64.decode(json['receiverEphemeralPublic'] as String),
+      senderEphemeralPrivate:
+          base64.decode(json['senderEphemeralPrivate'] as String),
+      receiverEphemeralPublic:
+          base64.decode(json['receiverEphemeralPublic'] as String),
       previousCounter: json['previousCounter'] as int,
       localDHPrivate: base64.decode(json['localDHPrivate'] as String),
     );
@@ -746,7 +756,9 @@ class SettingsEntity {
       autoDownloadVideos: json['autoDownloadVideos'] as bool,
       biometricUnlock: json['biometricUnlock'] as bool,
       autoLockSeconds: json['autoLockSeconds'] as int,
-      lastActiveAt: json['lastActiveAt'] != null ? DateTime.parse(json['lastActiveAt'] as String) : null,
+      lastActiveAt: json['lastActiveAt'] != null
+          ? DateTime.parse(json['lastActiveAt'] as String)
+          : null,
     );
   }
 
@@ -1257,7 +1269,8 @@ class Ed25519Service {
   /// [secureStorage] is kept for API compatibility with the rest of the project.
   Ed25519Service({FlutterSecureStorage? secureStorage});
 
-  Future<({Uint8List privateKey, Uint8List publicKey})> generateKeyPair() async {
+  Future<({Uint8List privateKey, Uint8List publicKey})>
+      generateKeyPair() async {
     try {
       final random = Random.secure();
       final seed = Uint8List.fromList(
@@ -1363,7 +1376,8 @@ class X25519Service {
 
   static final crypto_ed.X25519 _algorithm = crypto_ed.X25519();
 
-  Future<({Uint8List privateKey, Uint8List publicKey})> generateKeyPair() async {
+  Future<({Uint8List privateKey, Uint8List publicKey})>
+      generateKeyPair() async {
     try {
       final random = Random.secure();
       final seed = Uint8List.fromList(
@@ -1380,12 +1394,15 @@ class X25519Service {
     }
   }
 
-  Future<Uint8List> computeSharedSecret(Uint8List privateKey, Uint8List publicKey) async {
+  Future<Uint8List> computeSharedSecret(
+      Uint8List privateKey, Uint8List publicKey) async {
     if (privateKey.length != 32) {
-      throw ArgumentError('Invalid private key length: ${privateKey.length}, expected 32');
+      throw ArgumentError(
+          'Invalid private key length: ${privateKey.length}, expected 32');
     }
     if (publicKey.length != 32) {
-      throw ArgumentError('Invalid public key length: ${publicKey.length}, expected 32');
+      throw ArgumentError(
+          'Invalid public key length: ${publicKey.length}, expected 32');
     }
     try {
       final keyPair = await _algorithm.newKeyPairFromSeed(privateKey);
@@ -1406,14 +1423,16 @@ class X25519Service {
 
   Future<Uint8List> publicKeyFromBytes(Uint8List bytes) async {
     if (bytes.length != 32) {
-      throw ArgumentError('Invalid public key length: ${bytes.length}, expected 32');
+      throw ArgumentError(
+          'Invalid public key length: ${bytes.length}, expected 32');
     }
     return Uint8List.fromList(bytes);
   }
 
   Future<Uint8List> privateKeyFromBytes(Uint8List bytes) async {
     if (bytes.length != 32) {
-      throw ArgumentError('Invalid private key length: ${bytes.length}, expected 32');
+      throw ArgumentError(
+          'Invalid private key length: ${bytes.length}, expected 32');
     }
     return Uint8List.fromList(bytes);
   }
@@ -1446,7 +1465,8 @@ class AESGCMService {
       cipher.init(true, params);
 
       final output = Uint8List(cipher.getOutputSize(plaintext.length));
-      final len = cipher.processBytes(plaintext, 0, plaintext.length, output, 0);
+      final len =
+          cipher.processBytes(plaintext, 0, plaintext.length, output, 0);
       final finalLen = cipher.doFinal(output, len);
       return Uint8List.sublistView(output, 0, len + finalLen);
     } catch (e) {
@@ -1454,7 +1474,8 @@ class AESGCMService {
     }
   }
 
-  Uint8List decrypt(Uint8List ciphertextWithTag, Uint8List key, Uint8List nonce) {
+  Uint8List decrypt(
+      Uint8List ciphertextWithTag, Uint8List key, Uint8List nonce) {
     if (key.length != 32) {
       throw ArgumentError('Invalid key length: ${key.length}, expected 32');
     }
@@ -1471,7 +1492,8 @@ class AESGCMService {
       cipher.init(false, params);
 
       final output = Uint8List(cipher.getOutputSize(ciphertextWithTag.length));
-      final len = cipher.processBytes(ciphertextWithTag, 0, ciphertextWithTag.length, output, 0);
+      final len = cipher.processBytes(
+          ciphertextWithTag, 0, ciphertextWithTag.length, output, 0);
       final finalLen = cipher.doFinal(output, len);
       return Uint8List.sublistView(output, 0, len + finalLen);
     } catch (e) {
@@ -1481,7 +1503,8 @@ class AESGCMService {
 
   Uint8List generateNonce() {
     final random = pc.FortunaRandom();
-    random.seed(pc.KeyParameter(Uint8List.fromList(List.generate(32, (_) => Random.secure().nextInt(256)))));
+    random.seed(pc.KeyParameter(Uint8List.fromList(
+        List.generate(32, (_) => Random.secure().nextInt(256)))));
     return Uint8List.fromList(List.generate(12, (_) => random.nextUint8()));
   }
 
@@ -1507,7 +1530,8 @@ class AESGCMService {
       cipher.init(true, params);
 
       final output = Uint8List(cipher.getOutputSize(plaintext.length));
-      final len = cipher.processBytes(plaintext, 0, plaintext.length, output, 0);
+      final len =
+          cipher.processBytes(plaintext, 0, plaintext.length, output, 0);
       final finalLen = cipher.doFinal(output, len);
       return Uint8List.sublistView(output, 0, len + finalLen);
     } catch (e) {
@@ -1537,7 +1561,8 @@ class AESGCMService {
       cipher.init(false, params);
 
       final output = Uint8List(cipher.getOutputSize(ciphertextWithTag.length));
-      final len = cipher.processBytes(ciphertextWithTag, 0, ciphertextWithTag.length, output, 0);
+      final len = cipher.processBytes(
+          ciphertextWithTag, 0, ciphertextWithTag.length, output, 0);
       final finalLen = cipher.doFinal(output, len);
       return Uint8List.sublistView(output, 0, len + finalLen);
     } catch (e) {
@@ -1563,7 +1588,8 @@ class HKDFService {
 
   Uint8List expand(Uint8List prk, int length, {Uint8List? info}) {
     if (length <= 0 || length > 255 * 32) {
-      throw ArgumentError('Invalid length: $length, must be between 1 and 8160');
+      throw ArgumentError(
+          'Invalid length: $length, must be between 1 and 8160');
     }
     final infoBytes = info ?? Uint8List(0);
     final hmac = pc.HMac(pc.SHA256Digest(), 32);
@@ -1615,11 +1641,13 @@ class HKDFService {
 
   void validateLength(int length) {
     if (length <= 0 || length > 255 * 32) {
-      throw ArgumentError('Invalid length: $length, must be between 1 and 8160');
+      throw ArgumentError(
+          'Invalid length: $length, must be between 1 and 8160');
     }
   }
 
-  Uint8List deriveKeyWithSaltInfo(Uint8List ikm, Uint8List salt, Uint8List info, int length) {
+  Uint8List deriveKeyWithSaltInfo(
+      Uint8List ikm, Uint8List salt, Uint8List info, int length) {
     validateLength(length);
     final prk = extract(salt, ikm);
     return expand(prk, length, info: info);
@@ -1628,7 +1656,11 @@ class HKDFService {
 
 class BIP39Service {
   String generateMnemonic({int strength = 256}) {
-    if (strength != 128 && strength != 160 && strength != 192 && strength != 224 && strength != 256) {
+    if (strength != 128 &&
+        strength != 160 &&
+        strength != 192 &&
+        strength != 224 &&
+        strength != 256) {
       throw ArgumentError('Invalid strength: $strength');
     }
     return bip39.generateMnemonic(strength: strength);
@@ -1637,21 +1669,18 @@ class BIP39Service {
   bool validateMnemonic(String words) => bip39.validateMnemonic(words);
 
   Uint8List deriveSeed(String words, {String passphrase = ''}) {
-    return Uint8List.fromList(bip39.mnemonicToSeed(words, passphrase: passphrase));
+    return Uint8List.fromList(
+        bip39.mnemonicToSeed(words, passphrase: passphrase));
   }
 
   // الدالة wordsToEntropy (السطر 1644 تقريباً)
-  Uint8List wordsToEntropy(String words) {
-    final entropy = bip39.mnemonicToEntropy(words);
-  // في الإصدارات الجديدة، entropy هي List<int>، وفي القديمة String
-    if (entropy is String) {
-      return Uint8List.fromList(hex.decode(entropy));
-    } else if (entropy is List<int>) {
-      return Uint8List.fromList(entropy);
-    } else {
-      throw Exception('Unexpected entropy type: $entropy');
-    }
-  }
+Uint8List wordsToEntropy(String words) {
+  final entropyHex = bip39.mnemonicToEntropy(words);
+  return Uint8List.fromList(hex.decode(entropyHex));
+}
+
+
+  
 
 // الدالة entropyToWords (السطر 1648 تقريباً)
   String entropyToWords(Uint8List entropy) {
@@ -1706,12 +1735,17 @@ class DoubleRatchetService {
       _localIdentityKey = ourIdentity;
       _remoteIdentityKey = theirIdentity;
 
-      final dh1 = await _x25519Service.computeSharedSecret(ourIdentity, theirSignedPreKey);
-      final dh2 = await _x25519Service.computeSharedSecret(ourSignedPreKey, theirIdentity);
-      final dh3 = await _x25519Service.computeSharedSecret(ourSignedPreKey, theirSignedPreKey);
-      final dh4 = await _x25519Service.computeSharedSecret(ourOneTimePreKey, theirOneTimePreKey);
+      final dh1 = await _x25519Service.computeSharedSecret(
+          ourIdentity, theirSignedPreKey);
+      final dh2 = await _x25519Service.computeSharedSecret(
+          ourSignedPreKey, theirIdentity);
+      final dh3 = await _x25519Service.computeSharedSecret(
+          ourSignedPreKey, theirSignedPreKey);
+      final dh4 = await _x25519Service.computeSharedSecret(
+          ourOneTimePreKey, theirOneTimePreKey);
 
-      final combined = Uint8List(dh1.length + dh2.length + dh3.length + dh4.length);
+      final combined =
+          Uint8List(dh1.length + dh2.length + dh3.length + dh4.length);
       combined.setAll(0, dh1);
       combined.setAll(dh1.length, dh2);
       combined.setAll(dh1.length + dh2.length, dh3);
@@ -1724,6 +1758,7 @@ class DoubleRatchetService {
       _rootKey = Uint8List.sublistView(derived, 0, 32);
       _sendingChainKey = Uint8List.sublistView(derived, 32, 64);
       _receivingChainKey = Uint8List.sublistView(derived, 64, 96);
+      _senderEphemeralPrivate = ourSignedPreKey;
 
       _isInitialized = true;
       _sendingMessageCount = 0;
@@ -1831,15 +1866,15 @@ class DoubleRatchetService {
 
   Future<Map<String, dynamic>> getState() async {
     return {
-      'rootKey': _rootKey,
+      'rootKey': base64.encode(_rootKey),
       'chainKey': _chainKey,
       'senderEphemeralPrivate': _senderEphemeralPrivate,
       'receiverEphemeralPublic': _receiverEphemeralPublic,
       'previousCounter': _previousCounter,
       'localDHPrivate': _localDHPrivate,
       'isInitialized': _isInitialized,
-      'sendingChainKey': _sendingChainKey,
-      'receivingChainKey': _receivingChainKey,
+      'sendingChainKey': base64.encode(_sendingChainKey),
+      'receivingChainKey': base64.encode(_receivingChainKey),
       'sendingMessageCount': _sendingMessageCount,
       'receivingMessageCount': _receivingMessageCount,
     };
@@ -1866,8 +1901,10 @@ class DoubleRatchetService {
       final jsonData = jsonDecode(jsonString);
       _rootKey = base64.decode(jsonData['rootKey']);
       _chainKey = base64.decode(jsonData['chainKey']);
-      _senderEphemeralPrivate = base64.decode(jsonData['senderEphemeralPrivate']);
-      _receiverEphemeralPublic = base64.decode(jsonData['receiverEphemeralPublic']);
+      _senderEphemeralPrivate =
+          base64.decode(jsonData['senderEphemeralPrivate']);
+      _receiverEphemeralPublic =
+          base64.decode(jsonData['receiverEphemeralPublic']);
       _previousCounter = jsonData['previousCounter'];
       _localDHPrivate = base64.decode(jsonData['localDHPrivate']);
       _isInitialized = jsonData['isInitialized'];
@@ -1879,6 +1916,22 @@ class DoubleRatchetService {
       throw Exception('Failed to load session state: $e');
     }
   }
+  
+  
+  Future<void> loadStateFromMap(Map<String, dynamic> jsonData) async {
+    try {
+      _rootKey = base64.decode(jsonData['rootKey']);
+      _sendingChainKey = base64.decode(jsonData['sendingChainKey']);
+      _receivingChainKey = base64.decode(jsonData['receivingChainKey']);
+      _sendingMessageCount = jsonData['sendingMessageCount'] ?? 0;
+      _receivingMessageCount = jsonData['receivingMessageCount'] ?? 0;
+      _isInitialized = true;
+      Logger.logInfo('Session state loaded successfully');
+    } catch (e) {
+      throw Exception('Failed to load session state from map: $e');
+    }
+  }
+  
 
   Future<void> skipMessageKeys(int count) async {
     if (count < 0) {
@@ -2146,7 +2199,8 @@ class MigrationManager {
     }
   }
 
-  Future<void> logMigration(int fromVersion, int toVersion, bool success) async {
+  Future<void> logMigration(
+      int fromVersion, int toVersion, bool success) async {
     try {
       final logsBox = _hiveManager.getBox('migration_logs');
       final logEntry = {
@@ -2191,7 +2245,8 @@ class SecureWebSocket {
   int _reconnectAttempts = 0;
   bool _isConnected = false;
   final Map<String, dynamic> _pendingMessages = {};
-  final StreamController<dynamic> _messageController = StreamController<dynamic>.broadcast();
+  final StreamController<dynamic> _messageController =
+      StreamController<dynamic>.broadcast();
   final AESGCMService _aesGcm = AESGCMService();
   Uint8List? _sessionKey;
   String? _userId;
@@ -2207,7 +2262,8 @@ class SecureWebSocket {
       _deviceId = deviceId;
 
       _channel = WebSocketChannel.connect(Uri.parse(url));
-      _channel!.stream.listen(_handleData, onDone: _handleDisconnect, onError: _handleError);
+      _channel!.stream.listen(_handleData,
+          onDone: _handleDisconnect, onError: _handleError);
 
       final authMessage = {
         'type': 'auth',
@@ -2237,7 +2293,8 @@ class SecureWebSocket {
     }
   }
 
-  Future<void> sendMessage(Map<String, dynamic> data, {String? recipientId}) async {
+  Future<void> sendMessage(Map<String, dynamic> data,
+      {String? recipientId}) async {
     if (!_isConnected) {
       throw StateError('Not connected');
     }
@@ -2339,6 +2396,15 @@ class SecureWebSocket {
     if (status == 'success') {
       final sessionKeyBase64 = data['sessionKey'] as String;
       _sessionKey = base64.decode(sessionKeyBase64);
+      
+    if (data.containsKey('token')) {
+      final token = data['token'] as String;
+      if (token.isNotEmpty) {
+        await SecureStorageManager().writeAuthToken(token);
+        Logger.logInfo('Auth token saved from server');
+      }
+    }  
+      
       _isConnected = true;
       _messageController.add({'type': 'connected'});
     } else {
@@ -2347,7 +2413,10 @@ class SecureWebSocket {
   }
 
   Future<void> _handlePing() async {
-    final pong = {'type': 'pong', 'timestamp': DateTime.now().toIso8601String()};
+    final pong = {
+      'type': 'pong',
+      'timestamp': DateTime.now().toIso8601String()
+    };
     if (_channel != null) {
       _channel!.sink.add(jsonEncode(pong));
     }
@@ -2360,6 +2429,29 @@ class SecureWebSocket {
   Future<void> _handleAck(Map<String, dynamic> data) async {
     final messageId = data['messageId'] as String;
     _pendingMessages.remove(messageId);
+
+  // تحديث Hive
+    try {
+      final hiveManager = HiveManager();
+      final messagesBox = hiveManager.getBox('messages');
+      final message = messagesBox.get(messageId) as MessageEntity?;
+      if (message != null && message.isOutgoing) {
+        final updated = message.copyWith(
+          status: 1,
+          deliveredAt: DateTime.now(),
+        );
+        await messagesBox.put(messageId, updated);
+        Logger.logInfo('Message $messageId marked as delivered in Hive');
+      }
+    } catch (e) {
+      Logger.logWarning('Failed to update message status for ACK: $e');
+    }
+
+  // 🔥 إرسال حدث إلى الواجهة عبر StreamController
+    _messageController.add({
+      'type': 'delivery_receipt',
+      'messageId': messageId,
+    });
   }
 
   Future<void> _handleCallSignal(Map<String, dynamic> data) async {
@@ -2393,7 +2485,8 @@ class SecureWebSocket {
   Future<void> _reconnect() async {
     if (_reconnectTimer != null) return;
 
-    final delay = Duration(seconds: min(pow(2, _reconnectAttempts).toInt(), 300));
+    final delay =
+        Duration(seconds: min(pow(2, _reconnectAttempts).toInt(), 300));
     _reconnectAttempts++;
 
     _reconnectTimer = Timer(delay, () async {
@@ -2411,7 +2504,10 @@ class SecureWebSocket {
   void _startHeartbeat() {
     _heartbeatTimer = Timer.periodic(const Duration(seconds: 25), (timer) {
       if (_isConnected && _channel != null) {
-        final ping = {'type': 'ping', 'timestamp': DateTime.now().toIso8601String()};
+        final ping = {
+          'type': 'ping',
+          'timestamp': DateTime.now().toIso8601String()
+        };
         _channel!.sink.add(jsonEncode(ping));
       }
     });
@@ -2598,7 +2694,8 @@ class RetryQueue {
     } catch (e) {
       entry.retryCount++;
       if (entry.retryCount < entry.maxRetries) {
-        entry.currentDelay = Duration(milliseconds: (entry.currentDelay.inMilliseconds * 2));
+        entry.currentDelay =
+            Duration(milliseconds: (entry.currentDelay.inMilliseconds * 2));
         entry.isProcessing = false;
         await Future.delayed(entry.currentDelay);
         await _processEntry(messageId);
@@ -2698,12 +2795,14 @@ class IdentityNotifier extends StateNotifier<UserEntity?> {
 
   Future<void> createIdentity(String username, String password) async {
     try {
-      final ed25519 = Ed25519Service(secureStorage: const FlutterSecureStorage());
+      final ed25519 =
+          Ed25519Service(secureStorage: const FlutterSecureStorage());
       final x25519 = X25519Service();
       final bip39 = BIP39Service();
 
       final ed25519Keys = await ed25519.generateKeyPair();
       final x25519Keys = await x25519.generateKeyPair();
+      await _secureStorage.storeX25519PrivateKey(x25519Keys.privateKey);
       final mnemonic = bip39.generateMnemonic();
 
       final userId = _generateUserId();
@@ -2726,14 +2825,46 @@ class IdentityNotifier extends StateNotifier<UserEntity?> {
       _privateKey = ed25519Keys.privateKey;
       _publicKey = ed25519Keys.publicKey;
 
-      await _secureStorage.storeKeys(ed25519Keys.privateKey, ed25519Keys.publicKey, userId);
+      await _secureStorage.storeKeys(
+          ed25519Keys.privateKey, ed25519Keys.publicKey, userId);
 
       final userBox = _hiveManager.getBox('users');
       await userBox.put(userId, _currentUser);
 
       final settingsBox = _hiveManager.getBox('settings');
       await settingsBox.put('recovery_phrase', mnemonic);
+      
+      // داخل IdentityNotifier.createIdentity، بعد حفظ المستخدم في Hive وقبل notifyListeners():
 
+// توليد Signed PreKey و One-Time PreKeys (مؤقتة)
+      
+      final signedPreKey = await x25519.generateKeyPair();
+      
+      await _secureStorage.storeSignedPreKey(signedPreKey.privateKey, signedPreKey.publicKey);
+      
+      final oneTimePreKeys = <Uint8List>[];
+      for (int i = 0; i < 10; i++) {
+        final key = await x25519.generateKeyPair();
+        oneTimePreKeys.add(key.publicKey);
+      }    
+
+// رفعها إلى السيرفر (غير متزامن عمداً حتى لا يعلق المستخدم في حال فشل السيرفر)
+      try {
+        await PreKeyService().uploadPreKeys(
+          userId: userId,
+          identityPublic: x25519Keys.publicKey,
+          signedPreKeyPublic: signedPreKey.publicKey,
+          signedPreKeyPrivate: signedPreKey.privateKey,
+          oneTimePreKeysPublic: oneTimePreKeys,
+        );
+        Logger.logInfo('PreKeys uploaded successfully');
+      } catch (e) {
+        Logger.logError('Failed to upload prekeys during identity creation', error: e);
+  // يمكنك إما إعادة رمي الخطأ لإظهاره للمستخدم، أو الاستمرار مع تسجيل الخطأ.
+  // إذا أردت عدم تعطيل إنشاء الهوية، استمر.
+}
+      
+      
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to create identity: $e');
@@ -2748,7 +2879,8 @@ class IdentityNotifier extends StateNotifier<UserEntity?> {
       }
 
       final seed = bip39.deriveSeed(mnemonic, passphrase: passphrase);
-      final ed25519 = Ed25519Service(secureStorage: const FlutterSecureStorage());
+      final ed25519 =
+          Ed25519Service(secureStorage: const FlutterSecureStorage());
       final x25519 = X25519Service();
 
       final ed25519Keys = await ed25519.generateKeyPair();
@@ -2774,7 +2906,8 @@ class IdentityNotifier extends StateNotifier<UserEntity?> {
       _privateKey = ed25519Keys.privateKey;
       _publicKey = ed25519Keys.publicKey;
 
-      await _secureStorage.storeKeys(ed25519Keys.privateKey, ed25519Keys.publicKey, userId);
+      await _secureStorage.storeKeys(
+          ed25519Keys.privateKey, ed25519Keys.publicKey, userId);
 
       final userBox = _hiveManager.getBox('users');
       await userBox.put(userId, _currentUser);
@@ -2846,7 +2979,8 @@ class ContactsNotifier extends StateNotifier<List<ContactEntity>> {
   final HiveManager _hiveManager = HiveManager();
 
   List<ContactEntity> get contacts => List.unmodifiable(_contacts);
-  List<ContactEntity> get pendingRequests => List.unmodifiable(_pendingRequests);
+  List<ContactEntity> get pendingRequests =>
+      List.unmodifiable(_pendingRequests);
 
   Future<void> loadContacts() async {
     try {
@@ -2899,12 +3033,14 @@ class ContactsNotifier extends StateNotifier<List<ContactEntity>> {
       final contactsBox = _hiveManager.getBox('contacts');
       await contactsBox.put(contact.contactUserId, contact);
 
-      final index = _contacts.indexWhere((c) => c.contactUserId == contact.contactUserId);
+      final index =
+          _contacts.indexWhere((c) => c.contactUserId == contact.contactUserId);
       if (index != -1) {
         _contacts[index] = contact;
       }
 
-      final pendingIndex = _pendingRequests.indexWhere((c) => c.contactUserId == contact.contactUserId);
+      final pendingIndex = _pendingRequests
+          .indexWhere((c) => c.contactUserId == contact.contactUserId);
       if (pendingIndex != -1) {
         _pendingRequests[pendingIndex] = contact;
       }
@@ -2917,7 +3053,8 @@ class ContactsNotifier extends StateNotifier<List<ContactEntity>> {
 
   Future<void> blockContact(String contactUserId) async {
     try {
-      final contact = _contacts.firstWhere((c) => c.contactUserId == contactUserId);
+      final contact =
+          _contacts.firstWhere((c) => c.contactUserId == contactUserId);
       final updated = contact.copyWith(isBlocked: true);
       await updateContact(updated);
     } catch (e) {
@@ -2927,7 +3064,8 @@ class ContactsNotifier extends StateNotifier<List<ContactEntity>> {
 
   Future<void> unblockContact(String contactUserId) async {
     try {
-      final contact = _contacts.firstWhere((c) => c.contactUserId == contactUserId);
+      final contact =
+          _contacts.firstWhere((c) => c.contactUserId == contactUserId);
       final updated = contact.copyWith(isBlocked: false);
       await updateContact(updated);
     } catch (e) {
@@ -2937,7 +3075,8 @@ class ContactsNotifier extends StateNotifier<List<ContactEntity>> {
 
   Future<void> acceptRequest(String contactUserId) async {
     try {
-      final request = _pendingRequests.firstWhere((c) => c.contactUserId == contactUserId);
+      final request =
+          _pendingRequests.firstWhere((c) => c.contactUserId == contactUserId);
       final accepted = request.copyWith(isFriend: true);
       await updateContact(accepted);
       _pendingRequests.remove(request);
@@ -2950,7 +3089,8 @@ class ContactsNotifier extends StateNotifier<List<ContactEntity>> {
 
   Future<void> declineRequest(String contactUserId) async {
     try {
-      final request = _pendingRequests.firstWhere((c) => c.contactUserId == contactUserId);
+      final request =
+          _pendingRequests.firstWhere((c) => c.contactUserId == contactUserId);
       await removeContact(contactUserId);
       notifyListeners();
     } catch (e) {
@@ -2969,8 +3109,8 @@ class MessagesNotifier extends StateNotifier<List<MessageEntity>> {
   final HiveManager _hiveManager = HiveManager();
   final FileManager _fileManager = FileManager();
 
-  void notifyListeners() =>
-      state = List<MessageEntity>.unmodifiable(_messages[conversationId] ?? const []);
+  void notifyListeners() => state =
+      List<MessageEntity>.unmodifiable(_messages[conversationId] ?? const []);
 
   List<MessageEntity> getMessages(String conversationId) {
     return List.unmodifiable(_messages[conversationId] ?? []);
@@ -3043,7 +3183,8 @@ class MessagesNotifier extends StateNotifier<List<MessageEntity>> {
 
       final conversationMessages = _messages[message.conversationId];
       if (conversationMessages != null) {
-        final index = conversationMessages.indexWhere((m) => m.messageId == message.messageId);
+        final index = conversationMessages
+            .indexWhere((m) => m.messageId == message.messageId);
         if (index != -1) {
           conversationMessages[index] = message;
           notifyListeners();
@@ -3253,7 +3394,8 @@ class SettingsNotifier extends StateNotifier<SettingsEntity?> {
 
   Future<void> toggleNotifications() async {
     if (_settings == null) return;
-    final updated = _settings!.copyWith(muteNotifications: !_settings!.muteNotifications);
+    final updated =
+        _settings!.copyWith(muteNotifications: !_settings!.muteNotifications);
     await saveSettings(updated);
   }
 
@@ -3271,7 +3413,8 @@ class SettingsNotifier extends StateNotifier<SettingsEntity?> {
 
   Future<void> toggleBiometric() async {
     if (_settings == null) return;
-    final updated = _settings!.copyWith(biometricUnlock: !_settings!.biometricUnlock);
+    final updated =
+        _settings!.copyWith(biometricUnlock: !_settings!.biometricUnlock);
     await saveSettings(updated);
   }
 }
@@ -3443,29 +3586,22 @@ class NetworkNotifier extends StateNotifier<ConnectivityResult> {
   Future<void> init() async {
     if (_isInitialized) return;
     final result = await _connectivityPlus.checkConnectivity();
-    if (result is List<ConnectivityResult>) {
-      _connectivity = result.isNotEmpty ? result.first : ConnectivityResult.none;
-    } else if (result is ConnectivityResult) {
-      _connectivity = result;
-    } else {
-      _connectivity = ConnectivityResult.none;
-    }
-    state = _connectivity; 
-    
+
+    _connectivity = result.isNotEmpty ? result.first : ConnectivityResult.none;
+
+    state = _connectivity;
+
     _connectivityPlus.onConnectivityChanged.listen((event) {
-      if (event is List<ConnectivityResult>) {
-        _connectivity = event.isNotEmpty ? event.first : ConnectivityResult.none;
-      } else if (event is ConnectivityResult) {
-        _connectivity = event;
-      } else {
-        _connectivity = ConnectivityResult.none;
-      }
+      _connectivity = event.isNotEmpty ? event.first : ConnectivityResult.none;
+
       state = _connectivity;
     });
     _isInitialized = true;
   }
+
   void _handleConnectivityChange(List<ConnectivityResult> results) {
-    _connectivity = results.isNotEmpty ? results.first : ConnectivityResult.none;
+    _connectivity =
+        results.isNotEmpty ? results.first : ConnectivityResult.none;
     state = _connectivity;
   }
 
@@ -3521,22 +3657,67 @@ class SendMessageUseCase {
     try {
       final messageId = _generateMessageId();
       final now = DateTime.now();
+      final sessionBox = HiveManager().getBox('sessions');
 
-      // End-to-end encryption: the payload that leaves the device is always
-      // sealed with the Double Ratchet session.
-      await _doubleRatchet.ensureInitialized();
+    // 1. محاولة تحميل الجلسة المحفوظة
+      final sessionJson = sessionBox.get(conversationId) as String?;
+      bool sessionLoaded = false;
+      if (sessionJson != null) {
+        try {
+          await _doubleRatchet.loadStateFromMap(jsonDecode(sessionJson));
+          sessionLoaded = true;
+          Logger.logInfo('Session loaded for $conversationId');
+        } catch (e) {
+          Logger.logWarning('Failed to load session: $e');
+        }
+      }
+
+    // 2. إذا لم تكن الجلسة مهيأة، نقوم بتهيئتها (أول رسالة)
+      Uint8List? ephemeralPublicKey;
+      if (!_doubleRatchet.isInitialized) {
+      // جلب المفاتيح المسبقة للطرف الآخر
+        final preKeyService = PreKeyService();
+        final theirPreKeys = await preKeyService.fetchPreKeys(recipientUserId);
+
+      // جلب مفاتيحنا الخاصة
+        final storage = SecureStorageManager();
+        final myKeys = await storage.retrieveKeys();
+        final x25519PrivateKey = await storage.retrieveX25519PrivateKey();
+        if (x25519PrivateKey == null) {
+          throw Exception('X25519 private key not found');
+        }
+      // توليد مفتاح مؤقت (يستخدم مرة واحدة فقط في بداية الجلسة)
+        final x25519 = X25519Service();
+        final ephemeral = await x25519.generateKeyPair();
+        ephemeralPublicKey = ephemeral.publicKey;
+
+      // تهيئة الجلسة
+        await _doubleRatchet.initializeSession(
+          x25519PrivateKey,
+          ephemeral.privateKey,
+          ephemeral.privateKey,
+          theirPreKeys['identityPublic'] as Uint8List,
+          theirPreKeys['signedPreKeyPublic'] as Uint8List,
+          theirPreKeys['oneTimePreKeyPublic'] as Uint8List,
+        );
+
+      // حفظ الحالة بعد التهيئة
+        final state = await _doubleRatchet.getState();
+        await sessionBox.put(conversationId, jsonEncode(state));
+        Logger.logInfo('New session initialized and saved for $conversationId');
+      }
+
+    // 3. تشفير النص باستخدام ratchetSend (دون توليد ephemeral جديد)
       final plaintext = utf8.encode(text);
-      final encrypted =
-          await _doubleRatchet.ratchetSend(Uint8List.fromList(plaintext));
+      final encrypted = await _doubleRatchet.ratchetSend(Uint8List.fromList(plaintext));
 
+    // 4. بناء الرسالة المحلية
       final message = MessageEntity(
         messageId: messageId,
         conversationId: conversationId,
         senderUserId: senderUserId,
         recipientUserId: recipientUserId,
         type: 0,
-        // The local copy stays readable (the Hive box itself is AES encrypted);
-        // only the wire payload below is ciphertext.
         content: text,
         mediaPath: null,
         mediaKey: null,
@@ -3553,19 +3734,35 @@ class SendMessageUseCase {
 
       await _messagesNotifier.addMessage(message);
 
-      // Send through WebSocket
+    // 5. إرسال الرسالة عبر WebSocket
       if (_webSocket.isConnected) {
         await _webSocket.sendMessage({
           'type': 'message',
           'messageId': messageId,
           'conversationId': conversationId,
+          'senderUserId': senderUserId,
+          'recipientUserId': recipientUserId,
           'content': base64.encode(encrypted),
+        // نرسل المفتاح المؤقت فقط إذا كانت هذه أول رسالة (الجلسة أنشئت للتو)
+        
+          
+          'senderEphemeralPublic': sessionLoaded ? null : base64.encode(ephemeralPublicKey!),
           'timestamp': now.toIso8601String(),
           'replyToId': replyToId,
           'burnTimer': burnTimer,
         });
       }
-
+     
+    
+    try {
+      final updatedState = await _doubleRatchet.getState();
+      await sessionBox.put(conversationId, jsonEncode(updatedState));
+      Logger.logInfo('Session state saved after sending message');
+    } catch (e) {
+      Logger.logWarning('Failed to save session state after send: $e');
+    }
+    
+     
       return message;
     } catch (e) {
       throw Exception('Failed to send message: $e');
@@ -3622,7 +3819,8 @@ class RestoreIdentityUseCase {
   RestoreIdentityUseCase({required IdentityNotifier identityNotifier})
       : _identityNotifier = identityNotifier;
 
-  Future<UserEntity> execute({required String mnemonic, String? passphrase}) async {
+  Future<UserEntity> execute(
+      {required String mnemonic, String? passphrase}) async {
     try {
       await _identityNotifier.restoreIdentity(mnemonic, passphrase ?? '');
       final user = _identityNotifier.currentUser;
@@ -3649,32 +3847,33 @@ class AddContactUseCase {
   Future<ContactEntity> execute({
     required String userId,
     required String username,
-    required Uint8List ed25519PublicKey,
-    required Uint8List x25519PublicKey,
+    required String currentUserId,
   }) async {
     try {
+    // 🔥 جلب المفاتيح العامة الحقيقية للمستخدم من السيرفر
+      final preKeyService = PreKeyService();
+      final preKeys = await preKeyService.fetchPreKeys(userId);
+    
       final contact = ContactEntity(
         contactUserId: userId,
         username: username,
         displayName: username,
-        ed25519PublicKey: ed25519PublicKey,
-        x25519PublicKey: x25519PublicKey,
-        identityFingerprint: _calculateFingerprint(ed25519PublicKey),
+        ed25519PublicKey: preKeys['identityPublic'] as Uint8List,
+        x25519PublicKey: preKeys['signedPreKeyPublic'] as Uint8List,
+        identityFingerprint: _calculateFingerprint(preKeys['identityPublic'] as Uint8List),
         isBlocked: false,
         isFriend: false,
-        conversationId: _generateConversationId(userId),
+        conversationId: _generateConversationId(userId, currentUserId),
         profilePictureHash: null,
       );
 
       await _contactsNotifier.addContact(contact);
 
-      // Send contact request through WebSocket
       if (_webSocket.isConnected) {
         await _webSocket.sendMessage({
           'type': 'contact_request',
           'userId': userId,
           'username': username,
-          'publicKey': base64.encode(ed25519PublicKey),
         });
       }
 
@@ -3683,10 +3882,14 @@ class AddContactUseCase {
       throw Exception('Failed to add contact: $e');
     }
   }
-
-  String _generateConversationId(String userId) {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    return '$userId-$now';
+  // داخل AddContactUseCase، استبدل دالة _generateConversationId بهذه:
+  String _generateConversationId(String userId, String currentUserId) {
+  // الحصول على معرف المستخدم الحالي
+    
+  // ترتيب المعرفين أبجدياً للحصول على نفس النتيجة عند الطرفين
+    List<String> ids = [currentUserId, userId];
+    ids.sort();
+    return ids.join('_');
   }
 
   String _calculateFingerprint(Uint8List publicKey) {
@@ -3705,7 +3908,8 @@ class StartCallUseCase {
   })  : _callNotifier = callNotifier,
         _webSocket = webSocket;
 
-  Future<void> execute({required String contactId, required String type}) async {
+  Future<void> execute(
+      {required String contactId, required String type}) async {
     try {
       await _callNotifier.startCall(contactId, type: type);
 
@@ -3881,7 +4085,8 @@ class SendFileUseCase {
 
   /// Uploads the already-encrypted blob to the relay server and returns the
   /// download URL issued by the server (multipart/form-data).
-  Future<Map<String, dynamic>> _uploadFile(String filePath, String recipientId) async {
+  Future<Map<String, dynamic>> _uploadFile(
+      String filePath, String recipientId) async {
     final file = File(filePath);
     final bytes = await file.readAsBytes();
 
@@ -4053,7 +4258,8 @@ class RestoreDataUseCase {
   })  : _hiveManager = hiveManager,
         _fileManager = fileManager;
 
-  Future<void> execute({required String filePath, required String password}) async {
+  Future<void> execute(
+      {required String filePath, required String password}) async {
     try {
       final file = File(filePath);
       final encrypted = await file.readAsBytes();
@@ -4072,8 +4278,8 @@ class RestoreDataUseCase {
         await userBox.clear();
         for (final raw in users) {
           if (raw is Map) {
-            await userBox.add(
-                UserEntity.fromJson(Map<String, dynamic>.from(raw)));
+            await userBox
+                .add(UserEntity.fromJson(Map<String, dynamic>.from(raw)));
           }
         }
       }
@@ -4083,8 +4289,8 @@ class RestoreDataUseCase {
         await contactsBox.clear();
         for (final raw in contacts) {
           if (raw is Map) {
-            await contactsBox.add(
-                ContactEntity.fromJson(Map<String, dynamic>.from(raw)));
+            await contactsBox
+                .add(ContactEntity.fromJson(Map<String, dynamic>.from(raw)));
           }
         }
       }
@@ -4094,8 +4300,8 @@ class RestoreDataUseCase {
         await messagesBox.clear();
         for (final raw in messages) {
           if (raw is Map) {
-            await messagesBox.add(
-                MessageEntity.fromJson(Map<String, dynamic>.from(raw)));
+            await messagesBox
+                .add(MessageEntity.fromJson(Map<String, dynamic>.from(raw)));
           }
         }
       }
@@ -4105,8 +4311,8 @@ class RestoreDataUseCase {
         await settingsBox.clear();
         for (final raw in settings) {
           if (raw is Map) {
-            await settingsBox.add(
-                SettingsEntity.fromJson(Map<String, dynamic>.from(raw)));
+            await settingsBox
+                .add(SettingsEntity.fromJson(Map<String, dynamic>.from(raw)));
           }
         }
       }
@@ -4133,7 +4339,8 @@ class EditMessageUseCase {
   })  : _messagesNotifier = messagesNotifier,
         _webSocket = webSocket;
 
-  Future<void> execute({required String messageId, required String newText}) async {
+  Future<void> execute(
+      {required String messageId, required String newText}) async {
     try {
       final messagesBox = HiveManager().getBox('messages');
       final message = messagesBox.get(messageId) as MessageEntity?;
@@ -4172,7 +4379,8 @@ class DeleteMessageUseCase {
   })  : _messagesNotifier = messagesNotifier,
         _webSocket = webSocket;
 
-  Future<void> execute({required String messageId, bool forEveryone = false}) async {
+  Future<void> execute(
+      {required String messageId, bool forEveryone = false}) async {
     try {
       await _messagesNotifier.deleteMessage(messageId);
 
@@ -4254,7 +4462,8 @@ class MuteChatUseCase {
   })  : _settingsNotifier = settingsNotifier,
         _webSocket = webSocket;
 
-  Future<void> execute({required String conversationId, int durationMinutes = 60}) async {
+  Future<void> execute(
+      {required String conversationId, int durationMinutes = 60}) async {
     try {
       final settings = _settingsNotifier.settings;
       if (settings != null) {
@@ -4286,7 +4495,8 @@ class PinChatUseCase {
   })  : _hiveManager = hiveManager,
         _webSocket = webSocket;
 
-  Future<void> execute({required String conversationId, bool pin = true}) async {
+  Future<void> execute(
+      {required String conversationId, bool pin = true}) async {
     try {
       final pinnedBox = _hiveManager.getBox('pinned_chats');
       if (pin) {
@@ -4365,7 +4575,8 @@ class Logger {
 class SecureStorageManager {
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  Future<void> storeKeys(Uint8List privateKey, Uint8List publicKey, String userId) async {
+  Future<void> storeKeys(
+      Uint8List privateKey, Uint8List publicKey, String userId) async {
     try {
       await _storage.write(
         key: 'private_key',
@@ -4384,7 +4595,8 @@ class SecureStorageManager {
     }
   }
 
-  Future<({Uint8List? privateKey, Uint8List? publicKey, String? userId})> retrieveKeys() async {
+  Future<({Uint8List? privateKey, Uint8List? publicKey, String? userId})>
+      retrieveKeys() async {
     try {
       final privateKeyStr = await _storage.read(key: 'private_key');
       final publicKeyStr = await _storage.read(key: 'public_key');
@@ -4408,6 +4620,21 @@ class SecureStorageManager {
     }
   }
 
+  Future<void> storeSignedPreKey(Uint8List privateKey, Uint8List publicKey) async {
+    await _storage.write(key: 'signed_private_key', value: base64.encode(privateKey));
+    await _storage.write(key: 'signed_public_key', value: base64.encode(publicKey));
+  }
+
+ Future<({Uint8List? privateKey, Uint8List? publicKey})> retrieveSignedPreKey() async {
+    final privateStr = await _storage.read(key: 'signed_private_key');
+    final publicStr = await _storage.read(key: 'signed_public_key');
+    return (
+      privateKey: privateStr != null ? base64.decode(privateStr) : null,
+      publicKey: publicStr != null ? base64.decode(publicStr) : null,
+    );
+  }
+  
+
   // ---------------- PIN (salted SHA-256, never stored in clear) -----------
 
   Future<bool> hasPin() async {
@@ -4417,7 +4644,8 @@ class SecureStorageManager {
 
   Future<void> storePin(String pin) async {
     final random = Random.secure();
-    final salt = Uint8List.fromList(List.generate(16, (_) => random.nextInt(256)));
+    final salt =
+        Uint8List.fromList(List.generate(16, (_) => random.nextInt(256)));
     final hash = _hashPin(pin, salt);
     await _storage.write(key: 'pin_salt', value: base64.encode(salt));
     await _storage.write(key: 'pin_hash', value: base64.encode(hash));
@@ -4446,7 +4674,8 @@ class SecureStorageManager {
 
   Uint8List _hashPin(String pin, Uint8List salt) {
     // 100k stretching rounds so a 6 digit PIN is not trivially brute-forced.
-    var digest = Uint8List.fromList(sha256.convert([...salt, ...utf8.encode(pin)]).bytes);
+    var digest = Uint8List.fromList(
+        sha256.convert([...salt, ...utf8.encode(pin)]).bytes);
     for (var i = 0; i < 100000; i++) {
       digest = Uint8List.fromList(sha256.convert([...digest, ...salt]).bytes);
     }
@@ -4460,13 +4689,24 @@ class SecureStorageManager {
   Future<String?> readAuthToken() async {
     return _storage.read(key: 'auth_token');
   }
+  
+  Future<void> storeX25519PrivateKey(Uint8List privateKey) async {
+    await _storage.write(key: 'x25519_private_key', value: base64.encode(privateKey));
+  }
+
+  Future<Uint8List?> retrieveX25519PrivateKey() async {
+    final keyStr = await _storage.read(key: 'x25519_private_key');
+    return keyStr != null ? base64.decode(keyStr) : null;
+  }
+  
 }
 
 class FileManager {
   final AESGCMService _aesGcm = AESGCMService();
   final AudioRecorder _audioRecorder = AudioRecorder();
 
-  Future<String> compressImage(String filePath, {int quality = 85, int maxWidth = 1920, int maxHeight = 1080}) async {
+  Future<String> compressImage(String filePath,
+      {int quality = 85, int maxWidth = 1920, int maxHeight = 1080}) async {
     try {
       final file = File(filePath);
       final bytes = await file.readAsBytes();
@@ -4489,7 +4729,8 @@ class FileManager {
       final compressedBytes = img.encodeJpg(resized, quality: quality);
 
       final tempDir = await getTemporaryDirectory();
-      final outputPath = '${tempDir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final outputPath =
+          '${tempDir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
       final outputFile = File(outputPath);
       await outputFile.writeAsBytes(compressedBytes);
@@ -4758,7 +4999,8 @@ class NotificationManager {
 
   static Future<void> initializeNotifications() async {
     try {
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosSettings = DarwinInitializationSettings();
       const settings = InitializationSettings(
         android: androidSettings,
@@ -4770,7 +5012,8 @@ class NotificationManager {
     }
   }
 
-  static Future<void> showNotification(String title, String body, {String? payload}) async {
+  static Future<void> showNotification(String title, String body,
+      {String? payload}) async {
     try {
       const androidDetails = AndroidNotificationDetails(
         AppConfig.messagesChannelId,
@@ -4904,15 +5147,17 @@ class CallManager {
   RTCVideoRenderer? _localRenderer;
   RTCVideoRenderer? _remoteRenderer;
 
-  Future<void> _initPeerConnection({Map<String, dynamic>? configuration}) async {
+  Future<void> _initPeerConnection(
+      {Map<String, dynamic>? configuration}) async {
     try {
-      final config = configuration ?? {
-        'iceServers': [
-          {'urls': 'stun:stun.l.google.com:19302'},
-          {'urls': 'stun:stun1.l.google.com:19302'},
-          {'urls': 'stun:stun2.l.google.com:19302'},
-        ],
-      };
+      final config = configuration ??
+          {
+            'iceServers': [
+              {'urls': 'stun:stun.l.google.com:19302'},
+              {'urls': 'stun:stun1.l.google.com:19302'},
+              {'urls': 'stun:stun2.l.google.com:19302'},
+            ],
+          };
 
       _pc = await createPeerConnection(config);
       _pc!.onIceCandidate = (candidate) {
@@ -4987,14 +5232,16 @@ class CallManager {
     try {
       final constraints = {
         'audio': true,
-        'video': withVideo ? {
-          'mandatory': {
-            'minWidth': '640',
-            'minHeight': '480',
-            'maxFrameRate': '30',
-          },
-          'facingMode': 'user',
-        } : false,
+        'video': withVideo
+            ? {
+                'mandatory': {
+                  'minWidth': '640',
+                  'minHeight': '480',
+                  'maxFrameRate': '30',
+                },
+                'facingMode': 'user',
+              }
+            : false,
       };
       _localStream = await navigator.mediaDevices.getUserMedia(constraints);
       if (_pc != null && _localStream != null) {
@@ -5193,7 +5440,8 @@ class CallManager {
 }
 
 class Base58Codec {
-  static const String _alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  static const String _alphabet =
+      '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
   static String encode(Uint8List input) {
     if (input.isEmpty) return '';
@@ -5560,7 +5808,8 @@ class SecurityAudit {
     }
   }
 
-  static Future<bool> checkMessageIntegrity(Uint8List message, Uint8List mac) async {
+  static Future<bool> checkMessageIntegrity(
+      Uint8List message, Uint8List mac) async {
     try {
       final hmac = pc.HMac(pc.SHA256Digest(), 32);
       final key = Uint8List(32);
@@ -5611,6 +5860,65 @@ class SecurityAudit {
     return results;
   }
 }
+
+
+// ============================================================
+// PART 9.b: PREKEY SERVICE (NEW)
+// ============================================================
+
+class PreKeyService {
+  final http.Client _client = http.Client();
+
+  /// رفع المفاتيح المسبقة للمستخدم الحالي إلى السيرفر
+  Future<void> uploadPreKeys({
+    required String userId,
+    required Uint8List identityPublic,
+    required Uint8List signedPreKeyPublic,
+    required Uint8List signedPreKeyPrivate,
+    required List<Uint8List> oneTimePreKeysPublic,
+  }) async {
+    try {
+      final uri = Uri.parse('${AppConfig.apiBaseUrl}/api/prekeys');
+      final body = {
+        'userId': userId,
+        'identityPublic': base64.encode(identityPublic),
+        'signedPreKeyPublic': base64.encode(signedPreKeyPublic),
+        'oneTimePreKeys': oneTimePreKeysPublic.map((k) => base64.encode(k)).join(','),
+      };
+      final response = await _client.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Failed to upload prekeys: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to upload prekeys: $e');
+    }
+  }
+
+  /// جلب المفاتيح المسبقة لمستخدم آخر من السيرفر
+  Future<Map<String, dynamic>> fetchPreKeys(String userId) async {
+    try {
+      final uri = Uri.parse('${AppConfig.apiBaseUrl}/api/prekeys/$userId');
+      final response = await _client.get(uri);
+      if (response.statusCode != 200) {
+        throw Exception('Failed to fetch prekeys for $userId');
+      }
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      return {
+        'identityPublic': base64.decode(data['identityPublic'] as String),
+        'signedPreKeyPublic': base64.decode(data['signedPreKeyPublic'] as String),
+        'oneTimePreKeyPublic': base64.decode(data['oneTimePreKeyPublic'] as String),
+      };
+    } catch (e) {
+      throw Exception('Failed to fetch prekeys: $e');
+    }
+  }
+}
+
+
 
 // ============================================================
 // PART 10: UI SCREENS (FULL IMPLEMENTATION)
@@ -5701,7 +6009,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final List<OnboardingPage> _pages = const [
     OnboardingPage(
       title: 'Secure Messaging',
-      description: 'End-to-end encrypted messages with the Double Ratchet algorithm',
+      description:
+          'End-to-end encrypted messages with the Double Ratchet algorithm',
       icon: Icons.security,
     ),
     OnboardingPage(
@@ -5856,7 +6165,8 @@ class CreateIdentityScreen extends ConsumerStatefulWidget {
   const CreateIdentityScreen({super.key});
 
   @override
-  ConsumerState<CreateIdentityScreen> createState() => _CreateIdentityScreenState();
+  ConsumerState<CreateIdentityScreen> createState() =>
+      _CreateIdentityScreenState();
 }
 
 class _CreateIdentityScreenState extends ConsumerState<CreateIdentityScreen> {
@@ -6158,7 +6468,11 @@ class _VerifyPhraseScreenState extends ConsumerState<VerifyPhraseScreen> {
     super.initState();
     _loadMnemonic();
   }
-
+  
+  void _updateVerificationState() {
+    setState(() {});
+  }
+  
   @override
   void dispose() {
     for (final controller in _controllers) {
@@ -6275,6 +6589,7 @@ class _VerifyPhraseScreenState extends ConsumerState<VerifyPhraseScreen> {
                       _focusNodes[index + 1].requestFocus();
                     }
                   },
+                  onChanged: (_) => _updateVerificationState(),
                 ),
               ),
             ],
@@ -6285,8 +6600,10 @@ class _VerifyPhraseScreenState extends ConsumerState<VerifyPhraseScreen> {
   }
 
   Future<void> _verifyWords() async {
-    final enteredWords = _controllers.map((c) => c.text.trim().toLowerCase()).toList();
-    final originalWords = _originalMnemonic.split(' ').map((w) => w.toLowerCase()).toList();
+    final enteredWords =
+        _controllers.map((c) => c.text.trim().toLowerCase()).toList();
+    final originalWords =
+        _originalMnemonic.split(' ').map((w) => w.toLowerCase()).toList();
 
     for (final word in enteredWords) {
       if (!originalWords.contains(word)) {
@@ -6305,7 +6622,8 @@ class _VerifyPhraseScreenState extends ConsumerState<VerifyPhraseScreen> {
     _verifyWords();
   }
 }
-
+  
+  
 class BiometricUnlockScreen extends ConsumerStatefulWidget {
   const BiometricUnlockScreen({super.key});
 
@@ -6355,7 +6673,9 @@ class _BiometricUnlockScreenState extends ConsumerState<BiometricUnlockScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                _usePin ? 'Enter your PIN to continue' : 'Please authenticate to continue',
+                _usePin
+                    ? 'Enter your PIN to continue'
+                    : 'Please authenticate to continue',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 32),
@@ -6385,13 +6705,16 @@ class _BiometricUnlockScreenState extends ConsumerState<BiometricUnlockScreen> {
                           ),
                         )
                       : Icon(_usePin ? Icons.lock_open : Icons.fingerprint),
-                  label: Text(_isAuthenticating ? 'Authenticating...' : (_usePin ? 'Unlock' : 'Authenticate')),
+                  label: Text(_isAuthenticating
+                      ? 'Authenticating...'
+                      : (_usePin ? 'Unlock' : 'Authenticate')),
                 ),
               ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: _isAuthenticating ? null : _toggleAuthMethod,
-                child: Text(_usePin ? 'Use Biometric instead' : 'Use PIN instead'),
+                child:
+                    Text(_usePin ? 'Use Biometric instead' : 'Use PIN instead'),
               ),
             ],
           ),
@@ -6683,7 +7006,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).primaryColor,
         child: Text(
-          (contact.displayName ?? contact.username).substring(0, 1).toUpperCase(),
+          (contact.displayName ?? contact.username)
+              .substring(0, 1)
+              .toUpperCase(),
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -6860,7 +7185,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final data = Map<String, dynamic>.from(event as Map);
       if (data['conversationId'] != widget.conversationId) return;
 
-      final notifier = ref.read(messagesProvider(widget.conversationId).notifier);
+      final notifier =
+          ref.read(messagesProvider(widget.conversationId).notifier);
 
       switch (data['type']) {
         case 'typing':
@@ -6873,13 +7199,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             });
           }
           break;
-        case 'ack':
+        
         case 'delivery_receipt':
+          final notifier = ref.read(messagesProvider(widget.conversationId).notifier);
           await notifier.markAsDelivered(data['messageId'] as String);
           break;
         case 'read_receipt':
           await notifier.markAsReadRemote(data['messageId'] as String);
           break;
+          
+          
+          
         case 'message':
           // Acknowledge delivery immediately for the sender's ticks.
           if (webSocket.isConnected && data['messageId'] != null) {
@@ -6888,6 +7218,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               'messageId': data['messageId'],
               'conversationId': widget.conversationId,
               'timestamp': DateTime.now().toIso8601String(),
+        
+              
             });
           }
           await _storeIncomingMessage(data, notifier);
@@ -6904,34 +7236,59 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   ) async {
     final rawContent = data['content'];
     if (rawContent is! String || rawContent.isEmpty) return;
+
     try {
+    // 1. الحصول على جلسة الراتشيت
       final ratchet = ratchetForConversation(widget.conversationId);
-      await ratchet.ensureInitialized();
-      String text;
-      try {
-        final decrypted =
-            await ratchet.ratchetReceive(base64Decode(rawContent));
-        text = utf8.decode(decrypted);
-      } catch (e) {
-        Logger.logWarning('Could not decrypt inbound message: $e');
-        return;
+
+    // 2. التحقق من وجود المفتاح المؤقت (يعني هذه أول رسالة)
+      final ephemeralPublicStr = data['senderEphemeralPublic'] as String?;
+      if (ephemeralPublicStr != null && !ratchet.isInitialized) {
+      // تهيئة الجلسة كمستقبل
+        final myKeys = await SecureStorageManager().retrieveKeys();
+        final x25519PrivateKey = await SecureStorageManager().retrieveX25519PrivateKey();
+        if (x25519PrivateKey == null) {
+          throw Exception('X25519 private key missing');
+        }
+        final signedKeys = await SecureStorageManager().retrieveSignedPreKey();
+        if (signedKeys.privateKey == null) {
+          throw Exception('Signed prekey not found locally');
+        }
+        final preKeyService = PreKeyService();
+        final senderPreKeys = await preKeyService.fetchPreKeys(data['senderUserId'] as String);
+
+        await ratchet.initializeSession(
+          x25519PrivateKey,
+          signedKeys.privateKey!,
+          signedKeys.privateKey!,
+          senderPreKeys['identityPublic'] as Uint8List,
+          senderPreKeys['signedPreKeyPublic'] as Uint8List,
+          base64.decode(ephemeralPublicStr),
+        );
+
+      // حفظ الحالة
+        final sessionBox = HiveManager().getBox('sessions');
+        final state = await ratchet.getState();
+        await sessionBox.put(widget.conversationId, jsonEncode(state));
+        Logger.logInfo('Incoming session initialized and saved');
       }
+
+    // 3. الآن الجلسة مهيأة (أو كانت موجودة)، نقوم بفك التشفير
+      final decrypted = await ratchet.ratchetReceive(base64Decode(rawContent));
+      final text = utf8.decode(decrypted);
+
       final me = ref.read(identityProvider)?.userId ?? 'unknown';
       await notifier.addMessage(
         MessageEntity(
-          messageId: (data['messageId'] as String?) ??
-              DateTime.now().millisecondsSinceEpoch.toString(),
+          messageId: (data['messageId'] as String?) ?? DateTime.now().millisecondsSinceEpoch.toString(),
           conversationId: widget.conversationId,
-          senderUserId: (data['senderUserId'] as String?) ??
-              widget.conversationId,
+          senderUserId: (data['senderUserId'] as String?) ?? widget.conversationId,
           recipientUserId: me,
           type: 0,
           content: text,
           mediaPath: null,
           mediaKey: null,
-          timestamp: DateTime.tryParse(
-                  (data['timestamp'] as String?) ?? '') ??
-              DateTime.now(),
+          timestamp: DateTime.tryParse((data['timestamp'] as String?) ?? '') ?? DateTime.now(),
           isOutgoing: false,
           status: 1,
           readAt: null,
@@ -6946,6 +7303,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       Logger.logError('Failed to store incoming message', error: e);
     }
   }
+      
+    
+    // 2. التحقق مما إذا كانت هذه الرسالة الأولى (تحتوي على المفتاح المؤقت)
+      
 
   Widget _buildTypingIndicator() {
     if (!_peerIsTyping) return const SizedBox.shrink();
@@ -6994,7 +7355,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Future<void> _loadMessages() async {
-    final messagesNotifier = ref.read(messagesProvider(widget.conversationId).notifier);
+    final messagesNotifier =
+        ref.read(messagesProvider(widget.conversationId).notifier);
     await messagesNotifier.loadMessages(widget.conversationId);
   }
 
@@ -7086,8 +7448,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         final message = messages.reversed.toList()[index];
         return Column(
           children: [
-            if (index == messages.length - 1 || 
-                messages.reversed.toList()[index + 1].timestamp.day != message.timestamp.day)
+            if (index == messages.length - 1 ||
+                messages.reversed.toList()[index + 1].timestamp.day !=
+                    message.timestamp.day)
               _buildDateSeparator(message.timestamp),
             _buildMessageBubble(message),
           ],
@@ -7104,7 +7467,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
-          mainAxisAlignment: isOutgoing ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment:
+              isOutgoing ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: [
             if (!isOutgoing)
               CircleAvatar(
@@ -7118,24 +7482,32 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             const SizedBox(width: 8),
             Flexible(
               child: Column(
-                crossAxisAlignment: isOutgoing ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                crossAxisAlignment: isOutgoing
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       color: isOutgoing
                           ? Theme.of(context).primaryColor
                           : Colors.grey[200],
                       borderRadius: BorderRadius.circular(16).copyWith(
-                        bottomRight: isOutgoing ? const Radius.circular(4) : const Radius.circular(16),
-                        bottomLeft: !isOutgoing ? const Radius.circular(4) : const Radius.circular(16),
+                        bottomRight: isOutgoing
+                            ? const Radius.circular(4)
+                            : const Radius.circular(16),
+                        bottomLeft: !isOutgoing
+                            ? const Radius.circular(4)
+                            : const Radius.circular(16),
                       ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (message.replyToMessageId != null)
-                          _buildRepliedMessagePreview(message.replyToMessageId!),
+                          _buildRepliedMessagePreview(
+                              message.replyToMessageId!),
                         if (message.content != null)
                           Text(
                             message.content!,
@@ -7153,15 +7525,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               _formatTime(message.timestamp),
                               style: TextStyle(
                                 fontSize: 10,
-                                color: isOutgoing ? Colors.white70 : Colors.grey[600],
+                                color: isOutgoing
+                                    ? Colors.white70
+                                    : Colors.grey[600],
                               ),
                             ),
                             if (message.isOutgoing) ...[
                               const SizedBox(width: 4),
                               Icon(
-                                message.status == 2 ? Icons.done_all : Icons.done,
+                                message.status == 2
+                                    ? Icons.done_all
+                                    : Icons.done,
                                 size: 14,
-                                color: isOutgoing ? Colors.white70 : Colors.grey[600],
+                                color: isOutgoing
+                                    ? Colors.white70
+                                    : Colors.grey[600],
                               ),
                             ],
                             if (message.burnTimerSeconds != null)
@@ -7204,7 +7582,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               controller: _inputController,
               focusNode: _focusNode,
               decoration: InputDecoration(
-                hintText: _replyToMessageId.isNotEmpty ? 'Reply...' : 'Type a message...',
+                hintText: _replyToMessageId.isNotEmpty
+                    ? 'Reply...'
+                    : 'Type a message...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
@@ -7545,7 +7925,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Future<void> _startRecording() async {
     try {
       final tempDir = await getTemporaryDirectory();
-      final path = '${tempDir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.aac';
+      final path =
+          '${tempDir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.aac';
       await _fileManager.startRecording(path);
       _recordTimer?.cancel();
       setState(() {
@@ -7598,7 +7979,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Future<void> _sendAudioFile(String path) async {
     try {
       final useCase = SendFileUseCase(
-        messagesNotifier: ref.read(messagesProvider(widget.conversationId).notifier),
+        messagesNotifier:
+            ref.read(messagesProvider(widget.conversationId).notifier),
         fileManager: _fileManager,
         webSocket: SecureWebSocket(),
       );
@@ -7710,7 +8092,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 if (newText.isNotEmpty) {
                   Navigator.pop(context);
                   final editUseCase = EditMessageUseCase(
-                    messagesNotifier: ref.read(messagesProvider(widget.conversationId).notifier),
+                    messagesNotifier: ref
+                        .read(messagesProvider(widget.conversationId).notifier),
                     webSocket: SecureWebSocket(),
                   );
                   editUseCase.execute(
@@ -7729,7 +8112,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _deleteMessage(String messageId) {
     final deleteUseCase = DeleteMessageUseCase(
-      messagesNotifier: ref.read(messagesProvider(widget.conversationId).notifier),
+      messagesNotifier:
+          ref.read(messagesProvider(widget.conversationId).notifier),
       webSocket: SecureWebSocket(),
     );
     deleteUseCase.execute(messageId: messageId);
@@ -7737,7 +8121,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _deleteForEveryone(String messageId) {
     final deleteUseCase = DeleteMessageUseCase(
-      messagesNotifier: ref.read(messagesProvider(widget.conversationId).notifier),
+      messagesNotifier:
+          ref.read(messagesProvider(widget.conversationId).notifier),
       webSocket: SecureWebSocket(),
     );
     deleteUseCase.execute(messageId: messageId, forEveryone: true);
@@ -7745,7 +8130,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _toggleStar(MessageEntity message) {
     final updated = message.copyWith(isStarred: !message.isStarred);
-    final messagesNotifier = ref.read(messagesProvider(widget.conversationId).notifier);
+    final messagesNotifier =
+        ref.read(messagesProvider(widget.conversationId).notifier);
     messagesNotifier.updateMessage(updated);
   }
 
@@ -7786,7 +8172,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                final messagesNotifier = ref.read(messagesProvider(widget.conversationId).notifier);
+                final messagesNotifier =
+                    ref.read(messagesProvider(widget.conversationId).notifier);
                 messagesNotifier.clearConversation(widget.conversationId);
                 context.go('/home');
               },
@@ -7813,7 +8200,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                final messagesNotifier = ref.read(messagesProvider(widget.conversationId).notifier);
+                final messagesNotifier =
+                    ref.read(messagesProvider(widget.conversationId).notifier);
                 messagesNotifier.clearConversation(widget.conversationId);
               },
               child: const Text('Clear'),
@@ -7830,7 +8218,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   String _formatDateSeparator(DateTime time) {
     final now = DateTime.now();
-    if (now.day == time.day && now.month == time.month && now.year == time.year) {
+    if (now.day == time.day &&
+        now.month == time.month &&
+        now.year == time.year) {
       return 'Today';
     } else if (now.subtract(const Duration(days: 1)).day == time.day &&
         now.month == time.month &&
@@ -7934,7 +8324,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).primaryColor,
         child: Text(
-          (contact.displayName ?? contact.username).substring(0, 1).toUpperCase(),
+          (contact.displayName ?? contact.username)
+              .substring(0, 1)
+              .toUpperCase(),
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -8000,16 +8392,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
   }
 
-  void _addContact(ContactEntity contact) {
+  Future<void> _addContact(ContactEntity contact) async {
     final addUseCase = AddContactUseCase(
       contactsNotifier: ref.read(contactsProvider.notifier),
       webSocket: SecureWebSocket(),
     );
-    addUseCase.execute(
+    final currentUserId = ref.read(identityProvider)?.userId ?? 'unknown';
+    await addUseCase.execute(
       userId: contact.contactUserId,
       username: contact.username,
-      ed25519PublicKey: contact.ed25519PublicKey,
-      x25519PublicKey: contact.x25519PublicKey,
+      currentUserId: currentUserId,
     );
   }
 
@@ -8091,7 +8483,8 @@ class _ContactListScreenState extends ConsumerState<ContactListScreen> {
               : Column(
                   children: [
                     _buildSearchField(),
-                    if (pendingRequests.isNotEmpty) _buildPendingRequests(pendingRequests),
+                    if (pendingRequests.isNotEmpty)
+                      _buildPendingRequests(pendingRequests),
                     Expanded(
                       child: filteredFriends.isEmpty
                           ? _buildEmptyState()
@@ -8154,7 +8547,9 @@ class _ContactListScreenState extends ConsumerState<ContactListScreen> {
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).primaryColor,
         child: Text(
-          (contact.displayName ?? contact.username).substring(0, 1).toUpperCase(),
+          (contact.displayName ?? contact.username)
+              .substring(0, 1)
+              .toUpperCase(),
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -8199,7 +8594,9 @@ class _ContactListScreenState extends ConsumerState<ContactListScreen> {
             leading: CircleAvatar(
               backgroundColor: Colors.orange,
               child: Text(
-                (request.displayName ?? request.username).substring(0, 1).toUpperCase(),
+                (request.displayName ?? request.username)
+                    .substring(0, 1)
+                    .toUpperCase(),
                 style: const TextStyle(color: Colors.white),
               ),
             ),
@@ -8301,12 +8698,14 @@ class _ContactListScreenState extends ConsumerState<ContactListScreen> {
         contactsNotifier: ref.read(contactsProvider.notifier),
         webSocket: SecureWebSocket(),
       );
+      
+      final currentUserId = ref.read(identityProvider)?.userId ?? 'unknown';
       await addUseCase.execute(
         userId: query,
         username: 'user_$query',
-        ed25519PublicKey: Uint8List(32),
-        x25519PublicKey: Uint8List(32),
+        currentUserId: currentUserId,
       );
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Contact request sent to $query')),
@@ -8412,7 +8811,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         radius: 60,
         backgroundColor: Theme.of(context).primaryColor,
         child: Text(
-          (user?.displayName ?? user?.username ?? 'U').substring(0, 1).toUpperCase(),
+          (user?.displayName ?? user?.username ?? 'U')
+              .substring(0, 1)
+              .toUpperCase(),
           style: const TextStyle(
             fontSize: 40,
             color: Colors.white,
@@ -8482,8 +8883,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           Text(
             'Verify this fingerprint in person with your contact',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey[600],
-            ),
+                  color: Colors.grey[600],
+                ),
           ),
         ],
       ),
@@ -8656,8 +9057,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: Colors.grey[600],
-        ),
+              color: Colors.grey[600],
+            ),
       ),
     );
   }
@@ -8864,14 +9265,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onPressed: _createBackup,
                 icon: const Icon(Icons.backup),
                 label: const Text('Create Backup'),
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 48)),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48)),
               ),
               const SizedBox(height: 8),
               ElevatedButton.icon(
                 onPressed: _restoreBackup,
                 icon: const Icon(Icons.restore),
                 label: const Text('Restore Backup'),
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 48)),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48)),
               ),
             ],
           ),
@@ -8923,7 +9326,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (password.length < 8) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password must be at least 8 characters')),
+          const SnackBar(
+              content: Text('Password must be at least 8 characters')),
         );
       }
       return;
@@ -8997,7 +9401,8 @@ class SecurityCenterScreen extends ConsumerStatefulWidget {
   const SecurityCenterScreen({super.key});
 
   @override
-  ConsumerState<SecurityCenterScreen> createState() => _SecurityCenterScreenState();
+  ConsumerState<SecurityCenterScreen> createState() =>
+      _SecurityCenterScreenState();
 }
 
 class _SecurityCenterScreenState extends ConsumerState<SecurityCenterScreen> {
@@ -9247,7 +9652,8 @@ class _SecurityCenterScreenState extends ConsumerState<SecurityCenterScreen> {
       final existing = await storage.retrieveKeys();
       final userId = existing.userId;
 
-      final ed25519 = Ed25519Service(secureStorage: const FlutterSecureStorage());
+      final ed25519 =
+          Ed25519Service(secureStorage: const FlutterSecureStorage());
       final x25519 = X25519Service();
 
       final signingKeys = await ed25519.generateKeyPair();
@@ -9572,7 +9978,8 @@ class _CallScreenState extends ConsumerState<CallScreen> {
     );
   }
 
-  Widget _buildControlButton(IconData icon, {VoidCallback? onTap, Color? color}) {
+  Widget _buildControlButton(IconData icon,
+      {VoidCallback? onTap, Color? color}) {
     return IconButton(
       iconSize: 32,
       onPressed: onTap,
@@ -9693,7 +10100,8 @@ class _GroupListScreenState extends ConsumerState<GroupListScreen> {
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Group name'),
+                      decoration:
+                          const InputDecoration(labelText: 'Group name'),
                     ),
                     const SizedBox(height: 12),
                     Flexible(
@@ -9804,13 +10212,15 @@ class GroupDetailScreen extends ConsumerWidget {
         children: [
           const Padding(
             padding: EdgeInsets.all(16),
-            child: Text('Members', style: TextStyle(fontWeight: FontWeight.bold)),
+            child:
+                Text('Members', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           ...group.members.map(
             (memberId) => ListTile(
               leading: const CircleAvatar(child: Icon(Icons.person)),
               title: Text(memberId),
-              subtitle: group.admins.contains(memberId) ? const Text('Admin') : null,
+              subtitle:
+                  group.admins.contains(memberId) ? const Text('Admin') : null,
               trailing: IconButton(
                 icon: const Icon(Icons.person_remove),
                 onPressed: () => notifier.removeMember(groupId, memberId),
@@ -9820,7 +10230,8 @@ class GroupDetailScreen extends ConsumerWidget {
           const Divider(),
           const Padding(
             padding: EdgeInsets.all(16),
-            child: Text('Add member', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text('Add member',
+                style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           ...contacts
               .where((c) => !group.members.contains(c.contactUserId))
@@ -9828,7 +10239,8 @@ class GroupDetailScreen extends ConsumerWidget {
                 (contact) => ListTile(
                   leading: const CircleAvatar(child: Icon(Icons.person_add)),
                   title: Text(contact.displayName ?? contact.contactUserId),
-                  onTap: () => notifier.addMember(groupId, contact.contactUserId),
+                  onTap: () =>
+                      notifier.addMember(groupId, contact.contactUserId),
                 ),
               ),
         ],
@@ -9861,15 +10273,18 @@ final identityProvider = StateNotifierProvider<IdentityNotifier, UserEntity?>(
   (ref) => IdentityNotifier(),
 );
 
-final contactsProvider = StateNotifierProvider<ContactsNotifier, List<ContactEntity>>(
+final contactsProvider =
+    StateNotifierProvider<ContactsNotifier, List<ContactEntity>>(
   (ref) => ContactsNotifier(),
 );
 
-final messagesProvider = StateNotifierProvider.family<MessagesNotifier, List<MessageEntity>, String>(
+final messagesProvider =
+    StateNotifierProvider.family<MessagesNotifier, List<MessageEntity>, String>(
   (ref, conversationId) => MessagesNotifier(conversationId),
 );
 
-final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsEntity?>(
+final settingsProvider =
+    StateNotifierProvider<SettingsNotifier, SettingsEntity?>(
   (ref) => SettingsNotifier(),
 );
 
@@ -9881,7 +10296,8 @@ final groupsProvider = StateNotifierProvider<GroupsNotifier, List<GroupEntity>>(
   (ref) => GroupsNotifier(),
 );
 
-final networkProvider = StateNotifierProvider<NetworkNotifier, ConnectivityResult>(
+final networkProvider =
+    StateNotifierProvider<NetworkNotifier, ConnectivityResult>(
   (ref) => NetworkNotifier(),
 );
 
@@ -10206,7 +10622,8 @@ class SecureChatApp extends StatelessWidget {
           builder: (context, child) {
             final isRtl = (settings?.language ?? 'en') == 'ar';
             return Directionality(
-              textDirection: isRtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+              textDirection:
+                  isRtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
               child: child ?? const SizedBox.shrink(),
             );
           },
