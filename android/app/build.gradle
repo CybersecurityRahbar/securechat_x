@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.yourcompany.securechat_x"
+    namespace "com.securechatx.app"
     compileSdk 35
 
     compileOptions {
@@ -42,24 +42,21 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.yourcompany.securechat_x"
+        applicationId "com.securechatx.app"
         minSdk 23
         targetSdk 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        multiDexEnabled true
     }
 
     buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-        }
+        // Release signing is intentionally supplied by protected CI/local signing
+        // configuration. Debug keys must never sign a production release.
+        release {}
     }
 }
 
 dependencies {
-    implementation 'androidx.multidex:multidex:2.0.1'
-
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }
 
