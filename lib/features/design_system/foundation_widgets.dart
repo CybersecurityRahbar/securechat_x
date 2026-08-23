@@ -64,7 +64,7 @@ Future<T?> showSecureChatBottomSheet<T>(BuildContext context,
 class LoadingState extends StatelessWidget {
   const LoadingState({super.key});
   @override
-  Widget build(BuildContext context) => const Center(
+  Widget build(BuildContext context) => Center(
       child: Semantics(label: 'Loading', child: CircularProgressIndicator()));
 }
 
