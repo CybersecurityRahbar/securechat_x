@@ -19,6 +19,6 @@
 
 ## Current security controls
 
-- **IMPLEMENTED:** no endpoints, credentials, or security claims are embedded in UI; cleartext Android traffic is disabled; the error model separates user-safe text from developer diagnostics.
+- **IMPLEMENTED:** no endpoints, credentials, or security claims are embedded in UI; cleartext Android traffic is disabled; the error model separates user-safe text from developer diagnostics. Bootstrap errors enter a bounded, in-process redacted diagnostics boundary; development emits only a fixed code, runtime type, and stack trace.
 - **PLANNED:** platform-secure secret storage, encrypted database, identity, authenticated key establishment, ratcheting, transport authentication, notification privacy, and screen protection.
 - **NOT IMPLEMENTED:** end-to-end encryption, identity verification, local encrypted database, recovery, messaging, calls, group security, and server protocol.

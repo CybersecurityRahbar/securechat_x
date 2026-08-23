@@ -8,7 +8,7 @@ The legacy prototype used many packages and placed persistence, cryptography, ne
 
 ## Decision
 
-Phase 1 uses Flutter's built-in navigation and `InheritedWidget` composition, typed contracts, and a small reusable visual foundation. It deliberately does not add a state-management, database, cryptography, transport, or secure-storage implementation. Interfaces define the future boundaries, and phase-owned implementations will be selected through subsequent ADRs.
+Phase 1 uses Flutter's built-in navigation and `InheritedWidget` composition, typed contracts, a bounded redacted diagnostics boundary, and a small reusable visual foundation. It deliberately does not add a state-management, database, cryptography, transport, secure-storage, or telemetry implementation. Interfaces define the future boundaries, and phase-owned implementations will be selected through subsequent ADRs.
 
 ## Consequences
 
