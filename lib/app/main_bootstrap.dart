@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'app_dependencies.dart';
 import 'app_scope.dart';
 import 'environment.dart';
 import '../core/errors/diagnostics.dart';
@@ -13,6 +14,7 @@ Future<void> bootstrapSecureChat({
   DiagnosticsReporter? diagnostics,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
+
   late final AppEnvironment resolvedEnvironment;
   late final DiagnosticsReporter reporter;
   try {
@@ -34,14 +36,20 @@ Future<void> bootstrapSecureChat({
     runApp(const _BootstrapFailureApp());
     return;
   }
+
+  final AppDependencies dependencies = AppDependencies.foundation();
+
   ErrorWidget.builder = (FlutterErrorDetails details) {
     reporter.record(
       code: diagnosticCodeFor(details.exception, fallback: 'framework.unhandled'),
       error: details.exception,
       stackTrace: details.stack,
     );
-    return const ErrorState(message: 'Something unexpected occurred. Please restart the application.');
+    return const ErrorState(
+      message: 'Something unexpected occurred. Please restart the application.',
+    );
   };
+
   FlutterError.onError = (FlutterErrorDetails details) {
     reporter.record(
       code: diagnosticCodeFor(details.exception, fallback: 'framework.unhandled'),
@@ -49,12 +57,16 @@ Future<void> bootstrapSecureChat({
       stackTrace: details.stack,
     );
   };
+
   runZonedGuarded(
-    () => runApp(AppScope(
-      environment: resolvedEnvironment,
-      diagnostics: reporter,
-      child: const SecureChatApp(),
-    )),
+    () => runApp(
+      AppScope(
+        environment: resolvedEnvironment,
+        dependencies: dependencies,
+        diagnostics: reporter,
+        child: SecureChatApp(lifecycle: dependencies.lifecycle),
+      ),
+    ),
     (Object error, StackTrace stackTrace) => reporter.record(
       code: diagnosticCodeFor(error, fallback: 'zone.unhandled'),
       error: error,
