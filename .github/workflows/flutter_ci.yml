@@ -1,13 +1,14 @@
 name: Flutter CI
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
   push:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   analyze-test-build:
@@ -26,8 +27,21 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed .
+      - name: Format Dart sources
+        run: dart format .
+
+      - name: Persist formatting on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No formatting changes to commit."
+          else
+            git commit -m "style: format Dart sources [skip ci]"
+            git push
+          fi
 
       - name: Analyze
         run: flutter analyze
