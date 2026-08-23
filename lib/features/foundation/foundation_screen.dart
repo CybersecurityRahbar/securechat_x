@@ -74,8 +74,11 @@ class FoundationScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(content.title,
-                  style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                content.title,
+                key: const Key('foundation-screen-title'),
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               const SizedBox(height: SecureChatSpace.md),
               SecureChatCard(
                 child: Row(
@@ -90,7 +93,8 @@ class FoundationScreen extends StatelessWidget {
                           Text(content.detail),
                           const SizedBox(height: SecureChatSpace.md),
                           const SecurityStatusIndicator(
-                              status: SecurityStatus.notImplemented),
+                            status: SecurityStatus.notImplemented,
+                          ),
                         ],
                       ),
                     ),
