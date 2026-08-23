@@ -16,18 +16,26 @@ final class AppRouter {
     FoundationDestination.settings: '/settings',
   };
 
+  static String pathFor(FoundationDestination destination) {
+    final String? path = paths[destination];
+    if (path == null) {
+      throw StateError('No route is registered for foundation destination.');
+    }
+    return path;
+  }
+
   static Route<void> onGenerateRoute(RouteSettings settings) {
-    final FoundationDestination destination = paths.entries
-        .where((MapEntry<FoundationDestination, String> entry) => entry.value == settings.name)
-        .map((MapEntry<FoundationDestination, String> entry) => entry.key)
-        .firstOrNull ?? FoundationDestination.home;
+    final FoundationDestination destination = _destinationForPath(settings.name);
     return MaterialPageRoute<void>(
       settings: settings,
       builder: (_) => FoundationScreen(destination: destination),
     );
   }
-}
 
-extension IterableFirstOrNull<T> on Iterable<T> {
-  T? get firstOrNull => isEmpty ? null : first;
+  static FoundationDestination _destinationForPath(String? path) {
+    for (final MapEntry<FoundationDestination, String> entry in paths.entries) {
+      if (entry.value == path) return entry.key;
+    }
+    return FoundationDestination.home;
+  }
 }
