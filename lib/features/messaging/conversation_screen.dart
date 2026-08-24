@@ -109,7 +109,7 @@ class ConversationScreen extends StatelessWidget {
                     timestamp: 'Preview',
                     statusLabel: 'Not implemented',
                   ),
-                  SecureChatMotionAnimatedSecurityHint(
+                  const SecureChatMotionAnimatedSecurityHint(
                     reducedMotionAware: true,
                   ),
                 ],
