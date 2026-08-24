@@ -50,12 +50,8 @@ final class SqliteDatabaseMaintenance {
     );
     final foreignKeys = await _database.rawQuery('PRAGMA foreign_key_check');
 
-    final tableNames = tables
-        .map((row) => row['name'] as String)
-        .toSet();
-    final indexNames = indexes
-        .map((row) => row['name'] as String)
-        .toSet();
+    final tableNames = tables.map((row) => row['name'] as String).toSet();
+    final indexNames = indexes.map((row) => row['name'] as String).toSet();
 
     final missingTables = SecureChatExpectedSchema.tables
         .where((name) => !tableNames.contains(name))
@@ -65,9 +61,8 @@ final class SqliteDatabaseMaintenance {
         .toList(growable: false);
 
     return DatabaseIntegrityReport(
-      health: missingTables.isEmpty &&
-              missingIndexes.isEmpty &&
-              foreignKeys.isEmpty
+      health:
+          missingTables.isEmpty && missingIndexes.isEmpty && foreignKeys.isEmpty
           ? DatabaseHealth.healthy
           : DatabaseHealth.degraded,
       missingTables: missingTables,
@@ -76,10 +71,7 @@ final class SqliteDatabaseMaintenance {
     );
   }
 
-  Future<CleanupResult> cleanup(
-    CleanupPolicy policy, {
-    DateTime? now,
-  }) async {
+  Future<CleanupResult> cleanup(CleanupPolicy policy, {DateTime? now}) async {
     final cutoff = (now ?? DateTime.now().toUtc())
         .subtract(policy.securityEventRetention)
         .millisecondsSinceEpoch;

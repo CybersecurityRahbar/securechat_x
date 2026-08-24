@@ -14,25 +14,22 @@ void main() {
     expect(await store.readSecret('identity.test'), isNull);
   });
 
-  test('secret store rejects invalid keys before touching the backend', () async {
-    final fake = _FakeSecretBackend();
-    final store = FlutterSecureSecretStore(backend: fake);
+  test(
+    'secret store rejects invalid keys before touching the backend',
+    () async {
+      final fake = _FakeSecretBackend();
+      final store = FlutterSecureSecretStore(backend: fake);
 
-    expect(
-      () => store.writeSecret('', <int>[1]),
-      throwsArgumentError,
-    );
-    expect(fake.writes, isEmpty);
-  });
+      expect(() => store.writeSecret('', <int>[1]), throwsArgumentError);
+      expect(fake.writes, isEmpty);
+    },
+  );
 
   test('malformed encoded secret fails closed', () async {
     final fake = _FakeSecretBackend()..values['bad'] = 'not-valid-base64';
     final store = FlutterSecureSecretStore(backend: fake);
 
-    expect(
-      () => store.readSecret('bad'),
-      throwsStateError,
-    );
+    expect(() => store.readSecret('bad'), throwsStateError);
   });
 }
 

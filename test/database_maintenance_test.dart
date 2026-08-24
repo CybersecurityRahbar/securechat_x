@@ -15,9 +15,7 @@ void main() {
     addTearDown(database.close);
     await database.migrate();
 
-    final report = await const SqliteDatabaseMaintenance(
-      database,
-    ).inspect();
+    final report = await const SqliteDatabaseMaintenance(database).inspect();
 
     expect(report.isHealthy, isTrue);
     expect(report.missingTables, isEmpty);
@@ -52,9 +50,7 @@ void main() {
       'created_at': 95,
     });
 
-    final result = await const SqliteDatabaseMaintenance(
-      database,
-    ).cleanup(
+    final result = await const SqliteDatabaseMaintenance(database).cleanup(
       const CleanupPolicy(
         securityEventRetention: Duration(milliseconds: 50),
         maxRowsPerRun: 1,
@@ -64,8 +60,10 @@ void main() {
 
     expect(result.securityEventsDeleted, 1);
     expect(
-      (await database.query('security_events', orderBy: 'created_at ASC'))
-          .map((row) => row['id']),
+      (await database.query(
+        'security_events',
+        orderBy: 'created_at ASC',
+      )).map((row) => row['id']),
       <Object?>['old-2', 'new-1'],
     );
   });

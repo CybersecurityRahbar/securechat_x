@@ -100,9 +100,9 @@ final class SqliteDatabase implements Database {
   }
 
   Future<List<Map<String, Object?>>> rawQuery(
-    String sql,
-    [List<Object?>? arguments]
-  ) async {
+    String sql, [
+    List<Object?>? arguments,
+  ]) async {
     final sqlite.Database db = await _open();
     return db.rawQuery(sql, arguments);
   }
