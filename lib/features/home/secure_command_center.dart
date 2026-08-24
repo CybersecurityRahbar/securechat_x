@@ -13,9 +13,9 @@ class SecureCommandCenter extends StatelessWidget {
     return SingleChildScrollView(
       padding: padding,
       child: SecureChatConstrained(
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             _CommandHeader(),
             SizedBox(height: SecureChatSpace.lg),
             _SecurityOverview(),
@@ -68,13 +68,13 @@ class _SecurityOverview extends StatelessWidget {
   const _SecurityOverview();
 
   @override
-  Widget build(BuildContext context) => SecureChatSurface(
-        padding: const EdgeInsets.all(SecureChatSpace.lg),
+  Widget build(BuildContext context) => const SecureChatSurface(
+        padding: EdgeInsets.all(SecureChatSpace.lg),
         child: Wrap(
           runSpacing: SecureChatSpace.lg,
           spacing: SecureChatSpace.xl,
           crossAxisAlignment: WrapCrossAlignment.center,
-          children: const [
+          children: [
             SecureChatMetric(
               icon: SecureChatIcons.alert,
               label: 'Foundation status',
@@ -133,28 +133,28 @@ class _OperationalCard extends StatelessWidget {
   const _OperationalCard();
 
   @override
-  Widget build(BuildContext context) => SecureChatCard(
+  Widget build(BuildContext context) => const SecureChatCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SecureChatSectionHeader(
+            SecureChatSectionHeader(
               title: 'Operational state',
               subtitle: 'Current foundation boundaries',
             ),
-            const SizedBox(height: SecureChatSpace.lg),
-            const _StateLine(
+            SizedBox(height: SecureChatSpace.lg),
+            _StateLine(
               label: 'Local persistence',
               value: 'Foundation only',
             ),
-            const _StateLine(
+            _StateLine(
               label: 'Network transport',
               value: 'Interface only',
             ),
-            const _StateLine(
+            _StateLine(
               label: 'Cryptographic engine',
               value: 'Interface only',
             ),
-            const _StateLine(
+            _StateLine(
               label: 'Diagnostics',
               value: 'Redacted boundary active',
             ),
@@ -206,16 +206,16 @@ class _RecentSignalsCard extends StatelessWidget {
   const _RecentSignalsCard();
 
   @override
-  Widget build(BuildContext context) => SecureChatCard(
+  Widget build(BuildContext context) => const SecureChatCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SecureChatSectionHeader(
+            SecureChatSectionHeader(
               title: 'Recent signals',
               subtitle: 'Development and security-state context',
             ),
-            const SizedBox(height: SecureChatSpace.md),
-            const ListTile(
+            SizedBox(height: SecureChatSpace.md),
+            ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(
                 Icons.check_circle_outline,
@@ -226,8 +226,8 @@ class _RecentSignalsCard extends StatelessWidget {
                 'Analysis, tests and Android debug build are passing in CI.',
               ),
             ),
-            const Divider(height: SecureChatSpace.lg),
-            const ListTile(
+            Divider(height: SecureChatSpace.lg),
+            ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(SecureChatIcons.security),
               title: Text('Security capabilities are not active'),
