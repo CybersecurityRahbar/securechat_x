@@ -52,16 +52,16 @@ class _CurrentDeviceCard extends StatelessWidget {
   const _CurrentDeviceCard();
 
   @override
-  Widget build(BuildContext context) => SecureChatSurface(
+  Widget build(BuildContext context) => const SecureChatSurface(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SecureChatSectionHeader(
+            SecureChatSectionHeader(
               title: 'Current device',
               subtitle: 'Local device presentation only',
             ),
-            const SizedBox(height: SecureChatSpace.md),
-            const ListTile(
+            SizedBox(height: SecureChatSpace.md),
+            ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(SecureChatIcons.devices),
               title: Text('Primary Android device'),
@@ -70,8 +70,8 @@ class _CurrentDeviceCard extends StatelessWidget {
                 status: SecurityStatus.notImplemented,
               ),
             ),
-            const Divider(height: 1),
-            const ListTile(
+            Divider(height: 1),
+            ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.key_outlined),
               title: Text('Key material'),
