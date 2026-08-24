@@ -13,7 +13,8 @@ void main() {
     NavigationDestination(icon: Icon(Icons.chat_outlined), label: 'Chats'),
     NavigationDestination(icon: Icon(Icons.people_outline), label: 'Contacts'),
     NavigationDestination(icon: Icon(Icons.call_outlined), label: 'Calls'),
-    NavigationDestination(icon: Icon(Icons.security_outlined), label: 'Security'),
+    NavigationDestination(
+        icon: Icon(Icons.security_outlined), label: 'Security'),
     NavigationDestination(icon: Icon(Icons.tune_outlined), label: 'Settings'),
   ];
 

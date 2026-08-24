@@ -23,17 +23,15 @@ class SecureChatAdaptiveNavigation extends StatelessWidget {
   final String title;
   final List<Widget> actions;
 
-  int _safeIndex() =>
-      selectedIndex.clamp(0, destinations.length - 1).toInt();
+  int _safeIndex() => selectedIndex.clamp(0, destinations.length - 1).toInt();
 
   List<NavigationDestination> _compactDestinations() {
     if (destinations.length <= _compactNavigationLimit) {
       return destinations;
     }
 
-    final List<NavigationDestination> visible = destinations
-        .take(_compactNavigationLimit - 1)
-        .toList(growable: true);
+    final List<NavigationDestination> visible =
+        destinations.take(_compactNavigationLimit - 1).toList(growable: true);
     visible.add(
       const NavigationDestination(
         icon: Icon(Icons.more_horiz_rounded),
@@ -97,10 +95,10 @@ class SecureChatAdaptiveNavigation extends StatelessWidget {
       final List<NavigationDestination> compactDestinations =
           _compactDestinations();
       final bool hasMore = destinations.length > _compactNavigationLimit;
-      final int visibleIndex = hasMore &&
-              safeIndex >= _compactNavigationLimit - 1
-          ? _compactNavigationLimit - 1
-          : safeIndex;
+      final int visibleIndex =
+          hasMore && safeIndex >= _compactNavigationLimit - 1
+              ? _compactNavigationLimit - 1
+              : safeIndex;
 
       return Scaffold(
         appBar: AppBar(title: Text(title), actions: actions),
