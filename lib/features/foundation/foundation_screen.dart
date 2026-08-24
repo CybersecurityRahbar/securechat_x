@@ -13,7 +13,8 @@ class FoundationScreen extends StatelessWidget {
 
   final FoundationDestination destination;
 
-  static const Map<FoundationDestination, ({String title, IconData icon})> _items = {
+  static const Map<FoundationDestination, ({String title, IconData icon})>
+      _items = {
     FoundationDestination.home: (
       title: 'Command Center',
       icon: SecureChatIcons.home,
@@ -48,8 +49,8 @@ class FoundationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ({String title, IconData icon}) item = _items[destination]!;
-    final List<NavigationDestination> destinations = FoundationDestination.values
-        .map((FoundationDestination value) {
+    final List<NavigationDestination> destinations =
+        FoundationDestination.values.map((FoundationDestination value) {
       final ({String title, IconData icon}) data = _items[value]!;
       return NavigationDestination(
         icon: Icon(data.icon),
