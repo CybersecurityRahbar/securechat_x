@@ -25,10 +25,6 @@ void main() {
     expect(tester.takeException(), isNull);
   }
 
-  tearDown(() {
-    TestWidgetsFlutterBinding.ensureInitialized().resetTestTextScaleFactor();
-  });
-
   testWidgets('chats shell renders on compact phone', (tester) async {
     await pumpScreen(tester, const ChatsScreen());
     expect(find.text('Chats'), findsOneWidget);
