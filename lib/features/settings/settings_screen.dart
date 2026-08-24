@@ -11,7 +11,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) => SafeArea(
         child: SecureChatConstrained(
           maxWidth: SecureChatContentConstraints.wide,
-          child: Padding(
+          child: SingleChildScrollView(
             padding: SecureChatResponsiveInsets.page(context),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,9 +23,9 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(height: SecureChatSpace.lg),
                 const SecureChatFeaturePanel(),
                 const SizedBox(height: SecureChatSpace.md),
-                _SettingsSection(
+                const _SettingsSection(
                   title: 'Privacy',
-                  items: const [
+                  items: <String>[
                     'Online status',
                     'Read receipts',
                     'Message previews',
@@ -33,9 +33,9 @@ class SettingsScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: SecureChatSpace.md),
-                _SettingsSection(
+                const _SettingsSection(
                   title: 'Security',
-                  items: const [
+                  items: <String>[
                     'App lock',
                     'Biometrics',
                     'Screen protection',
@@ -43,9 +43,9 @@ class SettingsScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: SecureChatSpace.md),
-                _SettingsSection(
+                const _SettingsSection(
                   title: 'Accessibility and appearance',
-                  items: const [
+                  items: <String>[
                     'Reduced motion',
                     'Text size',
                     'Appearance',
