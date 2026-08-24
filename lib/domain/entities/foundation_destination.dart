@@ -1,1 +1,9 @@
-enum FoundationDestination { home, chats, contacts, calls, security, settings }
+enum FoundationDestination {
+  home,
+  chats,
+  contacts,
+  calls,
+  devices,
+  security,
+  settings,
+}
