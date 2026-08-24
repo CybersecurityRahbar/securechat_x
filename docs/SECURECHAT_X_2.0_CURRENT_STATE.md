@@ -53,8 +53,10 @@ Phase 1 contains interfaces/placeholders where later phases are deliberately not
 - Compact/medium/expanded breakpoints.
 - Responsive page insets and bounded content widths.
 - Compact navigation with `NavigationBar` and a `More` destination when the full navigation set would overflow.
-- Larger layouts use `NavigationRail`.
-- Compact phone layout is tested at a real phone-sized viewport.
+- `Devices` is now a first-class foundation destination and appears in `More` on compact phones.
+- Larger layouts use `NavigationRail` and expose all foundation destinations.
+- Compact navigation is tested at a real phone-sized viewport.
+- Command palette presentation can navigate to foundation areas; content search remains deferred until database/messaging phases.
 
 ### Home
 
@@ -71,17 +73,18 @@ Phase 1 contains interfaces/placeholders where later phases are deliberately not
 
 ### Feature UI foundations
 
-- Contacts presentation shell.
-- Devices presentation shell.
-- Security Center presentation shell with responsive security-state tiles.
-- Settings presentation shell with grouped privacy/security/accessibility sections.
+- Contacts presentation shell with identity, fingerprint, verification and trust-state information architecture.
+- Devices presentation shell with current-device, linked-device and device-security information architecture.
+- Security Center presentation shell with identity, device, session, local-data, prekey and recovery checks plus future security-event history.
+- Settings presentation shell with grouped privacy, security, network, notifications, storage, accessibility and appearance information architecture.
 - All Phase 2 feature shells continue to state clearly which functionality is not implemented yet.
 
-### CI / build delivery
+### CI / build validation
 
-- `flutter format`, `flutter analyze`, `flutter test` and Android debug build are enforced in GitHub Actions.
-- Integration smoke test is now executed explicitly.
-- Successful debug APK builds are uploaded as the `securechat-x-debug-apk` GitHub Actions artifact for manual device inspection.
+- Fast `Flutter CI` runs on pushes and pull requests with format, analyzer, unit/widget tests and Android debug build.
+- The expensive Android-emulator integration test is moved to a separate manual `Flutter Android Integration` workflow.
+- The fast workflow intentionally does not upload an APK artifact, because device downloads are no longer part of the normal development loop.
+- The manual integration workflow runs `integration_test/app_launch_test.dart` on an Android emulator when a milestone verification is requested.
 
 ## Explicitly NOT implemented yet
 
@@ -111,14 +114,13 @@ For every Phase 2 batch:
 2. Build a coherent feature slice, not disconnected placeholders.
 3. Review imports, APIs, null-safety, `const` usage and responsive behavior before pushing.
 4. Review the resulting files again after writing them.
-5. Run formatter/analyzer/tests through CI.
-6. Run the Android debug build at milestone boundaries.
-7. Run the integration smoke test.
-8. Fix failures before adding another dependent feature slice.
+5. Run the fast formatter/analyzer/tests/build CI.
+6. Run the Android integration workflow at Phase 2 milestone boundaries.
+7. Fix failures before adding another dependent feature slice.
 
 ## Next planned sequence
 
-1. Finish Phase 2 shared motion/accessibility and message interaction primitives.
+1. Finish the shared motion/accessibility primitives.
 2. Finish Chat/Conversation UI foundation and compact/expanded variants.
 3. Finish Contacts/Devices/Security/Settings presentation consistency.
 4. Add targeted UI/accessibility tests for the completed Phase 2 components.
