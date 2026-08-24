@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:securechat_x/app/app_dependencies.dart';
 import 'package:securechat_x/features/design_system/messaging_components.dart';
 import 'package:securechat_x/features/design_system/motion_accessibility.dart';
 import 'package:securechat_x/features/messaging/conversation_screen.dart';
@@ -8,7 +7,6 @@ import 'package:securechat_x/features/messaging/conversation_screen.dart';
 void main() {
   testWidgets('conversation preview remains usable at compact phone width',
       (WidgetTester tester) async {
-    final AppDependencies dependencies = AppDependencies.foundation();
     await tester.pumpWidget(
       MediaQuery(
         data: const MediaQueryData(size: Size(390, 844)),
@@ -23,7 +21,6 @@ void main() {
     expect(find.byType(SecureChatComposer), findsOneWidget);
     expect(find.text('Conversation preview'), findsOneWidget);
     expect(tester.takeException(), isNull);
-    dependencies.dispose();
   });
 
   testWidgets('composer switches to compact layout without overflow',
@@ -53,12 +50,12 @@ void main() {
   testWidgets('reduced-motion setting removes animation duration',
       (WidgetTester tester) async {
     await tester.pumpWidget(
-      MediaQuery(
-        data: const MediaQueryData(
+      const MediaQuery(
+        data: MediaQueryData(
           disableAnimations: true,
           size: Size(390, 844),
         ),
-        child: const MaterialApp(
+        child: MaterialApp(
           home: SizedBox.shrink(),
         ),
       ),
