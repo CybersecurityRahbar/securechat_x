@@ -80,12 +80,12 @@ Phase 1 contained interfaces/placeholders where later phases were deliberately n
 
 - ADR 0003 selects SQLite through `sqflite` as the first concrete database adapter.
 - `sqflite_common_ffi` is a development-only dependency for real SQLite schema and repository tests without an Android emulator.
+- `flutter_secure_storage` 10.3.1 is now the concrete platform-protected implementation for the `SecretStore` boundary. The package version was selected conservatively for the current Dart/Flutter baseline; identity-specific key lifecycle and policy remain deferred to Phase 4.
 - The selected versions intentionally remain compatible with the repository's Flutter 3.47.1 CI baseline rather than blindly selecting the newest Dart-SDK-constrained release.
-- The Dart SDK floor is now aligned with the selected SQLite test dependency baseline.
 
 ### Database boundary
 
-- `lib/data/database/database.dart` now exposes a platform-independent transactional database contract.
+- `lib/data/database/database.dart` exposes a platform-independent transactional database contract.
 - Repository-facing queries, inserts, updates and deletes are bounded and independent of sqflite.
 - Transactions receive a transaction-scoped executor so repository operations remain atomic.
 - Pagination limits are explicitly bounded to 1..200.
@@ -97,30 +97,64 @@ Phase 1 contained interfaces/placeholders where later phases were deliberately n
 - Foreign keys and meaningful status constraints are part of the schema.
 - Indexed predicates cover conversation/message timelines, queues, attachments, sessions, prekeys, calls and security events.
 - Sensitive future state is represented by ciphertext/blob fields rather than plaintext secret columns.
+- The versioned SQLite adapter has explicit create/upgrade hooks; a substantive second schema version and upgrade fixture are still required before Phase 3 can be closed.
 
 ### Concrete adapter
 
 - `lib/data/database/sqlite_database.dart` implements the database boundary with sqflite.
 - The adapter accepts an injectable `DatabaseFactory`, allowing the same production adapter to be exercised against real in-memory SQLite in CI tests.
 - Database configuration enables foreign-key enforcement, secure-delete and a bounded busy timeout.
+- The SQLite factory is resolved lazily at open time so constructing application dependencies remains platform-testable.
+- A raw-query hook is available only on the concrete SQLite adapter for maintenance/integrity inspection; repositories remain platform-independent.
 - Versioned create/upgrade hooks are explicit.
-- The application bootstrap now initializes the database before showing the main application and presents a truthful failure state if initialization fails.
+- The application bootstrap initializes the database before showing the main application and presents a truthful failure state if initialization fails.
 
-### Initial repositories
+### Repositories
 
 - `lib/data/repositories/local_state_repository.dart` contains bounded repositories for encrypted drafts and encrypted application settings.
-- Repositories accept ciphertext rather than plaintext so the future encryption/key-storage phases remain responsible for cryptographic ownership.
+- `lib/data/repositories/identity_state_repository.dart` now covers non-secret user/device metadata required before identity work, including deterministic cursor pagination and device revocation.
+- Repositories accept ciphertext or public metadata rather than plaintext secrets so the future encryption/key-storage phases remain responsible for cryptographic ownership.
+- Message, group, call and other feature-specific repositories remain deferred to their roadmap phases to avoid premature coupling.
+
+### Secure secret storage
+
+- `lib/core/storage/flutter_secure_secret_store.dart` implements the existing `SecretStore` boundary through `flutter_secure_storage`.
+- Secret bytes are base64-encoded only for transport through the plugin's string API; no plaintext secret is persisted in SQLite or ordinary preferences.
+- The concrete plugin is isolated behind `SecretStorageBackend`, making encoding, validation and fail-closed behavior unit-testable without an Android emulator.
+- `AppDependencies.foundation()` now provides the real protected secret-store boundary while ordinary preferences and transport remain intentionally unavailable.
+- ADR 0004 records this decision and its security boundaries.
+
+### Database maintenance
+
+- `lib/data/database/database_maintenance.dart` adds SQLite-specific integrity inspection and bounded security-event cleanup.
+- Integrity checks verify expected tables, expected indexes and SQLite foreign-key violations.
+- Cleanup is bounded per run and deletes only security-event records older than the configured retention window.
+- File/attachment deletion is intentionally not performed here because physical media cleanup belongs to the attachment lifecycle phase.
 
 ### Phase 3 tests
 
 - `test/sqlite_schema_test.dart` executes the schema against real SQLite through the FFI adapter.
 - Tests cover table/index creation, foreign-key cascading, transaction rollback and pagination bounds.
 - `test/local_state_repository_test.dart` exercises the real SQLite adapter plus draft/settings repositories for insert/update/read/delete behavior.
-- Android integration startup now explicitly runs database migration before exercising the foundation UI.
+- `test/identity_state_repository_test.dart` covers user/device metadata, deterministic cursor pagination and revocation.
+- `test/database_maintenance_test.dart` covers healthy integrity inspection and bounded cleanup.
+- `test/secure_secret_store_test.dart` covers secret byte round-tripping, key validation and fail-closed decoding through a fake backend.
+- Android integration startup explicitly runs database migration before exercising the foundation UI.
+
+### Latest validated checkpoint
+
+The last completed fast CI run validated the database/SQLite foundation with:
+
+- `flutter analyze` — passed with no issues.
+- `flutter test` — 33 tests passed.
+- `flutter build apk --debug` — passed.
+
+The next CI run must validate the new repository, maintenance and secure-storage batch before it is considered complete.
 
 ## Explicitly NOT implemented yet
 
-- Platform secure key storage / Android Keystore integration.
+- Second substantive schema version and migration-upgrade fixture.
+- Full database repair workflow or destructive recovery behavior.
 - Identity and device cryptographic lifecycle.
 - Final cryptographic protocol.
 - X3DH/Double Ratchet or a successor protocol.
@@ -155,11 +189,11 @@ For every Phase 3 batch:
 
 ## Next planned sequence
 
-1. Complete Phase 3 repository coverage for the remaining local-state entities required before identity.
-2. Add migration upgrade tests when a second schema version is introduced.
-3. Add secure-storage integration only after its platform/key-lifecycle design is reviewed.
-4. Add database integrity/repair handling and bounded cleanup jobs.
-5. Close Phase 3 only after migration, repository, pagination and sensitive-state tests satisfy the roadmap exit criteria.
+1. Validate the current repository/maintenance/secure-storage batch in fast CI.
+2. Introduce a substantive schema version 2 with a real upgrade fixture and preservation tests.
+3. Add database repair-state handling without destructive automatic deletion.
+4. Expand bounded cleanup coverage where the schema and lifecycle ownership are already defined.
+5. Close Phase 3 only after migration, repository, pagination, integrity, cleanup and sensitive-state tests satisfy the roadmap exit criteria.
 6. Only then begin Phase 4 identity and devices.
 
 This checkpoint does not replace the authoritative Master Specification or Roadmap. It records the repository's current implementation state only.
