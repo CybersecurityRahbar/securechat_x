@@ -1,16 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Database;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' as sqlite;
 
 import 'package:securechat_x/data/database/database.dart';
 import 'package:securechat_x/data/database/sqlite_schema.dart';
 
 void main() {
-  setUpAll(sqfliteFfiInit);
+  setUpAll(sqlite.sqfliteFfiInit);
 
   test(
     'phase 3 schema creates all required relational tables and indexes',
     () async {
-      final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+      final db = await sqlite.databaseFactoryFfi.openDatabase(
+        sqlite.inMemoryDatabasePath,
+      );
       addTearDown(db.close);
 
       await db.execute('PRAGMA foreign_keys = ON');
@@ -67,7 +69,9 @@ void main() {
   test(
     'foreign keys prevent orphaned members and cascade dependent rows',
     () async {
-      final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+      final db = await sqlite.databaseFactoryFfi.openDatabase(
+        sqlite.inMemoryDatabasePath,
+      );
       addTearDown(db.close);
 
       await db.execute('PRAGMA foreign_keys = ON');
@@ -95,7 +99,9 @@ void main() {
   );
 
   test('transaction rollback preserves atomicity', () async {
-    final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+    final db = await sqlite.databaseFactoryFfi.openDatabase(
+      sqlite.inMemoryDatabasePath,
+    );
     addTearDown(db.close);
 
     await db.execute('PRAGMA foreign_keys = ON');
@@ -127,7 +133,7 @@ void main() {
 final class _TestExecutor implements DatabaseExecutorLike {
   const _TestExecutor(this.database);
 
-  final DatabaseExecutorLike database;
+  final sqlite.Database database;
 
   @override
   Future<void> execute(String sql, [List<Object?>? arguments]) =>
