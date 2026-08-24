@@ -46,8 +46,9 @@ void main() {
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Devices'), findsOneWidget);
-    await tester.tap(find.text('Devices'));
+    final Finder deviceMenuItem = find.widgetWithText(ListTile, 'Devices');
+    expect(deviceMenuItem, findsOneWidget);
+    await tester.tap(deviceMenuItem);
     await tester.pumpAndSettle();
     expect(find.text('Devices'), findsWidgets);
     expect(find.text('Current device'), findsOneWidget);
