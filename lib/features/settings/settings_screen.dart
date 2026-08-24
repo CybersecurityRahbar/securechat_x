@@ -13,18 +13,18 @@ class SettingsScreen extends StatelessWidget {
           maxWidth: SecureChatContentConstraints.wide,
           child: SingleChildScrollView(
             padding: SecureChatResponsiveInsets.page(context),
-            child: Column(
+            child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SecureChatSectionHeader(
+                SecureChatSectionHeader(
                   title: 'Settings',
                   subtitle:
                       'Privacy, security, network, storage and accessibility',
                 ),
-                const SizedBox(height: SecureChatSpace.lg),
-                const SecureChatFeaturePanel(),
-                const SizedBox(height: SecureChatSpace.md),
-                const _SettingsSection(
+                SizedBox(height: SecureChatSpace.lg),
+                SecureChatFeaturePanel(),
+                SizedBox(height: SecureChatSpace.md),
+                _SettingsSection(
                   title: 'Privacy',
                   icon: Icons.visibility_outlined,
                   items: <String>[
@@ -38,8 +38,8 @@ class SettingsScreen extends StatelessWidget {
                     'Media auto-download',
                   ],
                 ),
-                const SizedBox(height: SecureChatSpace.md),
-                const _SettingsSection(
+                SizedBox(height: SecureChatSpace.md),
+                _SettingsSection(
                   title: 'Security',
                   icon: SecureChatIcons.security,
                   items: <String>[
@@ -53,8 +53,8 @@ class SettingsScreen extends StatelessWidget {
                     'Session management',
                   ],
                 ),
-                const SizedBox(height: SecureChatSpace.md),
-                const _SettingsSection(
+                SizedBox(height: SecureChatSpace.md),
+                _SettingsSection(
                   title: 'Network and transfers',
                   icon: Icons.wifi_outlined,
                   items: <String>[
@@ -66,8 +66,8 @@ class SettingsScreen extends StatelessWidget {
                     'Diagnostics',
                   ],
                 ),
-                const SizedBox(height: SecureChatSpace.md),
-                const _SettingsSection(
+                SizedBox(height: SecureChatSpace.md),
+                _SettingsSection(
                   title: 'Notifications and calls',
                   icon: Icons.notifications_none_outlined,
                   items: <String>[
@@ -78,8 +78,8 @@ class SettingsScreen extends StatelessWidget {
                     'Silent notifications',
                   ],
                 ),
-                const SizedBox(height: SecureChatSpace.md),
-                const _SettingsSection(
+                SizedBox(height: SecureChatSpace.md),
+                _SettingsSection(
                   title: 'Storage and data',
                   icon: Icons.storage_outlined,
                   items: <String>[
@@ -91,8 +91,8 @@ class SettingsScreen extends StatelessWidget {
                     'Cleanup opportunities',
                   ],
                 ),
-                const SizedBox(height: SecureChatSpace.md),
-                const _SettingsSection(
+                SizedBox(height: SecureChatSpace.md),
+                _SettingsSection(
                   title: 'Accessibility and appearance',
                   icon: Icons.accessibility_new_outlined,
                   items: <String>[
