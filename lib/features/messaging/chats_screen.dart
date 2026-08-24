@@ -13,7 +13,7 @@ class ChatsScreen extends StatelessWidget {
   Widget build(BuildContext context) => SafeArea(
         child: SecureChatConstrained(
           maxWidth: SecureChatContentConstraints.wide,
-          child: Padding(
+          child: SingleChildScrollView(
             padding: SecureChatResponsiveInsets.page(context),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
