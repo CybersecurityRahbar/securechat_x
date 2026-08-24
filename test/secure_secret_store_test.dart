@@ -29,7 +29,7 @@ void main() {
     final fake = _FakeSecretBackend()..values['bad'] = 'not-valid-base64';
     final store = FlutterSecureSecretStore(backend: fake);
 
-    expect(() => store.readSecret('bad'), throwsStateError);
+    await expectLater(store.readSecret('bad'), throwsStateError);
   });
 }
 
