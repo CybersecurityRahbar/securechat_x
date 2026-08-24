@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'design_tokens.dart';
+import 'foundation_widgets.dart';
 
 class SecureChatAvatar extends StatelessWidget {
   const SecureChatAvatar({required this.label, super.key, this.size = 44});
@@ -113,8 +114,11 @@ class SecureChatMessageBubble extends StatelessWidget {
 }
 
 class SecureChatComposer extends StatefulWidget {
-  const SecureChatComposer(
-      {required this.onSend, super.key, this.enabled = true});
+  const SecureChatComposer({
+    required this.onSend,
+    super.key,
+    this.enabled = true,
+  });
 
   final ValueChanged<String>? onSend;
   final bool enabled;
