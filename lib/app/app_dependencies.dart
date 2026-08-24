@@ -1,13 +1,14 @@
 import '../core/network/transport.dart';
 import '../core/storage/storage_boundaries.dart';
 import '../data/database/database.dart';
+import '../data/database/sqlite_database.dart';
 import '../services/background/lifecycle_service.dart';
 
-/// Phase 1 composition object.
+/// Application composition root for the currently implemented infrastructure.
 ///
-/// The implementations below are explicit non-implemented boundaries. They
-/// prevent widgets from constructing infrastructure while making it impossible
-/// to mistake Phase 1 for a working messaging/security stack.
+/// Phase 3 now supplies a real relational SQLite boundary. Secure secret
+/// storage, transport and higher-level repositories remain intentionally
+/// unavailable until their roadmap phases are implemented.
 final class AppDependencies {
   AppDependencies({
     required this.preferences,
@@ -26,7 +27,7 @@ final class AppDependencies {
   factory AppDependencies.foundation() => AppDependencies(
         preferences: const _UnavailablePreferencesStore(),
         secrets: const _UnavailableSecretStore(),
-        database: const _UnavailableDatabase(),
+        database: SqliteDatabase(),
         transport: const _UnavailableTransport(),
       );
 
@@ -38,11 +39,11 @@ final class _UnavailablePreferencesStore implements PreferencesStore {
 
   @override
   Future<String?> read(String key) => Future<String?>.error(
-      StateError('Phase 3 preferences are not implemented.'));
+      StateError('Phase 3 preferences repository is not implemented.'));
 
   @override
   Future<void> write(String key, String value) => Future<void>.error(
-      StateError('Phase 3 preferences are not implemented.'));
+      StateError('Phase 3 preferences repository is not implemented.'));
 }
 
 final class _UnavailableSecretStore implements SecretStore {
@@ -61,18 +62,6 @@ final class _UnavailableSecretStore implements SecretStore {
       StateError('Secure secret storage is not implemented.'));
 }
 
-final class _UnavailableDatabase implements Database {
-  const _UnavailableDatabase();
-
-  @override
-  Future<T> transaction<T>(Future<T> Function() action) =>
-      Future<T>.error(StateError('Phase 3 database is not implemented.'));
-
-  @override
-  Future<void> migrate() =>
-      Future<void>.error(StateError('Phase 3 database is not implemented.'));
-}
-
 final class _UnavailableTransport implements Transport {
   const _UnavailableTransport();
 
@@ -81,7 +70,7 @@ final class _UnavailableTransport implements Transport {
 
   @override
   Future<void> connect() => Future<void>.error(
-      StateError('Transport is not implemented in Phase 1.'));
+      StateError('Transport is not implemented in the current phase.'));
 
   @override
   Future<void> disconnect() async {}
