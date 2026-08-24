@@ -231,7 +231,14 @@ class SecureChatStatusPill extends StatelessWidget {
           children: [
             Icon(icon, size: 12, color: color),
             const SizedBox(width: SecureChatSpace.xs),
-            Text(label, style: Theme.of(context).textTheme.bodySmall),
+            Flexible(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
       );
