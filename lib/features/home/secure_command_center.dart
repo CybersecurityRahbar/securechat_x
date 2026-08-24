@@ -143,13 +143,21 @@ class _OperationalCard extends StatelessWidget {
             ),
             const SizedBox(height: SecureChatSpace.lg),
             const _StateLine(
-                label: 'Local persistence', value: 'Foundation only'),
+              label: 'Local persistence',
+              value: 'Foundation only',
+            ),
             const _StateLine(
-                label: 'Network transport', value: 'Interface only'),
+              label: 'Network transport',
+              value: 'Interface only',
+            ),
             const _StateLine(
-                label: 'Cryptographic engine', value: 'Interface only'),
+              label: 'Cryptographic engine',
+              value: 'Interface only',
+            ),
             const _StateLine(
-                label: 'Diagnostics', value: 'Redacted boundary active'),
+              label: 'Diagnostics',
+              value: 'Redacted boundary active',
+            ),
           ],
         ),
       );
@@ -171,21 +179,21 @@ class _QuickActionsCard extends StatelessWidget {
             Wrap(
               spacing: SecureChatSpace.sm,
               runSpacing: SecureChatSpace.sm,
-              children: const [
+              children: [
                 OutlinedButton.icon(
                   onPressed: null,
-                  icon: Icon(SecureChatIcons.chats),
-                  label: Text('New chat'),
+                  icon: const Icon(SecureChatIcons.chats),
+                  label: const Text('New chat'),
                 ),
                 OutlinedButton.icon(
                   onPressed: null,
-                  icon: Icon(SecureChatIcons.devices),
-                  label: Text('Devices'),
+                  icon: const Icon(SecureChatIcons.devices),
+                  label: const Text('Devices'),
                 ),
                 OutlinedButton.icon(
                   onPressed: null,
-                  icon: Icon(SecureChatIcons.security),
-                  label: Text('Security'),
+                  icon: const Icon(SecureChatIcons.security),
+                  label: const Text('Security'),
                 ),
               ],
             ),
@@ -209,11 +217,14 @@ class _RecentSignalsCard extends StatelessWidget {
             const SizedBox(height: SecureChatSpace.md),
             const ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.check_circle_outline,
-                  color: SecureChatColors.success),
+              leading: Icon(
+                Icons.check_circle_outline,
+                color: SecureChatColors.success,
+              ),
               title: Text('Phase 1 foundation validated'),
               subtitle: Text(
-                  'Analysis, tests and Android debug build are passing in CI.'),
+                'Analysis, tests and Android debug build are passing in CI.',
+              ),
             ),
             const Divider(height: SecureChatSpace.lg),
             const ListTile(
@@ -221,7 +232,8 @@ class _RecentSignalsCard extends StatelessWidget {
               leading: Icon(SecureChatIcons.security),
               title: Text('Security capabilities are not active'),
               subtitle: Text(
-                  'No E2EE, identity or verification claim is active yet.'),
+                'No E2EE, identity or verification claim is active yet.',
+              ),
             ),
           ],
         ),
