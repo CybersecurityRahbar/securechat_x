@@ -94,15 +94,15 @@ class _SecurityOverviewCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: SecureChatSpace.sm,
+              runSpacing: SecureChatSpace.xs,
               children: [
                 SecurityStatusIndicator(
                   status: SecurityStatus.notImplemented,
                 ),
-                SizedBox(width: SecureChatSpace.sm),
-                Expanded(
-                  child: Text('Security audit engine is not implemented.'),
-                ),
+                Text('Security audit engine is not implemented.'),
               ],
             ),
             SizedBox(height: SecureChatSpace.md),
@@ -110,10 +110,12 @@ class _SecurityOverviewCard extends StatelessWidget {
               'This dashboard is the presentation foundation for identity, device, session, local-data, prekey and recovery checks. It does not claim that any of those protections are active.',
             ),
             SizedBox(height: SecureChatSpace.md),
-            Row(
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: SecureChatSpace.sm,
+              runSpacing: SecureChatSpace.xs,
               children: [
                 Icon(Icons.schedule_outlined, size: 18),
-                SizedBox(width: SecureChatSpace.sm),
                 Text('Last audit: not available'),
               ],
             ),
