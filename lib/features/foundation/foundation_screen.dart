@@ -13,8 +13,7 @@ class FoundationScreen extends StatelessWidget {
 
   final FoundationDestination destination;
 
-  static const Map<FoundationDestination, ({String title, IconData icon})>
-      _items = {
+  static const Map<FoundationDestination, ({String title, IconData icon})> _items = {
     FoundationDestination.home: (
       title: 'Command Center',
       icon: SecureChatIcons.home,
@@ -49,20 +48,22 @@ class FoundationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ({String title, IconData icon}) item = _items[destination]!;
+    final List<NavigationDestination> destinations = FoundationDestination.values
+        .map((FoundationDestination value) {
+      final ({String title, IconData icon}) data = _items[value]!;
+      return NavigationDestination(
+        icon: Icon(data.icon),
+        selectedIcon: Icon(data.icon),
+        label: data.title,
+      );
+    }).toList(growable: false);
 
     return SecureChatAdaptiveNavigation(
+      title: 'SecureChat X',
       selectedIndex: FoundationDestination.values.indexOf(destination),
       onDestinationSelected: (int index) =>
           _navigate(context, FoundationDestination.values[index]),
-      destinations:
-          FoundationDestination.values.map((FoundationDestination value) {
-        final ({String title, IconData icon}) data = _items[value]!;
-        return NavigationDestination(
-          icon: Icon(data.icon),
-          selectedIcon: Icon(data.icon),
-          label: data.title,
-        );
-      }).toList(growable: false),
+      destinations: destinations,
       actions: [
         const SecureChatIconButton(
           icon: SecureChatIcons.search,
@@ -116,7 +117,7 @@ class FoundationScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SecurityStatusIndicator(
+                          const SecurityStatusIndicator(
                             status: SecurityStatus.notImplemented,
                           ),
                           const SizedBox(height: SecureChatSpace.md),
@@ -128,13 +129,6 @@ class FoundationScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
-              ),
-              const Spacer(),
-              const Padding(
-                padding: EdgeInsets.only(bottom: SecureChatSpace.md),
-                child: Text(
-                  'No feature data is presented until the supporting phase is implemented and validated.',
                 ),
               ),
             ],
