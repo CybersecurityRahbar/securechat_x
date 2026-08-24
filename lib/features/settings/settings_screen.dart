@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../design_system/design_tokens.dart';
 import '../design_system/foundation_widgets.dart';
-import '../design_system/messaging_components.dart';
 import '../design_system/responsive.dart';
 
 class SettingsScreen extends StatelessWidget {
