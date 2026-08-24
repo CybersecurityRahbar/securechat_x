@@ -12,6 +12,10 @@ void main() {
   const Size phoneSize = Size(390, 844);
 
   Future<void> pumpScreen(WidgetTester tester, Widget screen) async {
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
     tester.view.physicalSize = phoneSize;
     tester.view.devicePixelRatio = 1;
     await tester.pumpWidget(
@@ -23,10 +27,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   }
-
-  tearDown(() {
-    testerResetView();
-  });
 
   testWidgets('chats shell renders on compact phone', (tester) async {
     await pumpScreen(tester, const ChatsScreen());
@@ -58,10 +58,4 @@ void main() {
     await pumpScreen(tester, const SettingsScreen());
     expect(find.text('Settings'), findsOneWidget);
   });
-}
-
-void testerResetView() {
-  final TestWidgetsFlutterBinding binding = TestWidgetsFlutterBinding.ensureInitialized();
-  binding.platformDispatcher.views.first.resetPhysicalSize();
-  binding.platformDispatcher.views.first.resetDevicePixelRatio();
 }
