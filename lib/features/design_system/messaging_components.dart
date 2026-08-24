@@ -88,6 +88,7 @@ class SecureChatMessageBubble extends StatelessWidget {
                 const SizedBox(height: SecureChatSpace.xs),
                 Wrap(
                   spacing: SecureChatSpace.xs,
+                  runSpacing: SecureChatSpace.xxs,
                   children: [
                     Text(
                       timestamp,
@@ -143,6 +144,46 @@ class _SecureChatComposerState extends State<SecureChatComposer> {
     _controller.clear();
   }
 
+  Widget _attachmentButton(BuildContext context) => SecureChatIconButton(
+        icon: Icons.add_circle_outline,
+        label: 'Attachments',
+        onPressed: widget.enabled
+            ? () => showSecureChatBottomSheet<void>(
+                  context,
+                  child: const Text(
+                    'Attachment actions are not implemented yet.',
+                  ),
+                )
+            : null,
+      );
+
+  Widget _voiceButton() => SecureChatIconButton(
+        icon: Icons.mic_none_outlined,
+        label: 'Voice message',
+        onPressed: widget.enabled ? () {} : null,
+      );
+
+  Widget _sendButton() => SecureChatIconButton(
+        icon: Icons.send_rounded,
+        label: 'Send',
+        onPressed: widget.enabled ? _send : null,
+      );
+
+  Widget _field() => Expanded(
+        child: TextField(
+          controller: _controller,
+          enabled: widget.enabled,
+          minLines: 1,
+          maxLines: 5,
+          textInputAction: TextInputAction.newline,
+          decoration: const InputDecoration(
+            hintText: 'Write a message',
+            isDense: true,
+          ),
+          onSubmitted: (_) => _send(),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) => SafeArea(
         top: false,
@@ -152,45 +193,39 @@ class _SecureChatComposerState extends State<SecureChatComposer> {
             color: SecureChatColors.surface,
             border: Border(top: BorderSide(color: SecureChatColors.divider)),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              SecureChatIconButton(
-                icon: Icons.add_circle_outline,
-                label: 'Attachments',
-                onPressed: widget.enabled
-                    ? () => showSecureChatBottomSheet<void>(
-                          context,
-                          child: const Text(
-                            'Attachment actions are not implemented yet.',
-                          ),
-                        )
-                    : null,
-              ),
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  enabled: widget.enabled,
-                  minLines: 1,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    hintText: 'Write a message',
-                    isDense: true,
-                  ),
-                  onSubmitted: (_) => _send(),
-                ),
-              ),
-              SecureChatIconButton(
-                icon: Icons.mic_none_outlined,
-                label: 'Voice message',
-                onPressed: widget.enabled ? () {} : null,
-              ),
-              SecureChatIconButton(
-                icon: Icons.send_rounded,
-                label: 'Send',
-                onPressed: widget.enabled ? _send : null,
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final bool compact = constraints.maxWidth < 420;
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        _attachmentButton(context),
+                        _field(),
+                        _sendButton(),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _voiceButton(),
+                    ),
+                  ],
+                );
+              }
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  _attachmentButton(context),
+                  _field(),
+                  _voiceButton(),
+                  _sendButton(),
+                ],
+              );
+            },
           ),
         ),
       );
@@ -207,24 +242,34 @@ class SecureChatFeatureBanner extends StatelessWidget {
   final String message;
 
   @override
-  Widget build(BuildContext context) => SecureChatSurface(
-        color: SecureChatColors.surfaceRaised,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.info_outline, color: SecureChatColors.primary),
-            const SizedBox(width: SecureChatSpace.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: SecureChatSpace.xs),
-                  Text(message, style: Theme.of(context).textTheme.bodyMedium),
-                ],
+  Widget build(BuildContext context) => Semantics(
+        container: true,
+        label: '$title. $message',
+        child: SecureChatSurface(
+          color: SecureChatColors.surfaceRaised,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.info_outline, color: SecureChatColors.primary),
+              const SizedBox(width: SecureChatSpace.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: SecureChatSpace.xs),
+                    Text(
+                      message,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
 }
