@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/router.dart';
 import '../../domain/entities/foundation_destination.dart';
+import '../design_system/adaptive_navigation.dart';
 import '../design_system/design_tokens.dart';
 import '../design_system/foundation_widgets.dart';
 import '../design_system/responsive.dart';
@@ -46,83 +47,38 @@ class FoundationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool compact = SecureChatBreakpoints.isCompact(context);
     final ({String title, IconData icon}) item = _items[destination]!;
 
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: compact ? SecureChatSpace.md : SecureChatSpace.lg,
-        title: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                color: SecureChatColors.surfaceRaised,
-                borderRadius: SecureChatRadii.small,
-              ),
-              child: const Icon(Icons.shield_rounded, size: 18, color: SecureChatColors.primary),
-            ),
-            const SizedBox(width: SecureChatSpace.sm),
-            const Text('SecureChat X'),
-          ],
+    return SecureChatAdaptiveNavigation(
+      selectedIndex: FoundationDestination.values.indexOf(destination),
+      onDestinationSelected: (int index) =>
+          _navigate(context, FoundationDestination.values[index]),
+      destinations: FoundationDestination.values.map((FoundationDestination value) {
+        final ({String title, IconData icon}) data = _items[value]!;
+        return NavigationDestination(
+          icon: Icon(data.icon),
+          selectedIcon: Icon(data.icon),
+          label: data.title,
+        );
+      }).toList(growable: false),
+      actions: [
+        const SecureChatIconButton(
+          icon: SecureChatIcons.search,
+          label: 'Global search',
+          onPressed: null,
         ),
-        actions: [
-          const SecureChatIconButton(
-            icon: SecureChatIcons.search,
-            label: 'Global search',
-            onPressed: null,
-          ),
-          SecureChatIconButton(
-            icon: Icons.info_outline,
-            label: 'Foundation information',
-            onPressed: () => showSecureChatDialog<void>(
-              context,
-              child: const Text(
-                'SecureChat X 2.0 design-system phase. Features marked not implemented are not security claims.',
-              ),
+        SecureChatIconButton(
+          icon: Icons.info_outline,
+          label: 'Foundation information',
+          onPressed: () => showSecureChatDialog<void>(
+            context,
+            child: const Text(
+              'SecureChat X 2.0 design-system phase. Features marked not implemented are not security claims.',
             ),
           ),
-          const SizedBox(width: SecureChatSpace.sm),
-        ],
-      ),
-      body: Row(
-        children: [
-          if (!compact)
-            NavigationRail(
-              extended: SecureChatBreakpoints.isExpanded(context),
-              selectedIndex: FoundationDestination.values.indexOf(destination),
-              onDestinationSelected: (int index) =>
-                  _navigate(context, FoundationDestination.values[index]),
-              leading: const Padding(
-                padding: EdgeInsets.only(bottom: SecureChatSpace.md),
-                child: SecurityStatusIndicator(
-                  status: SecurityStatus.notImplemented,
-                ),
-              ),
-              destinations: FoundationDestination.values.map((FoundationDestination value) {
-                final ({String title, IconData icon}) data = _items[value]!;
-                return NavigationRailDestination(
-                  icon: Icon(data.icon),
-                  selectedIcon: Icon(data.icon),
-                  label: Text(data.title),
-                );
-              }).toList(),
-            ),
-          Expanded(child: _content(context, item)),
-        ],
-      ),
-      bottomNavigationBar: compact
-          ? NavigationBar(
-              selectedIndex: FoundationDestination.values.indexOf(destination),
-              onDestinationSelected: (int index) =>
-                  _navigate(context, FoundationDestination.values[index]),
-              destinations: FoundationDestination.values.map((FoundationDestination value) {
-                final ({String title, IconData icon}) data = _items[value]!;
-                return NavigationDestination(icon: Icon(data.icon), label: data.title);
-              }).toList(),
-            )
-          : null,
+        ),
+      ],
+      child: _content(context, item),
     );
   }
 
@@ -148,23 +104,37 @@ class FoundationScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: SecureChatSpace.lg),
-              SecureChatCard(
+              SecureChatSurface(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(item.icon, color: SecureChatColors.primary),
                     const SizedBox(width: SecureChatSpace.md),
                     Expanded(
-                      child: EmptyState(
-                        title: item.title,
-                        message: _detail(destination),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SecurityStatusIndicator(
+                            status: SecurityStatus.notImplemented,
+                          ),
+                          const SizedBox(height: SecureChatSpace.md),
+                          Text(
+                            _detail(destination),
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
               const Spacer(),
-              const SecurityStatusIndicator(status: SecurityStatus.notImplemented),
+              const Padding(
+                padding: EdgeInsets.only(bottom: SecureChatSpace.md),
+                child: Text(
+                  'No feature data is presented until the supporting phase is implemented and validated.',
+                ),
+              ),
             ],
           ),
         ),
