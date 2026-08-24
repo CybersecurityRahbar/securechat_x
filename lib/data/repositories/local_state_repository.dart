@@ -61,9 +61,7 @@ final class DraftRecord {
   factory DraftRecord.fromRow(Map<String, Object?> row) => DraftRecord(
         id: row['id']! as String,
         conversationId: row['conversation_id']! as String,
-        textCiphertext: (row['text_ciphertext'] as List<Object?>?)
-            ?.map((Object? value) => value! as int)
-            .toList(growable: false),
+        textCiphertext: _bytesFromRow(row['text_ciphertext']),
         updatedAt: row['updated_at']! as int,
       );
 
@@ -93,9 +91,7 @@ final class EncryptedSettingsRepository {
     if (rows.isEmpty) {
       return null;
     }
-    return (rows.single['value_ciphertext'] as List<Object?>?)
-        ?.map((Object? value) => value! as int)
-        .toList(growable: false);
+    return _bytesFromRow(rows.single['value_ciphertext']);
   }
 
   Future<void> write(String key, List<int> ciphertext, int updatedAt) async {
@@ -123,3 +119,9 @@ final class EncryptedSettingsRepository {
         whereArgs: <Object?>[key],
       );
 }
+
+List<int>? _bytesFromRow(Object? value) => switch (value) {
+      null => null,
+      List<int> bytes => List<int>.unmodifiable(bytes),
+      _ => throw StateError('Database blob column has an invalid type.'),
+    };
