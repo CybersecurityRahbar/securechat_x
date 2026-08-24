@@ -12,9 +12,9 @@ This file is the operational checkpoint for the current repository state. It pre
 
 ## Current phase
 
-**Phase 2 — Design system and navigation.**
+**Phase 3 — Secure storage and database.**
 
-Phase 0 and Phase 1 are complete. Phase 2 is in progress. Do not jump to database, identity, cryptography, sessions, messaging engine, or server implementation until the roadmap says the prerequisite phase is complete.
+Phase 0 and Phase 1 are complete. Phase 2 has passed its responsive/navigation milestone and is treated as the completed visual foundation. Phase 3 is now in progress. Do not jump to identity, cryptography, sessions, messaging engine, synchronization, or server implementation until the roadmap says the prerequisite phase is complete.
 
 ## Phase 0 — completed
 
@@ -35,9 +35,9 @@ Phase 0 and Phase 1 are complete. Phase 2 is in progress. Do not jump to databas
 - Flutter/Dart analyzer and test infrastructure.
 - Android debug APK build validation in GitHub Actions.
 
-Phase 1 contains interfaces/placeholders where later phases are deliberately not implemented. Those placeholders must not be converted into fake security or fake functionality.
+Phase 1 contained interfaces/placeholders where later phases were deliberately not implemented. Those placeholders must not be converted into fake security or fake functionality.
 
-## Phase 2 — currently implemented
+## Phase 2 — completed milestone
 
 ### Design system
 
@@ -53,47 +53,74 @@ Phase 1 contains interfaces/placeholders where later phases are deliberately not
 - Compact/medium/expanded breakpoints.
 - Responsive page insets and bounded content widths.
 - Compact navigation with `NavigationBar` and a `More` destination when the full navigation set would overflow.
-- `Devices` is now a first-class foundation destination and appears in `More` on compact phones.
-- Larger layouts use `NavigationRail` and expose all foundation destinations.
+- `Devices` is a first-class foundation destination and appears in `More` on compact phones.
+- Larger layouts use `NavigationRail` and expose foundation destinations.
 - Compact navigation is tested at a real phone-sized viewport.
 - Command palette presentation can navigate to foundation areas; content search remains deferred until database/messaging phases.
 
-### Home
+### Feature presentation
 
-- Secure Command Center foundation with truthful status sections, quick actions and recent-signal presentation.
-- Responsive command-center state rows.
-
-### Messaging UI foundation
-
-- Conversation message bubble component with timestamps and truthful UI-only status labels.
-- Responsive composer with attachment, voice-message and send actions.
-- Compact composer layout avoids squeezing four controls into one row on phone-sized screens.
-- Conversation preview screen with security-state explanation and representative message layouts.
-- Chats screen with scrollable conversation workspace and navigation into the conversation preview.
-
-### Feature UI foundations
-
+- Home / Secure Command Center foundation.
+- Chats and Conversation presentation foundation.
 - Contacts presentation shell with identity, fingerprint, verification and trust-state information architecture.
 - Devices presentation shell with current-device, linked-device and device-security information architecture.
 - Security Center presentation shell with identity, device, session, local-data, prekey and recovery checks plus future security-event history.
 - Settings presentation shell with grouped privacy, security, network, notifications, storage, accessibility and appearance information architecture.
-- All Phase 2 feature shells continue to state clearly which functionality is not implemented yet.
+- Phase 2 screens continue to state clearly which functionality is not implemented yet.
 
-### CI / build validation
+### Phase 2 validation
 
-- Fast `Flutter CI` runs on pushes and pull requests with format, analyzer, unit/widget tests and Android debug build.
-- The expensive Android-emulator integration test is moved to a separate manual `Flutter Android Integration` workflow.
-- The fast workflow intentionally does not upload an APK artifact, because device downloads are no longer part of the normal development loop.
-- The manual integration workflow runs `integration_test/app_launch_test.dart` on an Android emulator when a milestone verification is requested.
+- Responsive navigation and compact `More` destination tests were repaired until the milestone test suite passed.
+- Analyzer and widget tests were brought back to a clean state before the milestone was closed.
+- The expensive Android-emulator integration test remains separate from the fast CI path to avoid slowing every development commit.
+
+## Phase 3 — currently implemented
+
+### Database decision
+
+- ADR 0003 selects SQLite through `sqflite` as the first concrete database adapter.
+- `sqflite_common_ffi` is a development-only dependency for real SQLite schema tests without an Android emulator.
+- The selected versions intentionally remain compatible with the repository's Flutter 3.47.1 CI baseline rather than blindly selecting the newest Dart-SDK-constrained release.
+
+### Database boundary
+
+- `lib/data/database/database.dart` now exposes a platform-independent transactional database contract.
+- Repository-facing queries, inserts, updates and deletes are bounded and independent of sqflite.
+- Transactions receive a transaction-scoped executor so repository operations remain atomic.
+- Pagination limits are explicitly bounded to 1..200.
+
+### Schema and migrations
+
+- `lib/data/database/sqlite_schema.dart` defines schema version 1.
+- Relational tables exist for users, devices, contacts, conversations, members, messages, recipients, attachments/chunks, sessions, prekeys, groups, community state, calls/events, receipts, drafts, app settings and security events.
+- Foreign keys and meaningful status constraints are part of the schema.
+- Indexed predicates cover conversation/message timelines, queues, attachments, sessions, prekeys, calls and security events.
+- Sensitive future state is represented by ciphertext/blob fields rather than plaintext secret columns.
+
+### Concrete adapter
+
+- `lib/data/database/sqlite_database.dart` implements the database boundary with sqflite.
+- Database configuration enables foreign-key enforcement, secure-delete and a bounded busy timeout.
+- Versioned create/upgrade hooks are explicit.
+- The application bootstrap now initializes the database before showing the main application and presents a truthful failure state if initialization fails.
+
+### Initial repositories
+
+- `lib/data/repositories/local_state_repository.dart` contains bounded repositories for encrypted drafts and encrypted application settings.
+- Repositories accept ciphertext rather than plaintext so the future encryption/key-storage phases remain responsible for cryptographic ownership.
+
+### Phase 3 tests
+
+- `test/sqlite_schema_test.dart` executes the schema against real SQLite through the FFI adapter.
+- Tests cover table/index creation, foreign-key cascading, transaction rollback and pagination bounds.
 
 ## Explicitly NOT implemented yet
 
-- Secure local database implementation and migrations.
+- Platform secure key storage / Android Keystore integration.
 - Identity and device cryptographic lifecycle.
-- Secure key storage implementation.
 - Final cryptographic protocol.
 - X3DH/Double Ratchet or a successor protocol.
-- Session manager.
+- Session manager implementation.
 - Real messaging engine and encrypted message queue.
 - Offline synchronization.
 - Contacts verification logic.
@@ -103,28 +130,32 @@ Phase 1 contains interfaces/placeholders where later phases are deliberately not
 - Voice messages.
 - WebRTC calling and signalling.
 - Production Security Center audit engine.
-- Actionable persistent settings.
+- Full actionable settings behavior.
 - New server.
 
 ## Current execution rule
 
-For every Phase 2 batch:
+For every Phase 3 batch:
 
-1. Read the authoritative documents and current files.
-2. Build a coherent feature slice, not disconnected placeholders.
-3. Review imports, APIs, null-safety, `const` usage and responsive behavior before pushing.
-4. Review the resulting files again after writing them.
-5. Run the fast formatter/analyzer/tests/build CI.
-6. Run the Android integration workflow at Phase 2 milestone boundaries.
-7. Fix failures before adding another dependent feature slice.
+1. Read the authoritative documents and current files before changing architecture.
+2. Review dependency compatibility before adding packages.
+3. Define schema ownership and security boundaries before repository code.
+4. Keep feature/UI code independent from SQLite APIs.
+5. Never persist plaintext private keys, recovery material, session secrets or E2EE message plaintext.
+6. Use foreign keys, indexes, bounded queries and explicit transactions.
+7. Test migrations/constraints against real SQLite before depending on them.
+8. Review imports, null-safety, API signatures and all call sites after interface changes.
+9. Run format, analyzer, unit/widget tests and Android debug build in fast CI.
+10. Fix all CI failures before adding a dependent feature slice.
+11. Update this checkpoint after each coherent batch so the next session cannot lose the project position.
 
 ## Next planned sequence
 
-1. Finish the shared motion/accessibility primitives.
-2. Finish Chat/Conversation UI foundation and compact/expanded variants.
-3. Finish Contacts/Devices/Security/Settings presentation consistency.
-4. Add targeted UI/accessibility tests for the completed Phase 2 components.
-5. Validate Phase 2 as a coherent UI/navigation milestone.
-6. Only then begin Phase 3 secure storage/database.
+1. Complete Phase 3 repository coverage for the remaining local-state entities required before identity.
+2. Add migration upgrade tests when a second schema version is introduced.
+3. Add secure-storage integration only after its platform/key-lifecycle design is reviewed.
+4. Add database integrity/repair handling and bounded cleanup jobs.
+5. Close Phase 3 only after migration, repository, pagination and sensitive-state tests satisfy the roadmap exit criteria.
+6. Only then begin Phase 4 identity and devices.
 
 This checkpoint does not replace the authoritative Master Specification or Roadmap. It records the repository's current implementation state only.
