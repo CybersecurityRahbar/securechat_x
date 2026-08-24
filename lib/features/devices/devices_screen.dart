@@ -154,7 +154,8 @@ class _DeviceSecurityCard extends StatelessWidget {
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.history_outlined),
               title: Text('Session history'),
-              subtitle: Text('Session inventory will follow the session-manager phase.'),
+              subtitle: Text(
+                  'Session inventory will follow the session-manager phase.'),
             ),
           ],
         ),

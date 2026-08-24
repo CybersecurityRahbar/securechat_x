@@ -38,7 +38,8 @@ class SecurityCenterScreen extends StatelessWidget {
                   mainAxisExtent: expanded ? 116 : 142,
                 ),
                 itemBuilder: (BuildContext context, int index) {
-                  const items = <({IconData icon, String title, String detail})>[
+                  const items =
+                      <({IconData icon, String title, String detail})>[
                     (
                       icon: SecureChatIcons.contacts,
                       title: 'Identity',
@@ -47,7 +48,8 @@ class SecurityCenterScreen extends StatelessWidget {
                     (
                       icon: SecureChatIcons.devices,
                       title: 'Devices',
-                      detail: 'Device trust and revocation are not implemented.',
+                      detail:
+                          'Device trust and revocation are not implemented.',
                     ),
                     (
                       icon: SecureChatIcons.security,

@@ -19,7 +19,8 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 const SecureChatSectionHeader(
                   title: 'Settings',
-                  subtitle: 'Privacy, security, network, storage and accessibility',
+                  subtitle:
+                      'Privacy, security, network, storage and accessibility',
                 ),
                 const SizedBox(height: SecureChatSpace.lg),
                 const SecureChatFeaturePanel(),
