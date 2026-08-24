@@ -2842,6 +2842,3116 @@ debug APK    ✅
 
 
 
+حسنا الان ماذا نعمل ماهي الخطوة التاليه هيا قم بتنفيذها 
+
+
+
+
+
+
+نفذت الخطوة التالية بالفعل على المستودع، لكن ظهرت نتيجة مهمة جدًا من التحقق الحالي:
+
+**GitHub Actions لا توجد لها أي Workflow Runs حتى الآن**، حتى على commit الخاص بإضافة الـCI وعلى آخر commit ظاهر في المستودع. لذلك لا أستطيع أن أقول إن `flutter analyze` أو `flutter test` أو بناء APK نجح؛ لم يتم تشغيلها أصلًا.
+
+وفي المقابل، الـworkflow نفسه موجود فعلًا في `main` ويحتوي على:
+
+```text
+flutter pub get
+dart format --output=none --set-exit-if-changed .
+flutter analyze
+flutter test
+chmod +x android/gradlew
+flutter build apk --debug
+```
+
+### ما يعنيه هذا
+
+لدينا الآن:
+
+```text
+SecureChat X 2.0 Foundation
+        ✅ موجودة على main
+        ✅ الإصلاحات الأساسية مطبقة
+        ✅ CI workflow موجود
+        ❌ GitHub Actions لم يبدأ التنفيذ
+```
+
+وهناك سبب واضح آخر مهم: آخر commit ظاهر في المستودع هو ملف المحادثة الذي رفعته أنت، وليس commitًا برمجيًا جديدًا؛ هذا لا يعني أن الكود اختفى، بل فقط أن هذا هو آخر commit زمنيًا.
+
+### الخطوة العملية الآن
+
+افتح المستودع في GitHub:
+
+**Actions → Flutter CI**
+
+وتحقق من وجود الـworkflow.
+
+إذا ظهر **Flutter CI**، شغّله يدويًا من زر **Run workflow**. لكن الـworkflow الحالي لا يحتوي على `workflow_dispatch`، لذلك إذا لم يظهر زر التشغيل اليدوي، فهذا متوقع.
+
+في هذه الحالة نحتاج أن نضيف:
+
+```yaml
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+```
+
+ثم نشغله يدويًا.
+
+لكنني **لن أتركك تفعل ذلك بشكل يدوي عشوائي**؛ لأننا وصلنا إلى نقطة أصبح من الأفضل فيها أن يكون كل تحقق موثقًا.
+
+الـcommitات الأخيرة التي أنشأتها لي بالفعل تشمل:
+
+* إصلاح composition للـAppScope.
+* نقل lifecycle إلى dependency composition.
+* تهيئة العربية.
+* تحديث الاختبارات.
+* إضافة Flutter CI.
+
+والاختبار الذي كتبناه لـ`AppScope` أصبح يتحقق فعليًا من `environment + dependencies + diagnostics` بدل مجرد فحص environment فقط.
+
+**إذن لا نبدأ Phase 2 بعد.**
+
+الخطوة الصحيحة الآن هي جعل **Flutter CI قابلة للتشغيل يدويًا** ثم تشغيلها والحصول على أول نتيجة حقيقية للمشروع.
+
+أستطيع تنفيذ تعديل الـworkflow نفسه الآن وإضافة `workflow_dispatch` مباشرة إلى `main`، ثم نستخدم نتيجة Actions كحكم حقيقي على Phase 1.
+
+
+
+
+
+
+حسنا وجدت هذا ثانيا اذا اردت ان اشغل الذي تقول عليه فكيف اعمل ثانيا جرب الان هل يعمل [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32667400998/job/97262881898#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **Add files via upload #3**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 error and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32667400998/job/97262881898#logs)
+
+failed 5 minutes ago in 1m 20s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+Current runner version: '2.336.0' 
+
+Runner Image Provisioner 
+
+Operating System 
+
+Runner Image 
+
+GITHUB\_TOKEN Permissions 
+
+Secret source: Actions 
+
+Prepare workflow directory 
+
+Prepare all required actions 
+
+Getting action download info 
+
+Download action repository 'actions/checkout\@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262) 
+
+Download action repository 'subosito/flutter-action\@v2' (SHA:1a449444c387b1966244ae4d4f8c696479add0b2) 
+
+Getting action download info 
+
+Download action repository 'actions/cache\@v5' (SHA\:caa296126883cff596d87d8935842f9db880ef25) 
+
+Complete job name: analyze-test-build 
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1m 7s
+
+svgThis step passed
+
+6s
+
+svgThis step failed
+
+0s
+
+Run dart format --output=none --set-exit-if-changed . 
+
+Changed lib/app/app\_dependencies.dart 
+
+Changed lib/app/app\_scope.dart 
+
+Changed lib/app/main\_bootstrap.dart 
+
+Changed lib/app/router.dart 
+
+Changed lib/app/securechat\_app.dart 
+
+Changed lib/core/errors/app\_failure.dart 
+
+Changed lib/core/errors/diagnostics.dart 
+
+Changed lib/core/storage/storage\_boundaries.dart 
+
+Changed lib/features/design\_system/design\_tokens.dart 
+
+Changed lib/features/design\_system/foundation\_widgets.dart 
+
+Changed lib/features/foundation/foundation\_screen.dart 
+
+Changed test/database\_boundary\_test.dart 
+
+Changed test/diagnostics\_test.dart 
+
+Changed test/environment\_test.dart 
+
+Changed test/error\_failure\_test.dart 
+
+Changed test/failure\_presenter\_test.dart 
+
+Changed test/security\_policy\_test.dart 
+
+Formatted 33 files (17 changed) in 0.06 seconds. 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+
+
+
+
+
+نعم، الآن لدينا **دليل حقيقي أن GitHub Actions يعمل**. الرابط الذي أرسلته هو تشغيل فعلي لـ`Flutter CI`، وليس مجرد إعداد نظري.
+
+والنتيجة التي ظهرت مهمة جدًا:
+
+```text
+Get dependencies        ✅
+Set up Flutter          ✅
+dart format             ❌
+analyze                 لم يبدأ
+test                    لم يبدأ
+build                   لم يبدأ
+```
+
+والخطأ ليس في Flutter نفسه؛ الـformatter وجد أن **17 ملفًا من المشروع غير منسقة**، ولذلك أوقف الـworkflow عند هذه المرحلة.
+
+### ماذا فعلت الآن؟
+
+عدّلت مباشرة `.github/workflows/flutter_ci.yml` بحيث:
+
+1. أصبح بإمكانك تشغيله يدويًا عبر `workflow_dispatch`.
+2. يقوم بـ`dart format .` تلقائيًا.
+3. عند تشغيله على `main`، إذا وجد ملفات تحتاج تنسيقًا، يحفظ التنسيق تلقائيًا في commit:
+
+   ```text
+   style: format Dart sources [skip ci]
+   ```
+4. بعدها يكمل مباشرة:
+
+   ```text
+   flutter analyze
+   flutter test
+   flutter build apk --debug
+   ```
+
+والـworkflow الجديد موجود الآن على `main`.
+
+### إذن كيف تشغله يدويًا الآن؟
+
+اذهب إلى:
+
+**GitHub → Actions → Flutter CI**
+
+ثم:
+
+**Run workflow**
+
+ثم اختر:
+
+```text
+Branch: main
+```
+
+ثم اضغط:
+
+**Run workflow**
+
+هذه المرة زر **Run workflow** يجب أن يظهر لأننا أضفنا `workflow_dispatch`.
+
+لكن الأهم: **أنا أيضًا دفعت تعديل الـworkflow إلى `main`، لذلك الـpush نفسه سيؤدي إلى تشغيل workflow تلقائيًا**. عند التشغيل سيقوم أولًا بتنسيق الملفات، ثم يصل أخيرًا إلى `analyze` و`test` و`build`.
+
+### ماذا ننتظر من النتيجة؟
+
+لدينا الآن اختبار متسلسل واضح:
+
+```text
+Flutter SDK
+   ↓
+flutter pub get
+   ↓
+dart format
+   ↓
+flutter analyze
+   ↓
+flutter test
+   ↓
+Gradle wrapper
+   ↓
+flutter build apk
+```
+
+والـworkflow الأصلي أثبت بالفعل أن **Flutter نفسه يستطيع العمل على مستودعك**؛ المشكلة الأولى كانت التنسيق فقط.
+
+هناك نقطة إضافية مطمئنة: الكود الحالي في `FoundationScreen` يستخدم الآن `AppRouter.pathFor(next)` بدل تمرير قيمة nullable إلى `Navigator`، وهو أحد الأخطاء التي أصلحناها قبل اختبار CI.
+
+**إذن لا تعدّل أي شيء آخر الآن. شغّل `Flutter CI` من Actions باستخدام `main`، والنتيجة التالية هي التي ستكشف لنا أولًا: هل عندنا أخطاء Dart/Analyzer، أم أخطاء Tests، أم مشكلة Android/Gradle.**
+
+
+
+
+
+
+
+
+حسنا وانت الا تستطيع تشغيله بنفسك جرب لكي يكون الامر افضل 
+
+
+
+
+
+
+
+نعم، حاولت تشغيله من جانبي الآن، لكن **لا أملك في أداة GitHub المتاحة لي أمرًا لتشغيل `workflow_dispatch` مباشرة**. أستطيع قراءة الـActions والـlogs وإعادة تشغيل **تشغيل فاشل موجود مسبقًا**، لكن لا أستطيع إنشاء تشغيل يدوي جديد من الصفر.
+
+والتحقق الذي أجريته للتو مهم: الـcommit الذي أضفنا فيه `workflow_dispatch` وهو `bda587c...` لا توجد له Workflow Run حتى الآن. لذلك لا يوجد شيء أستطيع إعادة تشغيله من جانبي.
+
+لكن تم بالفعل تعديل الـworkflow ليحتوي:
+
+```yaml
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+```
+
+وأصبح هذا التعديل موجودًا على `main`.
+
+### الآن افعل هذا فقط
+
+اذهب إلى:
+
+**GitHub → Actions → Flutter CI**
+
+ثم اضغط:
+
+**Run workflow**
+
+واختر:
+
+```text
+Branch: main
+```
+
+ثم:
+
+**Run workflow**
+
+هذه المرة يجب أن يظهر زر `Run workflow` لأننا أضفناه.
+
+### لماذا أريد التشغيل اليدوي الآن؟
+
+لأن التشغيل السابق أعطانا أول خطأ حقيقي:
+
+```text
+dart format --set-exit-if-changed
+```
+
+وجد 17 ملفًا يحتاج إلى تنسيق، ولذلك **لم يصل حتى إلى `flutter analyze`**. وهذا يعني أننا لا نعرف بعد هل الكود نفسه فيه أخطاء Dart/Flutter. التشغيل القادم سيقوم بالتنسيق أولًا، ثم يصل إلى:
+
+```text
+flutter analyze
+        ↓
+flutter test
+        ↓
+flutter build apk --debug
+```
+
+والـworkflow الحالي مهيأ لذلك.
+
+**ملاحظة مهمة:** أنا تعمدت ألا أعتبر التنسيق مشكلة منطقية في الكود. الـformatter هو الذي كشفها فقط؛ الآن نريد أن نصل إلى أول فشل حقيقي في `analyze` أو `test` أو `build`.
+
+بعد أن تضغط `Run workflow`، أرسل لي نتيجة التشغيل أو رابط الـrun، وسأقرأ الـlogs خطوة بخطوة ونصلح أول خطأ حقيقي مباشرة.
+
+
+
+
+
+
+انضر ماذا اعمل [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions?query=workflow%3A%22Flutter%20CI%22#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+# Actions: CybersecurityRahbar/securechat\_x
+
+## Actions
+
+-
+-
+-
+
+* **svg**
+
+1.
+2.
+
+### **Management**
+
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions/caches)
+- [svgsvg](https://github.com/CybersecurityRahbar/securechat_x/attestations)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions/runners)
+- [svgsvg](https://github.com/CybersecurityRahbar/securechat_x/actions/metrics/usage)
+- [svgsvg](https://github.com/CybersecurityRahbar/securechat_x/actions/metrics/performance)
+
+## Flutter CI
+
+svgsvg
+
+Showing runs from all workflows named Flutter CI
+
+**4 workflow run results**
+
+**svgsvgsvgsvgsvg**
+
+[failed:](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32667819472)
+
+[**ci: auto-format Dart sources before validation**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32667819472)**Flutter CI** #4: Commit [bda587c](https://github.com/CybersecurityRahbar/securechat_x/commit/bda587cdb3ed976a90c809417a971dc7fce2e2a5) pushed by [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+
+[main](https://github.com/CybersecurityRahbar/securechat_x/tree/refs/heads/main "main")
+
+svg
+
+3 minutes agoRun duration 1m 22s
+
+Show options
+
+[failed:](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32667400998)
+
+[**Add files via upload**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32667400998)**Flutter CI** #3: Commit [cfd0895](https://github.com/CybersecurityRahbar/securechat_x/commit/cfd089505d6cd13dbfa14fc15d789b88b01b73fd) pushed by [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+
+[main](https://github.com/CybersecurityRahbar/securechat_x/tree/refs/heads/main "main")
+
+svg
+
+11 minutes agoRun duration 1m 23s
+
+Show options
+
+[failed:](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32666909695)
+
+[**test: verify AppScope dependency composition**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32666909695)**Flutter CI** #2: Commit [b43069e](https://github.com/CybersecurityRahbar/securechat_x/commit/b43069e753805c17d75ec2e61be0164e0259ebf3) pushed by [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+
+[main](https://github.com/CybersecurityRahbar/securechat_x/tree/refs/heads/main "main")
+
+svg
+
+21 minutes agoRun duration 1m 15s
+
+Show options
+
+[failed:](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32666905355)
+
+[**ci: add Flutter analyze test and Android build validation**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32666905355)**Flutter CI** #1: Commit [8e4ce87](https://github.com/CybersecurityRahbar/securechat_x/commit/8e4ce87c6a44e0386f368e71acc3e10def131cf9) pushed by [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+
+[main](https://github.com/CybersecurityRahbar/securechat_x/tree/refs/heads/main "main")
+
+svg
+
+21 minutes agoRun duration 1m 13s
+
+Show options
+
+
+
+
+
+نعم، الآن اتضح السبب الحقيقي، وتم إصلاحه مباشرة من المستودع.
+
+### ما الذي كان يحدث؟
+
+تشغيل `Flutter CI #4` وصل فعلًا إلى `flutter analyze`، ووجد خطأ Dart واحدًا فقط:
+
+```text
+lib/features/design_system/foundation_widgets.dart:68:14
+const_with_non_const
+```
+
+والسبب كان أن `LoadingState` يستخدم `const Center(...)` بينما الشجرة داخله تحتوي `Semantics` غير قابلة للـ`const` في نسخة Flutter التي يشغلها GitHub Actions. أصلحت هذا مباشرة إلى `Center(...)` بدون `const`.
+
+### واكتشفت مشكلة ثانية أهم في الـCI
+
+الـworkflow السابق كان يفعل:
+
+```bash
+git add -A
+git commit
+git push
+```
+
+وهذا تسبب في إدخال ملفات بيئة GitHub Actions إلى مستودعك، مثل:
+
+```text
+.dart_tool/
+build/
+android/local.properties
+ios/Flutter/ephemeral/
+.flutter-plugins-dependencies
+```
+
+والسجل يثبت أن commit `1a88272` أضافها فعلًا.
+
+وهذا **غير مقبول** لمشروعنا، فصححته أيضًا.
+
+### ما الذي نفذته الآن؟
+
+أصبحت الـCI:
+
+```text
+Flutter pub get
+        ↓
+Dart format check
+        ↓
+flutter analyze
+        ↓
+flutter test
+        ↓
+Gradle wrapper
+        ↓
+flutter build apk --debug
+```
+
+ولا تقوم بتعديل المستودع أو عمل commits تلقائية بعد الآن.
+
+كما أضفت `.gitignore` لاستبعاد:
+
+```text
+.dart_tool/
+build/
+android/local.properties
+ios/Flutter/ephemeral/
+.flutter-plugins-dependencies
+```
+
+وأزلت الملفات التي تسربت بالفعل إلى `main`. والتحقق من شجرة المستودع الحالية لا يظهر تلك المخرجات ضمن الجذر الجديد.
+
+وأبقيت `pubspec.lock` عمدًا؛ هذا ليس cache مؤقتًا مثل `.dart_tool`، بل lockfile مفيد لتثبيت إصدارات dependencies للتطبيق.
+
+### ماذا تفعل أنت الآن؟
+
+**لا تعدل أي كود يدويًا.**
+
+اذهب إلى:
+
+**GitHub → Actions → Flutter CI**
+
+ثم افتح **أحدث تشغيل** ناتج عن آخر commit.
+
+الـworkflow الآن يحتوي أيضًا على:
+
+```yaml
+workflow_dispatch:
+```
+
+لذلك يمكنك تشغيله يدويًا من:
+
+**Run workflow → main → Run workflow**
+
+لكن بما أنني دفعت التعديل الأخير إلى `main`، فهناك أيضًا trigger تلقائي على `push` إلى `main`.
+
+### ما الذي نريده من التشغيل القادم؟
+
+الآن أصبح الاختبار الحقيقي:
+
+```text
+✅ pub get
+✅ format
+? flutter analyze
+? flutter test
+? Gradle
+? APK build
+```
+
+والنقطة المهمة جدًا: **نحن تجاوزنا أول فشل حقيقي في التحليل**. لم نصل بعد إلى الاختبارات أو Gradle، لذلك لا أريد أن أقول إن Phase 1 ناجحة حتى نرى بقية السلسلة.
+
+أرسل لي نتيجة **أحدث Flutter CI run** بعد أن يظهر، وسأتابع من أول خطوة تفشل؛ وإذا نجح `analyze` سننتقل مباشرة إلى `test` ثم Android build.
+
+
+
+
+
+
+
+
+
+انضر [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32668176260/job/97264791566#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **ci: finalize non-mutating Flutter validation #6**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 error and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32668176260/job/97264791566#logs)
+
+failed 1 minute ago in 1m 18s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+1s
+
+Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS\_ALLOW\_USE\_UNSECURE\_NODE\_VERSION=true environment variable. For more information see: [https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/](https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/) 
+
+Run actions/checkout\@v4 
+
+Syncing repository: CybersecurityRahbar/securechat\_x 
+
+Getting Git version info 
+
+Temporarily overriding HOME='/home/runner/work/\_temp/097d634b-976d-4797-bbd8-7b1a79f0ddcd' before making global git config changes 
+
+Adding repository directory to the temporary git global config as a safe directory 
+
+/usr/bin/git config --global --add safe.directory /home/runner/work/securechat\_x/securechat\_x 
+
+Deleting the contents of '/home/runner/work/securechat\_x/securechat\_x' 
+
+Initializing the repository 
+
+Disabling automatic garbage collection 
+
+Setting up auth 
+
+Fetching the repository 
+
+Determining the checkout info 
+
+/usr/bin/git sparse-checkout disable 
+
+/usr/bin/git config --local --unset-all extensions.worktreeConfig 
+
+Checking out the ref 
+
+/usr/bin/git log -1 --format=%H 
+
+e45cd8098b108e6b0a63ed60a70753ccc865ff48 
+
+svgThis step passed
+
+1m 0s
+
+svgThis step passed
+
+5s
+
+svgThis step passed
+
+0s
+
+svgThis step failed
+
+10s
+
+Run flutter analyze 
+
+Resolving dependencies... 
+
+Downloading packages... 
+
+  flutter\_lints 5.0.0 (6.0.0 available) 
+
+  lints 5.1.1 (6.1.0 available) 
+
+  material\_color\_utilities 0.13.0 (0.13.1 available) 
+
+  test\_api 0.7.12 (0.7.13 available) 
+
+Got dependencies! 
+
+4 packages have newer versions incompatible with dependency constraints. 
+
+Try \`flutter pub outdated\` for more information. 
+
+Analyzing securechat\_x...                                        
+
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/features/design\_system/foundation\_widgets.dart:68:49 • prefer\_const\_constructors 
+
+1 issue found. (ran in 8.8s) 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+
+
+
+
+
+نعم، الآن المشكلة واضحة جدًا، وهي **ليست مشكلة في منطق التطبيق**.
+
+الـCI رقم **#6** وصل إلى `flutter analyze`، وكل شيء قبله نجح. الخطأ الوحيد أصبح:
+
+```text
+info • Use 'const' with the constructor to improve performance
+      lib/features/design_system/foundation_widgets.dart:68:49
+      prefer_const_constructors
+```
+
+أي أن الإصلاح السابق أزال `const` من `Center`، لكن جعل `Semantics` غير `const`، فانتقل الـlint إلى ذلك السطر.
+
+لذلك أصلحتها بالطريقة الصحيحة: أعدت التركيب إلى:
+
+```dart
+Widget build(BuildContext context) => const Center(
+    child: Semantics(
+        label: 'Loading',
+        child: CircularProgressIndicator(),
+    ),
+);
+```
+
+وهذا التعديل موجود الآن في commit:
+
+`8eb8f4657d85edc06409590b66ebbbbb348867cc`
+
+وبالتالي **لا نحتاج تعطيل `prefer_const_constructors`** ولا تخفيف الـanalyzer؛ نحافظ على جودة الكود كما هي.
+
+والتحذير:
+
+```text
+Node 20 is being deprecated...
+```
+
+ليس سبب الفشل، وإنما warning من GitHub Actions.
+
+الآن التشغيل الجديد هو الذي يهمنا. المفترض أن يصبح المسار:
+
+```text
+Checkout           ✅
+Flutter setup      ✅
+Dependencies       ✅
+Analyze            ← ننتظر ✅
+Tests
+Gradle
+APK build
+```
+
+اذهب إلى **Actions → Flutter CI** وافتح التشغيل الناتج عن commit `8eb8f465...`. أرسل لي نتيجته، لأننا الآن نريد معرفة أول خطوة جديدة بعد تجاوز `analyze`.
+
+
+
+
+
+
+والان [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32668372293/job/97265265457#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **fix: restore const LoadingState composition #7**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 error and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32668372293/job/97265265457#logs)
+
+failed 1 minute ago in 1m 16s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+57s
+
+svgThis step passed
+
+5s
+
+svgThis step passed
+
+1s
+
+svgThis step failed
+
+9s
+
+Run flutter analyze 
+
+Resolving dependencies... 
+
+Downloading packages... 
+
+  flutter\_lints 5.0.0 (6.0.0 available) 
+
+  lints 5.1.1 (6.1.0 available) 
+
+  material\_color\_utilities 0.13.0 (0.13.1 available) 
+
+  test\_api 0.7.12 (0.7.13 available) 
+
+Got dependencies! 
+
+4 packages have newer versions incompatible with dependency constraints. 
+
+Try \`flutter pub outdated\` for more information. 
+
+Analyzing securechat\_x...                                        
+
+  error • The constructor being called isn't a const constructor. Try removing 'const' from the constructor invocation • lib/features/design\_system/foundation\_widgets.dart:68:14 • const\_with\_non\_const 
+
+1 issue found. (ran in 9.0s) 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+0s
+
+
+
+
+
+
+
+
+تم إصلاحها مباشرة في `main` في commit:
+
+`1b5f417fae8effe888dd2824fcf78d8f105352d5`
+
+والتركيب أصبح:
+
+```dart
+Center(
+  child: Semantics(
+    label: 'Loading',
+    child: const CircularProgressIndicator(),
+  ),
+);
+```
+
+وهذا هو التوازن الصحيح بين الخطأ السابق والتحذير اللاحق:
+
+* `Center` ليس `const`.
+* `Semantics` ليس `const`.
+* `CircularProgressIndicator` هو `const`.
+
+الآن **لا نعدل شيئًا آخر** حتى تظهر نتيجة GitHub Actions الجديدة.
+
+المسار الذي نريده:
+
+```text
+flutter analyze ✅
+        ↓
+flutter test ?
+        ↓
+Gradle ?
+        ↓
+flutter build apk --debug ?
+```
+
+أرسل لي تشغيل `Flutter CI` الجديد الناتج عن `1b5f417...`، وسننتقل مباشرة إلى أول فشل بعد `analyze`.
+
+
+
+
+
+
+
+والان [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32668530295/job/97265648494#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **fix: correct LoadingState const placement #8**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+2 errors and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32668530295/job/97265648494#logs)
+
+failed 8 minutes ago in 1m 40s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+2s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+1m 6s
+
+svgThis step passed
+
+6s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+8s
+
+svgThis step failed
+
+13s
+
+Run flutter test 
+
+Resolving dependencies... 
+
+Downloading packages... 
+
+  flutter\_lints 5.0.0 (6.0.0 available) 
+
+  lints 5.1.1 (6.1.0 available) 
+
+  material\_color\_utilities 0.13.0 (0.13.1 available) 
+
+  test\_api 0.7.12 (0.7.13 available) 
+
+Got dependencies! 
+
+4 packages have newer versions incompatible with dependency constraints. 
+
+Try \`flutter pub outdated\` for more information. 
+
+✅ Passing tests 
+
+❌ /home/runner/work/securechat\_x/securechat\_x/test/app\_shell\_test.dart: application shell starts and navigates to foundational destinations (failed) 
+
+✅ Passing tests 
+
+**Error:** 12 tests passed, 1 failed. 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+
+
+
+الآن وصلنا إلى نقطة جيدة جدًا: **`flutter analyze` نجح بدون أي مشاكل**، والـCI أثبت أن المشكلة الوحيدة المتبقية في التشغيل #8 كانت في اختبار واحد فقط.
+
+السبب كان في الاختبار، وليس في routing:
+
+```text
+Expected: exactly one "Command Center"
+Actual: 2
+```
+
+وهذا طبيعي لأن النص يظهر مرتين:
+
+* مرة كعنوان الشاشة.
+* ومرة كعنوان عنصر `NavigationBar`.
+
+لذلك أصلحت الاختبار بطريقة صحيحة بدل إفساد الواجهة لتناسبه:
+
+```text
+FoundationScreen
+└── key = foundation-screen-title
+```
+
+وأصبح الاختبار يتحقق من العنوان بهذه الـKey، ويحدد عنصر `Chats` الخاص بالتنقل بشكل أوضح.
+
+هذه التعديلات موجودة الآن مباشرة في `main` عبر commits:
+
+```text
+ceb6e2e  test: stabilize foundation screen title assertion
+a500315  test: target foundation title and navigation labels explicitly
+```
+
+### الآن ماذا ننتظر؟
+
+سيعمل GitHub Actions تلقائيًا بسبب الـpush الأخير.
+
+ونريد أن نرى:
+
+```text
+flutter analyze       ✅
+flutter test          ← نريد ✅
+Gradle wrapper        ← بعدها
+flutter build apk     ← بعدها
+```
+
+هذه المرة هناك احتمال كبير أن نصل لأول مرة إلى **اختبار Android build الحقيقي**، لأننا تجاوزنا كل مشكلات Dart السابقة.
+
+ولا تبدأ أي مرحلة جديدة الآن. أرسل لي نتيجة **Flutter CI #9** عندما تظهر، وسأتابع مباشرة من أول خطوة تفشل.
+
+
+
+
+
+
+والان [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669065341/job/97266931338#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **test: target foundation title and navigation labels explicitly #10**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 error and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669065341/job/97266931338#logs)
+
+failed 1 minute ago in 1m 24s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1m 5s
+
+svgThis step passed
+
+4s
+
+svgThis step passed
+
+0s
+
+svgThis step failed
+
+8s
+
+Run flutter analyze 
+
+Resolving dependencies... 
+
+Downloading packages... 
+
+  flutter\_lints 5.0.0 (6.0.0 available) 
+
+  lints 5.1.1 (6.1.0 available) 
+
+  material\_color\_utilities 0.13.0 (0.13.1 available) 
+
+  test\_api 0.7.12 (0.7.13 available) 
+
+Got dependencies! 
+
+4 packages have newer versions incompatible with dependency constraints. 
+
+Try \`flutter pub outdated\` for more information. 
+
+Analyzing securechat\_x...                                        
+
+  error • The name 'Key' isn't a class. Try correcting the name to match an existing class • test/app\_shell\_test.dart:12:31 • creation\_with\_non\_type 
+
+1 issue found. (ran in 7.7s) 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+0s     وهذا [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669061648/job/97266923458#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **test: stabilize foundation screen title assertion #9**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+2 errors and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669061648/job/97266923458#logs)
+
+failed 1 minute ago in 1m 32s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1m 0s
+
+svgThis step passed
+
+5s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+10s
+
+svgThis step failed
+
+13s
+
+Run flutter test 
+
+Resolving dependencies... 
+
+Downloading packages... 
+
+  flutter\_lints 5.0.0 (6.0.0 available) 
+
+  lints 5.1.1 (6.1.0 available) 
+
+  material\_color\_utilities 0.13.0 (0.13.1 available) 
+
+  test\_api 0.7.12 (0.7.13 available) 
+
+Got dependencies! 
+
+4 packages have newer versions incompatible with dependency constraints. 
+
+Try \`flutter pub outdated\` for more information. 
+
+✅ Passing tests 
+
+❌ /home/runner/work/securechat\_x/securechat\_x/test/app\_shell\_test.dart: application shell starts and navigates to foundational destinations (failed) 
+
+✅ Passing tests 
+
+**Error:** 12 tests passed, 1 failed. 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step was skipped
+
+0s
+
+svgThis step was skipped
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+
+
+
+
+
+
+
+تم إصلاح الخطأ الحالي مباشرة في `main`.
+
+السبب كان بسيطًا لكن حقيقيًا: استخدمنا:
+
+```dart
+const Key('foundation-screen-title')
+```
+
+في `test/app_shell_test.dart` بدون استيراد `Key` من Flutter Material، لذلك ظهر:
+
+```text
+The name 'Key' isn't a class.
+```
+
+أضفت:
+
+```dart
+import 'package:flutter/material.dart';
+```
+
+والـcommit الجديد هو:
+
+`c2522703df747ab87b00d2eae5f1b022959d2529`
+
+أما تشغيل **#9** الذي أرسلته، فهو تشغيل قديم سبق الإصلاحات الأخيرة، لذلك لا نعتمد نتيجته الآن. وتشغيل **#10** كان قد فشل في `flutter analyze` قبل أن يبدأ الاختبارات بسبب نفس مشكلة `Key`. الآن أصبحت المشكلة مصححة.
+
+المفترض أن التشغيل الناتج عن `c2522703...` يمر بهذا التسلسل:
+
+```text
+format       ✅
+analyze      ✅
+test         ← الهدف الآن ✅
+Gradle       ?
+APK build    ?
+```
+
+أرسل لي نتيجة التشغيل الجديد، وسنأخذ أول فشل حقيقي بعد الاختبارات.
+
+
+
+
+
+
+
+والان [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669247998/job/97267363816#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **fix: import Material Key in foundation shell test #11**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 error and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669247998/job/97267363816#logs)
+
+failed 1 minute ago in 3m 22s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1m 3s
+
+svgThis step passed
+
+6s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+8s
+
+svgThis step passed
+
+12s
+
+svgThis step passed
+
+0s
+
+svgThis step failed
+
+1m 48s
+
+┌─ Flutter Fix ────────────────────────────────────────────────────────────────────────┐ 
+
+│ [!] Starting AGP 9+, only the new DSL interface will be read.                        │ 
+
+│ This results in a build failure when applying the Flutter Gradle plugin at           │ 
+
+│ /home/runner/work/securechat\_x/securechat\_x/android/app/build.gradle.                │ 
+
+│                                                                                      │ 
+
+│ To resolve this update flutter or opt out of \`android.newDsl\`.                       │ 
+
+│ For instructions on how to opt out, see:                                             │ 
+
+│ [https://developer.android.com/build/releases/agp-9-0-0-release-notes](https://developer.android.com/build/releases/agp-9-0-0-release-notes)                 │ 
+
+│                                                                                      │ 
+
+│ If you are not upgrading to AGP 9+, run \`flutter analyze --suggestions\` to check for │ 
+
+│ incompatible dependencies.                                                           │ 
+
+└──────────────────────────────────────────────────────────────────────────────────────┘ 
+
+Gradle task assembleDebug failed with exit code 1 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+
+
+
+
+تم. أصلحت إعدادات Android مباشرة في `main` عبر commit:
+
+`b81525263b5cb9074cb76f9cb5046a7710479535`
+
+أضفت:
+
+```properties
+android.newDsl=false
+android.builtInKotlin=false
+```
+
+وهذا يتوافق مع توصيات Flutter الحالية لمشروع يستخدم `kotlin-android` أثناء الانتقال إلى AGP 9، وFlutter 3.47 يدعم لاحقًا التفعيل التدريجي لـbuilt-in Kotlin. ([Flutter Docs][1])
+
+### أين وصلنا؟
+
+التشغيل الأخير أثبت:
+
+```text
+flutter pub get       ✅
+dart format           ✅
+flutter analyze       ✅
+flutter test          ✅
+```
+
+ثم توقف فقط عند:
+
+```text
+flutter build apk --debug
+```
+
+بسبب إعدادات AGP/DSL. أي أن **طبقة Dart والاختبارات أصبحت سليمة**، وبقيت طبقة Android فقط.
+
+الـworkflow سيُعاد تشغيله تلقائيًا بسبب commit الجديد.
+
+الآن نحتاج نتيجة التشغيل الجديد فقط. إذا نجح `Build Android debug APK`، نكون قد وصلنا إلى أول حالة:
+
+```text
+Format       ✅
+Analyze      ✅
+Tests        ✅
+Android APK  ✅
+```
+
+وعندها نغلق عمليًا مرحلة **Foundation Validation** ونبدأ المراجعة النهائية لـPhase 1 قبل الانتقال إلى Phase 2.
+
+[1]: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers?utm_source=chatgpt.com "Built-in Kotlin migration for app developers"
+
+
+
+
+
+
+
+والان [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669521034/job/97268038839#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **fix: pin legacy AGP DSL compatibility during Flutter migration #12**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 error and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669521034/job/97268038839#logs)
+
+failed 1 minute ago in 3m 13s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+58s
+
+svgThis step passed
+
+5s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+9s
+
+svgThis step passed
+
+13s
+
+svgThis step passed
+
+0s
+
+svgThis step failed
+
+1m 44s
+
+│ [!] Starting AGP 9+, only the new DSL interface will be read.                        │ 
+
+│ This results in a build failure when applying the Flutter Gradle plugin at           │ 
+
+│ /home/runner/work/securechat\_x/securechat\_x/android/app/build.gradle.                │ 
+
+│                                                                                      │ 
+
+│ To resolve this update flutter or opt out of \`android.newDsl\`.                       │ 
+
+│ For instructions on how to opt out, see:                                             │ 
+
+│ [https://developer.android.com/build/releases/agp-9-0-0-release-notes](https://developer.android.com/build/releases/agp-9-0-0-release-notes)                 │ 
+
+│                                                                                      │ 
+
+│ If you are not upgrading to AGP 9+, run \`flutter analyze --suggestions\` to check for │ 
+
+│ incompatible dependencies.                                                           │ 
+
+└──────────────────────────────────────────────────────────────────────────────────────┘ 
+
+Gradle task assembleDebug failed with exit code 1 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+
+
+
+
+
+
+الآن عالجنا المشكلة من جذورها، وليس بترقيعة إضافية.
+
+الـCI أثبت أن:
+
+```text
+flutter pub get    ✅
+format             ✅
+flutter analyze    ✅
+flutter test       ✅
+```
+
+ثم فشل **Android build فقط** بسبب انتقال Flutter 3.47 إلى مسار AGP 9/DSL الجديد. الخطأ كان صريحًا في سجل التشغيل. ([Android Developers][1])
+
+لذلك عدّلت المشروع مباشرة على `main` إلى البنية الحديثة المتوافقة مع Flutter 3.47:
+
+```text
+AGP                 9.0.1
+Gradle              9.1.0
+Built-in Kotlin     enabled
+legacy kotlin-android   removed
+legacy kotlinOptions    removed
+android.newDsl      true
+android.builtInKotlin true
+```
+
+وهذا يتوافق مع دليل Flutter الرسمي: عند استخدام AGP 9 يجب إزالة `kotlin-android` و`kotlinOptions`، واستخدام `kotlin.compilerOptions`، وFlutter 3.47 يدعم Built-in Kotlin. كما أن AGP 9.0 يحدد Gradle 9.1.0 كالإصدار الافتراضي/المطلوب. ([docs.flutter.dev][2])
+
+وتحققت الآن من الملفات بعد التعديل:
+
+`settings.gradle` يستخدم AGP `9.0.1`.
+
+`android/app/build.gradle` لم يعد يستخدم `kotlin-android` وأصبح يستخدم `kotlin.compilerOptions` مع JVM 17.
+
+`gradle.properties` أصبح:
+
+```properties
+android.newDsl=true
+android.builtInKotlin=true
+```
+
+كما حدّثت Gradle Wrapper إلى `9.1.0`، وحذفت إعداد KGP القديم من `android/build.gradle`، وثبّتُّ Flutter CI على **Flutter 3.47.1** حتى لا تتغير بيئة البناء تلقائيًا مستقبلًا.
+
+### أين نحن الآن؟
+
+نحن لأول مرة وصلنا إلى:
+
+```text
+Dart/Flutter layer       ✅
+Analyzer                 ✅
+Unit/widget tests        ✅
+Android migration        ✅ configuration
+Android APK              ⏳ الاختبار القادم
+```
+
+**لا نبدأ Phase 2 الآن.**
+
+التشغيل القادم على GitHub Actions هو الاختبار الحاسم. إذا نجح `Build Android debug APK`، أكون قد اعتبرت مشكلة البناء الأساسية محلولة، وبعدها سأراجع `Phase 1` مرة أخيرة من ناحية المعمارية والأمان، ثم ننتقل إلى **Phase 2: UI/UX**.
+
+ومن المهم أن أكون دقيقًا: **لم تظهر لي بعد نتيجة التشغيل الجديد** بعد آخر تعديلات AGP 9، لذلك لا أقول إن الـAPK نجح حتى نرى نتيجة GitHub نفسها.
+
+[1]: https://developer.android.com/build/releases/agp-9-0-0-release-notes?utm_source=chatgpt.com "Android Gradle plugin 9.0.1 (January 2026)  |  Android Studio  |  Android Developers"
+[2]: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers?utm_source=chatgpt.com "Built-in Kotlin migration for app developers"
+
+
+
+
+
+
+والان لماذا لم تستطتع حل الخطاء [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669892531/job/97268975723#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **ci: pin Flutter version for reproducible Android validation #18**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 error and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32669892531/job/97268975723#logs)
+
+failed 1 minute ago in 2m 58s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+59s
+
+svgThis step passed
+
+5s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+10s
+
+svgThis step passed
+
+13s
+
+svgThis step passed
+
+0s
+
+svgThis step failed
+
+1m 26s
+
+Run flutter build apk --debug 
+
+Resolving dependencies... 
+
+Downloading packages... 
+
+  flutter\_lints 5.0.0 (6.0.0 available) 
+
+  lints 5.1.1 (6.1.0 available) 
+
+  material\_color\_utilities 0.13.0 (0.13.1 available) 
+
+  test\_api 0.7.12 (0.7.13 available) 
+
+Got dependencies! 
+
+4 packages have newer versions incompatible with dependency constraints. 
+
+Try \`flutter pub outdated\` for more information. 
+
+Upgrading build.gradle 
+
+Running Gradle task 'assembleDebug'...                           
+
+FAILURE: Build failed with an exception. 
+
+\* Where: 
+
+Build file '/home/runner/work/securechat\_x/securechat\_x/android/app/build.gradle' line: 3 
+
+\* What went wrong: 
+
+An exception occurred applying plugin request [id: 'dev.flutter.flutter-gradle-plugin'] 
+
+\> Failed to apply plugin 'dev.flutter.flutter-gradle-plugin'. 
+
+   \> class com.android.build.gradle.internal.dsl.ApplicationExtensionImpl$AgpDecorated\_Decorated cannot be cast to class com.android.build.gradle.AbstractAppExtension (com.android.build.gradle.internal.dsl.ApplicationExtensionImpl$AgpDecorated\_Decorated and com.android.build.gradle.AbstractAppExtension are in unnamed module of loader org.gradle.internal.classloader.VisitableURLClassLoader$InstrumentingVisitableURLClassLoader @1d1ea0f9) 
+
+\* Try: 
+
+\> Run with --stacktrace option to get the stack trace. 
+
+\> Run with --info or --debug option to get more log output. 
+
+\> Run with --scan to generate a Build Scan (Powered by Develocity). 
+
+\> Get more help at [https://help.gradle.org.](https://help.gradle.org) 
+
+BUILD FAILED in 1m 25s 
+
+Running Gradle task 'assembleDebug'...                             85.8s 
+
+┌─ Flutter Fix ────────────────────────────────────────────────────────────────────────┐ 
+
+│ [!] Starting AGP 9+, only the new DSL interface will be read.                        │ 
+
+│ This results in a build failure when applying the Flutter Gradle plugin at           │ 
+
+│ /home/runner/work/securechat\_x/securechat\_x/android/app/build.gradle.                │ 
+
+│                                                                                      │ 
+
+│ To resolve this update flutter or opt out of \`android.newDsl\`.                       │ 
+
+│ For instructions on how to opt out, see:                                             │ 
+
+│ [https://developer.android.com/build/releases/agp-9-0-0-release-notes](https://developer.android.com/build/releases/agp-9-0-0-release-notes)                 │ 
+
+│                                                                                      │ 
+
+│ If you are not upgrading to AGP 9+, run \`flutter analyze --suggestions\` to check for │ 
+
+│ incompatible dependencies.                                                           │ 
+
+└──────────────────────────────────────────────────────────────────────────────────────┘ 
+
+Gradle task assembleDebug failed with exit code 1 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+
+
+
+
+
+أنت محق في سؤالك. **الخطأ لم يُحل في المحاولة السابقة لأنني اتخذت قرارًا غير صحيح في إعداد `android.newDsl`**.
+
+الـCI الأخير أثبت ذلك بشكل قاطع:
+
+```text
+flutter analyze   ✅
+flutter test      ✅
+flutter build     ❌
+```
+
+والخطأ:
+
+```text
+ApplicationExtensionImpl ... cannot be cast to AbstractAppExtension
+```
+
+هو بالضبط نوع الخطأ الناتج عن عدم توافق Flutter Gradle Plugin مع الـAGP DSL الذي فعّلناه، وليس خطأ في Dart أو في بنية SecureChat X.
+
+راجعت توثيق Flutter الحالي، وهو يوضح أن Flutter 3.47 يدعم AGP 9 وBuilt-in Kotlin، **لكن مسار `newDsl` لا يجب أن نفعّله يدويًا الآن**؛ Flutter نفسه ما زال يضع migration تدريجيًا لهذا الجزء. ([Flutter Docs][1])
+
+لذلك صححت الإعداد الآن إلى:
+
+```properties
+android.newDsl=false
+android.builtInKotlin=true
+```
+
+في:
+
+```text
+android/gradle.properties
+```
+
+وأصبح هذا التعديل في `main` ضمن commit:
+
+`cf611ca7554c370e4658b5ecd2503f06ddd702d2`
+
+وهذا هو المسار الذي أريد اختباره الآن، بدل أن نستمر في تخمينات AGP.
+
+### الحالة الحالية
+
+لدينا الآن:
+
+```text
+Dart formatting     ✅
+flutter analyze     ✅
+flutter test        ✅
+AGP 9               ✅
+Built-in Kotlin     ✅
+newDsl               ⛔ opt-out
+Android APK         ⏳
+```
+
+وأيضًا **لن أقول إن البناء نجح** حتى يقدم GitHub Actions نتيجة فعلية.
+
+التشغيل القادم هو المهم الآن. إذا ظهر خطأ جديد، سنعالجه بناءً على الـstack/error الحقيقي، لا بالتخمين.
+
+[1]: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin?utm_source=chatgpt.com "Migrating Flutter Android projects to built-in Kotlin"
+
+
+
+
+
+
+
+والان ماذا الان الم تفهم الخطاء الم تعرف اين الخطاء وماهو الخطاء [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32670202144/job/97269767614#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **fix: opt out of AGP new DSL for Flutter 3.47 compatibility #19**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 error and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32670202144/job/97269767614#logs)
+
+failed 1 minute ago in 3m 20s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+1m 2s
+
+svgThis step passed
+
+7s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+10s
+
+svgThis step passed
+
+13s
+
+svgThis step passed
+
+0s
+
+svgThis step failed
+
+1m 43s
+
+Run flutter build apk --debug 
+
+Resolving dependencies... 
+
+Downloading packages... 
+
+  flutter\_lints 5.0.0 (6.0.0 available) 
+
+  lints 5.1.1 (6.1.0 available) 
+
+  material\_color\_utilities 0.13.0 (0.13.1 available) 
+
+  test\_api 0.7.12 (0.7.13 available) 
+
+Got dependencies! 
+
+4 packages have newer versions incompatible with dependency constraints. 
+
+Try \`flutter pub outdated\` for more information. 
+
+Upgrading build.gradle 
+
+Running Gradle task 'assembleDebug'...                           
+
+FAILURE: Build failed with an exception. 
+
+\* Where: 
+
+Build file '/home/runner/work/securechat\_x/securechat\_x/android/app/build.gradle' line: 3 
+
+\* What went wrong: 
+
+An exception occurred applying plugin request [id: 'dev.flutter.flutter-gradle-plugin'] 
+
+\> Failed to apply plugin 'dev.flutter.flutter-gradle-plugin'. 
+
+   \> Error: Your project's Kotlin version (2.2.10) is lower than Flutter's minimum supported version of 2.2.20. Please upgrade your Kotlin version.  
+
+     Alternatively, use the flag "--android-skip-build-dependency-validation" to bypass this check. 
+
+     Potential fix: Your project's KGP version is typically defined in the plugins block of the \`settings.gradle\` file (/home/runner/work/securechat\_x/securechat\_x/android/settings.gradle), by a plugin with the id of org.jetbrains.kotlin.android.  
+
+     If you don't see a plugins block, your project was likely created with an older template version, in which case it is most likely defined in the top-level build.gradle file (/home/runner/work/securechat\_x/securechat\_x/android/build.gradle) by the ext.kotlin\_version property. 
+
+\* Try: 
+
+\> Run with --stacktrace option to get the stack trace. 
+
+\> Run with --info or --debug option to get more log output. 
+
+\> Run with --scan to generate a Build Scan (Powered by Develocity). 
+
+\> Get more help at [https://help.gradle.org.](https://help.gradle.org) 
+
+BUILD FAILED in 1m 40s 
+
+Running Gradle task 'assembleDebug'...                            102.7s 
+
+┌─ Flutter Fix ────────────────────────────────────────────────────────────────────────┐ 
+
+│ [!] Starting AGP 9+, only the new DSL interface will be read.                        │ 
+
+│ This results in a build failure when applying the Flutter Gradle plugin at           │ 
+
+│ /home/runner/work/securechat\_x/securechat\_x/android/app/build.gradle.                │ 
+
+│                                                                                      │ 
+
+│ To resolve this update flutter or opt out of \`android.newDsl\`.                       │ 
+
+│ For instructions on how to opt out, see:                                             │ 
+
+│ [https://developer.android.com/build/releases/agp-9-0-0-release-notes](https://developer.android.com/build/releases/agp-9-0-0-release-notes)                 │ 
+
+│                                                                                      │ 
+
+│ If you are not upgrading to AGP 9+, run \`flutter analyze --suggestions\` to check for │ 
+
+│ incompatible dependencies.                                                           │ 
+
+└──────────────────────────────────────────────────────────────────────────────────────┘ 
+
+Gradle task assembleDebug failed with exit code 1 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+0s
+
+
+
+
+
+
+
+نعم، **الآن الخطأ محدد 100%**، وهذه المرة لا يوجد غموض.
+
+التشغيل `#19` قال حرفيًا:
+
+```text
+Your project's Kotlin version (2.2.10) is lower than
+Flutter's minimum supported version of 2.2.20.
+```
+
+إذن المشكلة ليست:
+
+* Dart
+* Flutter
+* الاختبارات
+* AGP نفسه
+* `android.newDsl`
+
+بل **Kotlin Gradle Plugin (KGP)**.
+
+راجعت `android/settings.gradle`، وكان لا يزال بدون نسخة Kotlin صريحة بعد انتقالنا إلى Built-in Kotlin.
+
+لذلك أصلحت المصدر الذي يقرأ منه Gradle/Kotlin مباشرة، وأضفت:
+
+```gradle
+id "org.jetbrains.kotlin.android" version "2.2.20" apply false
+```
+
+وأصبح الإصدار الآن **2.2.20**، وهو الحد الأدنى الذي طلبه Flutter 3.47.1 في سجل البناء.
+
+التعديل موجود الآن مباشرة في `main` في commit:
+
+```text
+84a701f7fdb37cba3b055b3829e97a860c8eef56
+fix: raise Kotlin Gradle Plugin to Flutter minimum
+```
+
+وبقية إعدادات Android أصبحت متسقة:
+
+```text
+AGP              9.0.1
+Gradle           9.1.0
+Kotlin           2.2.20
+Built-in Kotlin  true
+new DSL          false
+```
+
+### الآن
+
+لا نغير شيئًا آخر.
+
+GitHub Actions سيبدأ تشغيلًا جديدًا تلقائيًا بسبب الـcommit `84a701f`.
+
+المفترض أن نصل الآن إلى:
+
+```text
+flutter analyze       ✅
+flutter test          ✅
+flutter build apk     ← الاختبار الحاسم
+```
+
+وأريد أن أؤكد شيئًا: **هذه المرة لم أتجاهل رسالة Flutter أو أعالج العرض فقط؛ أصلحت نسخة KGP نفسها التي حددها الخطأ.**
+
+أرسل لي نتيجة التشغيل الجديد، وإذا تجاوزنا APK فسنكون قد حللنا سلسلة مشاكل الـFoundation واحدةً واحدة بشكل موثق.
+
+
+
+
+
+
+
+
+والان [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32670503740/job/97270541041#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**failed:**
+
+# **fix: raise Kotlin Gradle Plugin to Flutter minimum #20**
+
+**svgsvg**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 error and 1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32670503740/job/97270541041#logs)
+
+failed 1 minute ago in 3m 56s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+58s
+
+svgThis step passed
+
+6s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+9s
+
+svgThis step passed
+
+13s
+
+svgThis step passed
+
+0s
+
+svgThis step failed
+
+2m 25s
+
+Run flutter build apk --debug 
+
+Resolving dependencies... 
+
+Downloading packages... 
+
+  flutter\_lints 5.0.0 (6.0.0 available) 
+
+  lints 5.1.1 (6.1.0 available) 
+
+  material\_color\_utilities 0.13.0 (0.13.1 available) 
+
+  test\_api 0.7.12 (0.7.13 available) 
+
+Got dependencies! 
+
+4 packages have newer versions incompatible with dependency constraints. 
+
+Try \`flutter pub outdated\` for more information. 
+
+Upgrading build.gradle 
+
+Warning: Flutter support for your project's Kotlin version (2.2.20) will soon be dropped. Please upgrade your Kotlin version to a version of at least 2.3.20 soon. 
+
+Running Gradle task 'assembleDebug'...                           
+
+Alternatively, use the flag "--android-skip-build-dependency-validation" to bypass this check. 
+
+Potential fix: Your project's KGP version is typically defined in the plugins block of the \`settings.gradle\` file (/home/runner/work/securechat\_x/securechat\_x/android/settings.gradle), by a plugin with the id of org.jetbrains.kotlin.android.  
+
+If you don't see a plugins block, your project was likely created with an older template version, in which case it is most likely defined in the top-level build.gradle file (/home/runner/work/securechat\_x/securechat\_x/android/build.gradle) by the ext.kotlin\_version property. 
+
+Warning: The plugin integration\_test requires Android SDK version 36 or higher. 
+
+For more information about build configuration, see [https://flutter.dev/to/review-gradle-config.](https://flutter.dev/to/review-gradle-config) 
+
+Your project is configured to compile against Android SDK 35, but the following plugin(s) require to be compiled against a higher Android SDK version: 
+
+\- integration\_test compiles against Android SDK 36 
+
+Fix this issue by compiling against the highest Android SDK version (they are backward compatible). 
+
+Add the following to /home/runner/work/securechat\_x/securechat\_x/android/app/build.gradle: 
+
+    android { 
+
+        compileSdk = 36 
+
+        ... 
+
+    } 
+
+FAILURE: Build failed with an exception. 
+
+\* What went wrong: 
+
+Execution failed for task '\:app\:checkDebugAarMetadata'. 
+
+\> A failure occurred while executing com.android.build.gradle.internal.tasks.CheckAarMetadataWorkAction 
+
+   \> An issue was found when checking AAR metadata: 
+
+       1\.  Dependency '\:integration\_test' requires libraries and applications that 
+
+           depend on it to compile against version 36 or later of the 
+
+           Android APIs. 
+
+           \:app is currently compiled against android-35. 
+
+           Recommended action: Update this project to use a newer compileSdk 
+
+           of at least 36, for example 36. 
+
+           Note that updating a library or application's compileSdk (which 
+
+           allows newer APIs to be used) can be done separately from updating 
+
+           targetSdk (which opts the app in to new runtime behavior) and 
+
+           minSdk (which determines which devices the app can be installed 
+
+           on). 
+
+\* Try: 
+
+\> Run with --stacktrace option to get the stack trace. 
+
+\> Run with --info or --debug option to get more log output. 
+
+\> Run with --scan to generate a Build Scan (Powered by Develocity). 
+
+\> Get more help at [https://help.gradle.org.](https://help.gradle.org) 
+
+BUILD FAILED in 2m 22s 
+
+Running Gradle task 'assembleDebug'...                            144.0s 
+
+Gradle task assembleDebug failed with exit code 1 
+
+**Error:** Process completed with exit code 1. 
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+0s
+
+
+
+
+
+الآن تم حل الخطأ الذي ظهر في التشغيل الأخير مباشرة.
+
+السبب كان:
+
+```text
+integration_test
+        ↓
+requires compileSdk 36
+        ↓
+SecureChat X كان compileSdk 35
+        ↓
+:AAR metadata check failed
+```
+
+وليس هناك داعٍ لرفع `targetSdk` أو `minSdk`؛ سجل Gradle نفسه أوضح أن المطلوب هو **compileSdk 36 فقط**.
+
+عدّلت:
+
+```gradle
+android {
+    compileSdk 36
+}
+```
+
+في:
+
+`android/app/build.gradle`
+
+والتعديل أصبح على `main` في commit:
+
+```text
+023468525ec1ea30d0c20446a94fcb5a1d816a29
+fix: raise Android compileSdk for integration_test
+```
+
+### الحالة الآن
+
+آخر تشغيل أثبت:
+
+```text
+flutter pub get   ✅
+format            ✅
+flutter analyze   ✅
+flutter test      ✅
+Kotlin check      ✅
+AGP/Gradle        ✅
+```
+
+وبقي فقط:
+
+```text
+flutter build apk --debug
+```
+
+وكان فشله السابق بسبب `compileSdk 35`.
+
+لذلك التشغيل الذي سيبدأ بعد commit `0234685...` هو **أول اختبار حقيقي بعد إصلاح السبب المباشر لفشل Android**.
+
+نريد الآن:
+
+```text
+Format          ✅
+Analyze         ✅
+Tests           ✅
+Android APK     ← ننتظر النتيجة
+```
+
+ولا أنصح بتغيير أي إعداد Android آخر الآن؛ خصوصًا `targetSdk 34` سنتركه كما هو لأن الخطأ الحالي لا يطلب تغييره.
+
+
+
+
+
+
+
+
+
+والان هل كل شيء جاهز [Skip to content](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32670807046/job/97271264490#start-of-content)
+
+1. [CybersecurityRahbar](https://github.com/CybersecurityRahbar)
+2. [**securechat\_x**](https://github.com/CybersecurityRahbar/securechat_x)
+
+## Repository navigation
+
+-
+- [svgCode](https://github.com/CybersecurityRahbar/securechat_x)
+- [svgIssues](https://github.com/CybersecurityRahbar/securechat_x/issues)
+- [svgPull requests](https://github.com/CybersecurityRahbar/securechat_x/pulls)
+- [svgAgents](https://github.com/CybersecurityRahbar/securechat_x/agents?author=CybersecurityRahbar)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/actions)[**Actions**](https://github.com/CybersecurityRahbar/securechat_x/actions)
+- [svgProjects](https://github.com/CybersecurityRahbar/securechat_x/projects)
+- [svgWiki](https://github.com/CybersecurityRahbar/securechat_x/wiki)
+- [svgSecurity and quality](https://github.com/CybersecurityRahbar/securechat_x/security)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/pulse)
+- [svg](https://github.com/CybersecurityRahbar/securechat_x/settings)
+
+[svgFlutter CI](https://github.com/CybersecurityRahbar/securechat_x/actions/workflows/flutter_ci.yml)
+
+**completed successfully:**
+
+# **fix: raise Android compileSdk for integration\_test #21**
+
+**svg**
+
+-
+
+#### All jobs
+
+1.
+2.
+
+-
+
+1.
+2.
+
+### **Run details**
+
+-
+-
+
+**svg**
+
+## Annotations
+
+1 warning
+
+[**analyze-test-build**](https://github.com/CybersecurityRahbar/securechat_x/actions/runs/32670807046/job/97271264490#logs)
+
+succeeded 1 minute ago in 5m 8s
+
+svg
+
+**svgShow options**
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1s
+
+svgThis step passed
+
+1m 3s
+
+svgThis step passed
+
+6s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+9s
+
+svgThis step passed
+
+12s
+
+svgThis step passed
+
+0s
+
+svgThis step passed
+
+3m 10s
+
+svgThis step passed
+
+23s
+
+svgThis step passed
+
+0s
+
+Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS\_ALLOW\_USE\_UNSECURE\_NODE\_VERSION=true environment variable. For more information see: [https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/](https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/) 
+
+Post job cleanup. 
+
+/usr/bin/git version 
+
+git version 2.55.0 
+
+Temporarily overriding HOME='/home/runner/work/\_temp/7f8b4f65-f4f3-45e8-9ec2-d112915b4ab8' before making global git config changes 
+
+Adding repository directory to the temporary git global config as a safe directory 
+
+/usr/bin/git config --global --add safe.directory /home/runner/work/securechat\_x/securechat\_x 
+
+/usr/bin/git config --local --name-only --get-regexp core\\.sshCommand 
+
+/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :" 
+
+/usr/bin/git config --local --name-only --get-regexp http\\.https\\:\\/\\/github\\.com\\/\\.extraheader 
+
+http.https://github.com/.extraheader 
+
+/usr/bin/git config --local --unset-all http.https://github.com/.extraheader 
+
+/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\\.https\\:\\/\\/github\\.com\\/\\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :" 
+
+/usr/bin/git config --local --name-only --get-regexp ^includeIf\\.gitdir: 
+
+/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url 
+
+svgThis step passed
+
+0s
+
+Cleaning up orphan processes 
+
+Terminate orphan process: pid (2824) (java) 
+
+Terminate orphan process: pid (2940) (java) 
+
+**Warning:** Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout\@v4. For more information see: [https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/](https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+نعم، **الآن لدينا أول نتيجة ناجحة كاملة لـ Phase 1 من ناحية البناء والتحقق الآلي**.
+
+التشغيل الأخير `#21` نجح بالكامل، والـjob `analyze-test-build` أنهى كل الخطوات دون أي فشل:
+
+```text
+Flutter setup        ✅
+Dependencies         ✅
+Dart format          ✅
+flutter analyze      ✅
+flutter test         ✅
+Android/Gradle       ✅
+flutter build apk    ✅
+```
+
+وهذا أهم إنجاز وصلنا إليه في هذه المرحلة: أصبح لدينا **APK Debug قابل للبناء فعليًا عبر GitHub Actions**، وليس مجرد كود لم نستطع اختباره.
+
+### ماذا عن التحذيرات؟
+
+هناك تحذيران، لكنهما لم يمنعا البناء:
+
+**1. Kotlin 2.2.20**
+ظهر أن Flutter سيطلب في المستقبل إصدارًا أحدث، لكنه **ليس سبب فشل الآن**.
+
+**2. Node.js 20**
+هذا تحذير متعلق بإحدى GitHub Actions نفسها، وليس بكود SecureChat X، ولم يؤثر على البناء.
+
+إذًا لا يوجد الآن **خطأ blocking** في تشغيل CI الأخير.
+
+### لكن هل التطبيق "جاهز بالكامل"؟
+
+**لا، وهذه نقطة مهمة جدًا.**
+
+الذي أصبح جاهزًا هو:
+
+> **SecureChat X 2.0 Foundation — Build/Analysis/Test Validated**
+
+وليس التطبيق النهائي.
+
+حاليًا لدينا الأساس:
+
+```text
+Architecture           ✅
+Bootstrap              ✅
+DI boundaries          ✅
+Routing                ✅
+Error handling         ✅
+Diagnostics            ✅
+Design tokens          ✅
+Foundation widgets     ✅
+Android foundation     ✅
+CI                     ✅
+Analyze                ✅
+Tests                  ✅
+Debug APK              ✅
+```
+
+لكن ما زال intentionally غير منفذ:
+
+```text
+Database               ⏳ Phase 3
+Identity               ⏳
+Secure Storage         ⏳
+Cryptographic Protocol ⏳
+Sessions/Ratchet       ⏳
+Messaging              ⏳
+Synchronization        ⏳
+Contacts/Verification  ⏳
+Groups                 ⏳
+Community              ⏳
+Media                  ⏳
+Voice                  ⏳
+Calls/Video            ⏳
+Security Center        ⏳
+Final UI/UX            ⏳ Phase 2
+Server                 ⏳ لاحقًا
+```
+
+وهذا **مقصود تمامًا** في خارطة المشروع؛ لم نستخدم fake implementations لتزوير اكتمال التطبيق.
+
+### ما الذي أريد أن نفعله الآن؟
+
+لا أريد أن نقفز مباشرة إلى التشفير أو قاعدة البيانات.
+
+الخطوة التالية المنطقية هي:
+
+**Final Phase 1 Review → ثم Phase 2**
+
+أي أنني أراجع الآن `main` بعد كل التعديلات التي حدثت خلال إصلاح CI، وأتأكد من أن إصلاحات Android الأخيرة لم تُدخل دينًا معماريًا جديدًا، وأن الوثائق والـThreat Model والـADR ما زالت تعكس الحقيقة.
+
+بعد ذلك نبدأ:
+
+# Phase 2 — SecureChat X 2.0 UI/UX
+
+وسنبدأ من التصميم المعماري للواجهة:
+
+```text
+Home / Command Center
+        ↓
+Chats
+        ↓
+Conversation
+        ↓
+Contacts + Identity
+        ↓
+Verification
+        ↓
+Devices
+        ↓
+Security Center
+        ↓
+Settings
+        ↓
+Groups / Community
+        ↓
+Media / Voice / Calls
+```
+
+وبعدها ندخل إلى Phase 3 للـDatabase.
+
+**إذن: لا توجد مشكلة بناء تمنعنا الآن. Phase 1 أصبحت قابلة للبناء والاختبار فعليًا، لكننا لم نعتبرها "مكتملة وظيفيًا" لأن هذا ليس هدفها.**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
