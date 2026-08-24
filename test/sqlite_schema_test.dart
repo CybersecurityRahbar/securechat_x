@@ -10,9 +10,7 @@ void main() {
   test(
     'phase 3 schema creates all required relational tables and indexes',
     () async {
-      final db = await databaseFactoryFfi.openDatabase(
-        inMemoryDatabasePath,
-      );
+      final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
       addTearDown(db.close);
 
       await db.execute('PRAGMA foreign_keys = ON');
@@ -69,9 +67,7 @@ void main() {
   test(
     'foreign keys prevent orphaned members and cascade dependent rows',
     () async {
-      final db = await databaseFactoryFfi.openDatabase(
-        inMemoryDatabasePath,
-      );
+      final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
       addTearDown(db.close);
 
       await db.execute('PRAGMA foreign_keys = ON');
@@ -99,9 +95,7 @@ void main() {
   );
 
   test('transaction rollback preserves atomicity', () async {
-    final db = await databaseFactoryFfi.openDatabase(
-      inMemoryDatabasePath,
-    );
+    final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     addTearDown(db.close);
 
     await db.execute('PRAGMA foreign_keys = ON');
