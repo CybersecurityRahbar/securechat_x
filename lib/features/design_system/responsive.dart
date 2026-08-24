@@ -37,8 +37,9 @@ final class SecureChatResponsiveInsets {
 final class SecureChatContentConstraints {
   const SecureChatContentConstraints._();
 
-  static const double readable = 1120;
   static const double narrow = 760;
+  static const double wide = 1120;
+  static const double readable = wide;
 }
 
 class SecureChatConstrained extends StatelessWidget {
