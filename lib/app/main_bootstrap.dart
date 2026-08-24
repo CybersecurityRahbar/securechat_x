@@ -42,6 +42,18 @@ Future<void> bootstrapSecureChat({
 
   final AppDependencies dependencies = AppDependencies.foundation();
 
+  try {
+    await dependencies.database.migrate();
+  } on Object catch (error, stackTrace) {
+    reporter.record(
+      code: diagnosticCodeFor(error, fallback: 'database.migration'),
+      error: error,
+      stackTrace: stackTrace,
+    );
+    runApp(const _DatabaseFailureApp());
+    return;
+  }
+
   ErrorWidget.builder = (FlutterErrorDetails details) {
     reporter.record(
       code:
@@ -107,6 +119,20 @@ class _BootstrapFailureApp extends StatelessWidget {
           body: ErrorState(
             message:
                 'The application configuration is invalid. Please contact support.',
+          ),
+        ),
+      );
+}
+
+class _DatabaseFailureApp extends StatelessWidget {
+  const _DatabaseFailureApp();
+
+  @override
+  Widget build(BuildContext context) => const MaterialApp(
+        home: Scaffold(
+          body: ErrorState(
+            message:
+                'Secure local storage could not be initialized. Your data was not opened.',
           ),
         ),
       );
