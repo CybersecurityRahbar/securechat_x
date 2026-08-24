@@ -12,8 +12,8 @@ class SecureCommandCenter extends StatelessWidget {
     final EdgeInsets padding = SecureChatResponsiveInsets.page(context);
     return SingleChildScrollView(
       padding: padding,
-      child: SecureChatConstrained(
-        child: const Column(
+      child: const SecureChatConstrained(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _CommandHeader(),
