@@ -11,7 +11,7 @@ class SecurityCenterScreen extends StatelessWidget {
   Widget build(BuildContext context) => SafeArea(
         child: SecureChatConstrained(
           maxWidth: SecureChatContentConstraints.wide,
-          child: Padding(
+          child: SingleChildScrollView(
             padding: SecureChatResponsiveInsets.page(context),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,7 +35,8 @@ class SecurityCenterScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: SecureChatSpace.lg),
                 GridView.count(
-                  crossAxisCount: MediaQuery.sizeOf(context).width >= 840 ? 2 : 1,
+                  crossAxisCount:
+                      MediaQuery.sizeOf(context).width >= 840 ? 2 : 1,
                   mainAxisSpacing: SecureChatSpace.md,
                   crossAxisSpacing: SecureChatSpace.md,
                   shrinkWrap: true,
