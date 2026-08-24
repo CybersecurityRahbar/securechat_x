@@ -71,9 +71,8 @@ class SecureChatMessageBubble extends StatelessWidget {
                 bottomLeft: Radius.circular(isMine ? 18 : 6),
                 bottomRight: Radius.circular(isMine ? 6 : 18),
               ),
-              border: isMine
-                  ? null
-                  : Border.all(color: SecureChatColors.divider),
+              border:
+                  isMine ? null : Border.all(color: SecureChatColors.divider),
             ),
             child: Column(
               crossAxisAlignment:
@@ -114,7 +113,8 @@ class SecureChatMessageBubble extends StatelessWidget {
 }
 
 class SecureChatComposer extends StatefulWidget {
-  const SecureChatComposer({required this.onSend, super.key, this.enabled = true});
+  const SecureChatComposer(
+      {required this.onSend, super.key, this.enabled = true});
 
   final ValueChanged<String>? onSend;
   final bool enabled;

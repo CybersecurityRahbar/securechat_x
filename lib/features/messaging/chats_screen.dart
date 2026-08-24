@@ -33,7 +33,8 @@ class ChatsScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       const ListTile(
-                        leading: SecureChatAvatar(label: 'Conversation preview'),
+                        leading:
+                            SecureChatAvatar(label: 'Conversation preview'),
                         title: Text('Conversation UI preview'),
                         subtitle: Text('No real conversation data is loaded.'),
                       ),
