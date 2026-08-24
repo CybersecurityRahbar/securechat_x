@@ -59,40 +59,47 @@ class FoundationScreen extends StatelessWidget {
   Future<void> _showCommandPalette(BuildContext context) =>
       showSecureChatBottomSheet<void>(
         context,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Command Center search',
-              style: Theme.of(context).textTheme.titleLarge,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.75,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Command Center search',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: SecureChatSpace.xs),
+                Text(
+                  'Navigation commands are available now. Content search will arrive with the database and messaging phases.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: SecureChatSpace.md),
+                for (final FoundationDestination value in [
+                  FoundationDestination.home,
+                  FoundationDestination.chats,
+                  FoundationDestination.contacts,
+                  FoundationDestination.devices,
+                  FoundationDestination.security,
+                  FoundationDestination.settings,
+                ]) ...[
+                  ListTile(
+                    leading: Icon(_items[value]!.icon),
+                    title: Text(_items[value]!.title),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _navigate(context, value);
+                    },
+                  ),
+                  if (value != FoundationDestination.settings)
+                    const Divider(height: 1),
+                ],
+              ],
             ),
-            const SizedBox(height: SecureChatSpace.xs),
-            Text(
-              'Navigation commands are available now. Content search will arrive with the database and messaging phases.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: SecureChatSpace.md),
-            for (final FoundationDestination value in [
-              FoundationDestination.home,
-              FoundationDestination.chats,
-              FoundationDestination.contacts,
-              FoundationDestination.devices,
-              FoundationDestination.security,
-              FoundationDestination.settings,
-            ]) ...[
-              ListTile(
-                leading: Icon(_items[value]!.icon),
-                title: Text(_items[value]!.title),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _navigate(context, value);
-                },
-              ),
-              if (value != FoundationDestination.settings)
-                const Divider(height: 1),
-            ],
-          ],
+          ),
         ),
       );
 
