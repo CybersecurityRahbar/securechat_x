@@ -67,7 +67,22 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Devices'), findsOneWidget);
+
+    final Finder sheetScrollable = find.byType(Scrollable).last;
+    await tester.scrollUntilVisible(
+      find.text('Security Center'),
+      200,
+      scrollable: sheetScrollable,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Security Center'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Settings'),
+      200,
+      scrollable: sheetScrollable,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Settings'), findsOneWidget);
   });
 
