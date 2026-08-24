@@ -31,7 +31,8 @@ class SecureChatAdaptiveNavigation extends StatelessWidget {
     }
 
     final bool expanded = SecureChatBreakpoints.isExpanded(context);
-    final int safeIndex = selectedIndex.clamp(0, destinations.length - 1).toInt();
+    final int safeIndex =
+        selectedIndex.clamp(0, destinations.length - 1).toInt();
 
     if (!expanded) {
       return Scaffold(

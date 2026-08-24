@@ -142,10 +142,14 @@ class _OperationalCard extends StatelessWidget {
               subtitle: 'Current foundation boundaries',
             ),
             const SizedBox(height: SecureChatSpace.lg),
-            const _StateLine(label: 'Local persistence', value: 'Foundation only'),
-            const _StateLine(label: 'Network transport', value: 'Interface only'),
-            const _StateLine(label: 'Cryptographic engine', value: 'Interface only'),
-            const _StateLine(label: 'Diagnostics', value: 'Redacted boundary active'),
+            const _StateLine(
+                label: 'Local persistence', value: 'Foundation only'),
+            const _StateLine(
+                label: 'Network transport', value: 'Interface only'),
+            const _StateLine(
+                label: 'Cryptographic engine', value: 'Interface only'),
+            const _StateLine(
+                label: 'Diagnostics', value: 'Redacted boundary active'),
           ],
         ),
       );
@@ -205,16 +209,19 @@ class _RecentSignalsCard extends StatelessWidget {
             const SizedBox(height: SecureChatSpace.md),
             const ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.check_circle_outline, color: SecureChatColors.success),
+              leading: Icon(Icons.check_circle_outline,
+                  color: SecureChatColors.success),
               title: Text('Phase 1 foundation validated'),
-              subtitle: Text('Analysis, tests and Android debug build are passing in CI.'),
+              subtitle: Text(
+                  'Analysis, tests and Android debug build are passing in CI.'),
             ),
             const Divider(height: SecureChatSpace.lg),
             const ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(SecureChatIcons.security),
               title: Text('Security capabilities are not active'),
-              subtitle: Text('No E2EE, identity or verification claim is active yet.'),
+              subtitle: Text(
+                  'No E2EE, identity or verification claim is active yet.'),
             ),
           ],
         ),

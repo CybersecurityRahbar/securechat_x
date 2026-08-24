@@ -25,14 +25,16 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('compact navigation uses NavigationBar', (WidgetTester tester) async {
+  testWidgets('compact navigation uses NavigationBar',
+      (WidgetTester tester) async {
     await pumpAtWidth(tester, 390);
 
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.byType(NavigationRail), findsNothing);
   });
 
-  testWidgets('expanded navigation uses NavigationRail', (WidgetTester tester) async {
+  testWidgets('expanded navigation uses NavigationRail',
+      (WidgetTester tester) async {
     await pumpAtWidth(tester, 1280);
 
     expect(find.byType(NavigationRail), findsOneWidget);

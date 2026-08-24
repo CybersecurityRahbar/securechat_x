@@ -236,7 +236,8 @@ class SecureChatStatusPill extends StatelessWidget {
 Future<T?> showSecureChatDialog<T>(
   BuildContext context, {
   required Widget child,
-}) => showDialog<T>(
+}) =>
+    showDialog<T>(
       context: context,
       builder: (_) => AlertDialog(content: child),
     );
@@ -244,7 +245,8 @@ Future<T?> showSecureChatDialog<T>(
 Future<T?> showSecureChatBottomSheet<T>(
   BuildContext context, {
   required Widget child,
-}) => showModalBottomSheet<T>(
+}) =>
+    showModalBottomSheet<T>(
       context: context,
       builder: (_) => SafeArea(
         child: Padding(
