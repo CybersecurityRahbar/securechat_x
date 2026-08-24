@@ -9,10 +9,10 @@ final class SqliteDatabase implements Database {
     String databaseName = 'securechat_x.db',
     sqlite.DatabaseFactory? databaseFactory,
   }) : _databaseName = databaseName,
-       _databaseFactory = databaseFactory ?? sqlite.databaseFactory;
+       _databaseFactory = databaseFactory;
 
   final String _databaseName;
-  final sqlite.DatabaseFactory _databaseFactory;
+  final sqlite.DatabaseFactory? _databaseFactory;
   sqlite.Database? _database;
 
   @override
@@ -26,7 +26,9 @@ final class SqliteDatabase implements Database {
       return existing;
     }
 
-    final sqlite.Database database = await _databaseFactory.openDatabase(
+    final sqlite.DatabaseFactory factory =
+        _databaseFactory ?? sqlite.databaseFactory;
+    final sqlite.Database database = await factory.openDatabase(
       _databaseName,
       options: sqlite.OpenDatabaseOptions(
         version: SecureChatSqliteSchema.version,
