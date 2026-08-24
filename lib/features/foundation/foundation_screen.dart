@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../app/router.dart';
 import '../../domain/entities/foundation_destination.dart';
+import '../contacts/contacts_screen.dart';
 import '../design_system/adaptive_navigation.dart';
 import '../design_system/design_tokens.dart';
 import '../design_system/foundation_widgets.dart';
 import '../design_system/responsive.dart';
 import '../home/secure_command_center.dart';
+import '../messaging/chats_screen.dart';
+import '../security/security_center_screen.dart';
+import '../settings/settings_screen.dart';
 
 class FoundationScreen extends StatelessWidget {
   const FoundationScreen({required this.destination, super.key});
@@ -77,7 +81,7 @@ class FoundationScreen extends StatelessWidget {
           onPressed: () => showSecureChatDialog<void>(
             context,
             child: const Text(
-              'SecureChat X 2.0 design-system phase. Features marked not implemented are not security claims.',
+              'SecureChat X 2.0 presentation layer. Features marked not implemented are not security claims.',
             ),
           ),
         ),
@@ -90,10 +94,26 @@ class FoundationScreen extends StatelessWidget {
     BuildContext context,
     ({String title, IconData icon}) item,
   ) {
-    if (destination == FoundationDestination.home) {
-      return const SecureCommandCenter();
+    switch (destination) {
+      case FoundationDestination.home:
+        return const SecureCommandCenter();
+      case FoundationDestination.chats:
+        return const ChatsScreen();
+      case FoundationDestination.contacts:
+        return const ContactsScreen();
+      case FoundationDestination.security:
+        return const SecurityCenterScreen();
+      case FoundationDestination.settings:
+        return const SettingsScreen();
+      case FoundationDestination.calls:
+        return _placeholder(context, item);
     }
+  }
 
+  Widget _placeholder(
+    BuildContext context,
+    ({String title, IconData icon}) item,
+  ) {
     return SafeArea(
       child: SecureChatConstrained(
         maxWidth: SecureChatContentConstraints.narrow,
@@ -114,17 +134,16 @@ class FoundationScreen extends StatelessWidget {
                   children: [
                     Icon(item.icon, color: SecureChatColors.primary),
                     const SizedBox(width: SecureChatSpace.md),
-                    Expanded(
+                    const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SecurityStatusIndicator(
+                          SecurityStatusIndicator(
                             status: SecurityStatus.notImplemented,
                           ),
-                          const SizedBox(height: SecureChatSpace.md),
+                          SizedBox(height: SecureChatSpace.md),
                           Text(
-                            _detail(destination),
-                            style: Theme.of(context).textTheme.bodyLarge,
+                            'Calling and call signalling are not implemented yet.',
                           ),
                         ],
                       ),
@@ -138,18 +157,4 @@ class FoundationScreen extends StatelessWidget {
       ),
     );
   }
-
-  String _detail(FoundationDestination value) => switch (value) {
-        FoundationDestination.chats =>
-          'Messaging is not implemented. No conversations or message content are available yet.',
-        FoundationDestination.contacts =>
-          'Contact identity and verification are not implemented yet.',
-        FoundationDestination.calls =>
-          'Calling and call signalling are not implemented yet.',
-        FoundationDestination.security =>
-          'Security state will be available after identity, storage, and protocol phases are implemented.',
-        FoundationDestination.settings =>
-          'Settings are intentionally unavailable until persistent, actionable settings are implemented.',
-        FoundationDestination.home => 'The command center is available.',
-      };
 }
