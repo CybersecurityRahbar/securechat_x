@@ -12,6 +12,7 @@ final class AppRouter {
     FoundationDestination.chats: '/chats',
     FoundationDestination.contacts: '/contacts',
     FoundationDestination.calls: '/calls',
+    FoundationDestination.devices: '/devices',
     FoundationDestination.security: '/security',
     FoundationDestination.settings: '/settings',
   };
