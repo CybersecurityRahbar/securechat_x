@@ -45,6 +45,8 @@ Phase 1 contains interfaces/placeholders where later phases are deliberately not
 - Dark-first Material 3 theme foundation.
 - Reusable surfaces, cards, buttons, icon buttons, text fields, section headers, metrics, status pills, dialogs, bottom sheets and state widgets.
 - Security-status indicator with truthful states.
+- Reduced-motion helper and animated switcher that respect the platform `disableAnimations` setting.
+- Accessibility-oriented semantics for avatars, message bubbles and informational banners.
 
 ### Responsive/navigation foundation
 
@@ -59,10 +61,27 @@ Phase 1 contains interfaces/placeholders where later phases are deliberately not
 - Secure Command Center foundation with truthful status sections, quick actions and recent-signal presentation.
 - Responsive command-center state rows.
 
+### Messaging UI foundation
+
+- Conversation message bubble component with timestamps and truthful UI-only status labels.
+- Responsive composer with attachment, voice-message and send actions.
+- Compact composer layout avoids squeezing four controls into one row on phone-sized screens.
+- Conversation preview screen with security-state explanation and representative message layouts.
+- Chats screen with scrollable conversation workspace and navigation into the conversation preview.
+
 ### Feature UI foundations
 
-- Conversation UI primitives and composer foundation are being built in Phase 2.
-- Chats, Contacts, Devices, Security Center and Settings are UI shells only until their implementation phases provide real behavior and persistence.
+- Contacts presentation shell.
+- Devices presentation shell.
+- Security Center presentation shell with responsive security-state tiles.
+- Settings presentation shell with grouped privacy/security/accessibility sections.
+- All Phase 2 feature shells continue to state clearly which functionality is not implemented yet.
+
+### CI / build delivery
+
+- `flutter format`, `flutter analyze`, `flutter test` and Android debug build are enforced in GitHub Actions.
+- Integration smoke test is now executed explicitly.
+- Successful debug APK builds are uploaded as the `securechat-x-debug-apk` GitHub Actions artifact for manual device inspection.
 
 ## Explicitly NOT implemented yet
 
@@ -91,18 +110,19 @@ For every Phase 2 batch:
 1. Read the authoritative documents and current files.
 2. Build a coherent feature slice, not disconnected placeholders.
 3. Review imports, APIs, null-safety, `const` usage and responsive behavior before pushing.
-4. Run formatter/analyzer/tests through CI.
-5. Run the Android debug build at milestone boundaries.
-6. Fix failures before adding another dependent feature slice.
+4. Review the resulting files again after writing them.
+5. Run formatter/analyzer/tests through CI.
+6. Run the Android debug build at milestone boundaries.
+7. Run the integration smoke test.
+8. Fix failures before adding another dependent feature slice.
 
 ## Next planned sequence
 
-1. Complete Phase 2 shared feature UI primitives.
-2. Complete Chat/Conversation UI foundation.
-3. Complete Contacts/Identity presentation shell.
-4. Complete Devices/Security/Settings presentation shells.
-5. Complete motion, accessibility and reduced-motion foundation.
-6. Validate Phase 2 as a coherent UI/navigation milestone.
-7. Only then begin Phase 3 secure storage/database.
+1. Finish Phase 2 shared motion/accessibility and message interaction primitives.
+2. Finish Chat/Conversation UI foundation and compact/expanded variants.
+3. Finish Contacts/Devices/Security/Settings presentation consistency.
+4. Add targeted UI/accessibility tests for the completed Phase 2 components.
+5. Validate Phase 2 as a coherent UI/navigation milestone.
+6. Only then begin Phase 3 secure storage/database.
 
 This checkpoint does not replace the authoritative Master Specification or Roadmap. It records the repository's current implementation state only.
