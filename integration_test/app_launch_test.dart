@@ -10,6 +10,8 @@ void main() {
   testWidgets('foundation shell renders and opens Chats',
       (WidgetTester tester) async {
     final AppDependencies dependencies = AppDependencies.foundation();
+    await dependencies.database.migrate();
+
     await tester.pumpWidget(
       MediaQuery(
         data: const MediaQueryData(size: Size(390, 844)),
