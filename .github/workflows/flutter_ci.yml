@@ -52,9 +52,6 @@ jobs:
       - name: Unit and widget tests
         run: flutter test
 
-      - name: Integration smoke test
-        run: flutter test integration_test/app_launch_test.dart
-
       - name: Ensure Gradle wrapper is executable
         run: chmod +x android/gradlew
 
@@ -68,3 +65,15 @@ jobs:
           path: build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
+
+      - name: Integration test on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          force-avd-creation: true
+          emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          disable-animations: true
+          script: flutter test integration_test/app_launch_test.dart -d emulator-5554
