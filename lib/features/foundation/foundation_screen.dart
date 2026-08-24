@@ -56,6 +56,46 @@ class FoundationScreen extends StatelessWidget {
     Navigator.of(context).pushReplacementNamed(AppRouter.pathFor(next));
   }
 
+  Future<void> _showCommandPalette(BuildContext context) =>
+      showSecureChatBottomSheet<void>(
+        context,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Command Center search',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: SecureChatSpace.xs),
+            Text(
+              'Navigation commands are available now. Content search will arrive with the database and messaging phases.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: SecureChatSpace.md),
+            for (final FoundationDestination value in [
+              FoundationDestination.home,
+              FoundationDestination.chats,
+              FoundationDestination.contacts,
+              FoundationDestination.devices,
+              FoundationDestination.security,
+              FoundationDestination.settings,
+            ]) ...[
+              ListTile(
+                leading: Icon(_items[value]!.icon),
+                title: Text(_items[value]!.title),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _navigate(context, value);
+                },
+              ),
+              if (value != FoundationDestination.settings)
+                const Divider(height: 1),
+            ],
+          ],
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final ({String title, IconData icon}) item = _items[destination]!;
@@ -76,10 +116,10 @@ class FoundationScreen extends StatelessWidget {
           _navigate(context, FoundationDestination.values[index]),
       destinations: destinations,
       actions: [
-        const SecureChatIconButton(
+        SecureChatIconButton(
           icon: SecureChatIcons.search,
-          label: 'Global search',
-          onPressed: null,
+          label: 'Global command palette',
+          onPressed: () => _showCommandPalette(context),
         ),
         SecureChatIconButton(
           icon: Icons.info_outline,
@@ -136,7 +176,7 @@ class FoundationScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: SecureChatSpace.lg),
-              SecureChatFeatureBanner(
+              const SecureChatFeatureBanner(
                 title: 'Calls are not implemented',
                 message:
                     'The presentation shell is ready for the future call state machine, signalling contract and media controls. No call security capability is claimed here.',
