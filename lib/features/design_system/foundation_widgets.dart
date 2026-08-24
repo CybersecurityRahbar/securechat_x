@@ -15,11 +15,19 @@ class SecureChatButton extends StatelessWidget {
   final Widget? icon;
 
   @override
-  Widget build(BuildContext context) => FilledButton.icon(
+  Widget build(BuildContext context) {
+    if (icon == null) {
+      return FilledButton(
         onPressed: onPressed,
-        icon: icon ?? const SizedBox.shrink(),
-        label: Text(label),
+        child: Text(label),
       );
+    }
+    return FilledButton.icon(
+      onPressed: onPressed,
+      icon: icon!,
+      label: Text(label),
+    );
+  }
 }
 
 class SecureChatIconButton extends StatelessWidget {
