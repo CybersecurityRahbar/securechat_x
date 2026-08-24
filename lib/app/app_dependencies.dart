@@ -1,4 +1,5 @@
 import '../core/network/transport.dart';
+import '../core/storage/flutter_secure_secret_store.dart';
 import '../core/storage/storage_boundaries.dart';
 import '../data/database/database.dart';
 import '../data/database/sqlite_database.dart';
@@ -6,9 +7,9 @@ import '../services/background/lifecycle_service.dart';
 
 /// Application composition root for the currently implemented infrastructure.
 ///
-/// Phase 3 now supplies a real relational SQLite boundary. Secure secret
-/// storage, transport and higher-level repositories remain intentionally
-/// unavailable until their roadmap phases are implemented.
+/// Phase 3 now supplies a real relational SQLite boundary and platform-protected
+/// secret storage. Preferences, transport and higher-level feature repositories
+/// remain deliberately deferred to their roadmap phases.
 final class AppDependencies {
   AppDependencies({
     required this.preferences,
@@ -26,7 +27,7 @@ final class AppDependencies {
 
   factory AppDependencies.foundation() => AppDependencies(
     preferences: const _UnavailablePreferencesStore(),
-    secrets: const _UnavailableSecretStore(),
+    secrets: FlutterSecureSecretStore(),
     database: SqliteDatabase(),
     transport: const _UnavailableTransport(),
   );
@@ -45,25 +46,6 @@ final class _UnavailablePreferencesStore implements PreferencesStore {
   @override
   Future<void> write(String key, String value) => Future<void>.error(
     StateError('Phase 3 preferences repository is not implemented.'),
-  );
-}
-
-final class _UnavailableSecretStore implements SecretStore {
-  const _UnavailableSecretStore();
-
-  @override
-  Future<void> writeSecret(String key, List<int> secret) => Future<void>.error(
-    StateError('Secure secret storage is not implemented.'),
-  );
-
-  @override
-  Future<List<int>?> readSecret(String key) => Future<List<int>?>.error(
-    StateError('Secure secret storage is not implemented.'),
-  );
-
-  @override
-  Future<void> deleteSecret(String key) => Future<void>.error(
-    StateError('Secure secret storage is not implemented.'),
   );
 }
 
