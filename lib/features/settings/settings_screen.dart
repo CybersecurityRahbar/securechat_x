@@ -164,9 +164,12 @@ class _SettingsSection extends StatelessWidget {
                 children: [
                   Icon(icon, size: 20, color: SecureChatColors.primary),
                   const SizedBox(width: SecureChatSpace.sm),
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium,
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      softWrap: true,
+                    ),
                   ),
                 ],
               ),
