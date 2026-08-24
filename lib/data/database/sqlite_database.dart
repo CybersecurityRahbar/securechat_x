@@ -5,10 +5,14 @@ import 'sqlite_schema.dart';
 
 /// Concrete SQLite implementation used by the application database boundary.
 final class SqliteDatabase implements Database {
-  SqliteDatabase({String databaseName = 'securechat_x.db'})
-      : _databaseName = databaseName;
+  SqliteDatabase({
+    String databaseName = 'securechat_x.db',
+    sqlite.DatabaseFactory? databaseFactory,
+  })  : _databaseName = databaseName,
+        _databaseFactory = databaseFactory ?? sqlite.databaseFactory;
 
   final String _databaseName;
+  final sqlite.DatabaseFactory _databaseFactory;
   sqlite.Database? _database;
 
   @override
@@ -22,20 +26,22 @@ final class SqliteDatabase implements Database {
       return existing;
     }
 
-    final sqlite.Database database = await sqlite.openDatabase(
+    final sqlite.Database database = await _databaseFactory.openDatabase(
       _databaseName,
-      version: SecureChatSqliteSchema.version,
-      onConfigure: (sqlite.Database db) async {
-        await db.execute('PRAGMA foreign_keys = ON');
-        await db.execute('PRAGMA secure_delete = ON');
-        await db.execute('PRAGMA busy_timeout = 5000');
-      },
-      onCreate: (sqlite.Database db, int version) async {
-        await _createSchema(db, version);
-      },
-      onUpgrade: (sqlite.Database db, int oldVersion, int newVersion) async {
-        await _upgradeSchema(db, oldVersion, newVersion);
-      },
+      options: sqlite.OpenDatabaseOptions(
+        version: SecureChatSqliteSchema.version,
+        onConfigure: (sqlite.Database db) async {
+          await db.execute('PRAGMA foreign_keys = ON');
+          await db.execute('PRAGMA secure_delete = ON');
+          await db.execute('PRAGMA busy_timeout = 5000');
+        },
+        onCreate: (sqlite.Database db, int version) async {
+          await _createSchema(db, version);
+        },
+        onUpgrade: (sqlite.Database db, int oldVersion, int newVersion) async {
+          await _upgradeSchema(db, oldVersion, newVersion);
+        },
+      ),
     );
 
     _database = database;
