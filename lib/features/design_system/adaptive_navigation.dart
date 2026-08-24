@@ -23,8 +23,15 @@ class SecureChatAdaptiveNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (destinations.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: Text(title), actions: actions),
+        body: child,
+      );
+    }
+
     final bool expanded = SecureChatBreakpoints.isExpanded(context);
-    final int safeIndex = selectedIndex.clamp(0, destinations.length - 1);
+    final int safeIndex = selectedIndex.clamp(0, destinations.length - 1).toInt();
 
     if (!expanded) {
       return Scaffold(
