@@ -8,7 +8,12 @@ void main() {
     'application shell starts and navigates to foundational destinations',
     (WidgetTester tester) async {
       final AppDependencies dependencies = AppDependencies.foundation();
-      await tester.pumpWidget(SecureChatApp(lifecycle: dependencies.lifecycle));
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(size: Size(390, 844)),
+          child: SecureChatApp(lifecycle: dependencies.lifecycle),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('foundation-screen-title')), findsOneWidget);
       expect(find.text('Command Center'), findsWidgets);
