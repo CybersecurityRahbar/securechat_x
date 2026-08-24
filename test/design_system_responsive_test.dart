@@ -8,7 +8,20 @@ void main() {
     NavigationDestination(icon: Icon(Icons.chat_outlined), label: 'Chats'),
   ];
 
-  Future<void> pumpAtWidth(WidgetTester tester, double width) async {
+  const List<NavigationDestination> sixDestinations = [
+    NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
+    NavigationDestination(icon: Icon(Icons.chat_outlined), label: 'Chats'),
+    NavigationDestination(icon: Icon(Icons.people_outline), label: 'Contacts'),
+    NavigationDestination(icon: Icon(Icons.call_outlined), label: 'Calls'),
+    NavigationDestination(icon: Icon(Icons.security_outlined), label: 'Security'),
+    NavigationDestination(icon: Icon(Icons.tune_outlined), label: 'Settings'),
+  ];
+
+  Future<void> pumpAtWidth(
+    WidgetTester tester,
+    double width, {
+    List<NavigationDestination> items = destinations,
+  }) async {
     await tester.pumpWidget(
       MaterialApp(
         home: MediaQuery(
@@ -16,7 +29,7 @@ void main() {
           child: SecureChatAdaptiveNavigation(
             selectedIndex: 0,
             onDestinationSelected: (_) {},
-            destinations: destinations,
+            destinations: items,
             child: const SizedBox.expand(),
           ),
         ),
@@ -31,6 +44,16 @@ void main() {
 
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.byType(NavigationRail), findsNothing);
+  });
+
+  testWidgets('compact navigation collapses excess destinations into More',
+      (WidgetTester tester) async {
+    await pumpAtWidth(tester, 390, items: sixDestinations);
+
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.text('More'), findsOneWidget);
+    expect(find.text('Security'), findsNothing);
+    expect(find.text('Settings'), findsNothing);
   });
 
   testWidgets('expanded navigation uses NavigationRail',
