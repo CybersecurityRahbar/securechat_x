@@ -8,13 +8,19 @@ void main() {
     NavigationDestination(icon: Icon(Icons.chat_outlined), label: 'Chats'),
   ];
 
-  const List<NavigationDestination> sixDestinations = [
+  const List<NavigationDestination> sevenDestinations = [
     NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
     NavigationDestination(icon: Icon(Icons.chat_outlined), label: 'Chats'),
     NavigationDestination(icon: Icon(Icons.people_outline), label: 'Contacts'),
     NavigationDestination(icon: Icon(Icons.call_outlined), label: 'Calls'),
     NavigationDestination(
-        icon: Icon(Icons.security_outlined), label: 'Security'),
+      icon: Icon(Icons.devices_other_outlined),
+      label: 'Devices',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.security_outlined),
+      label: 'Security Center',
+    ),
     NavigationDestination(icon: Icon(Icons.tune_outlined), label: 'Settings'),
   ];
 
@@ -49,19 +55,29 @@ void main() {
 
   testWidgets('compact navigation collapses excess destinations into More',
       (WidgetTester tester) async {
-    await pumpAtWidth(tester, 390, items: sixDestinations);
+    await pumpAtWidth(tester, 390, items: sevenDestinations);
 
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.text('More'), findsOneWidget);
-    expect(find.text('Security'), findsNothing);
+    expect(find.text('Devices'), findsNothing);
+    expect(find.text('Security Center'), findsNothing);
     expect(find.text('Settings'), findsNothing);
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Devices'), findsOneWidget);
+    expect(find.text('Security Center'), findsOneWidget);
+    expect(find.text('Settings'), findsOneWidget);
   });
 
   testWidgets('expanded navigation uses NavigationRail',
       (WidgetTester tester) async {
-    await pumpAtWidth(tester, 1280);
+    await pumpAtWidth(tester, 1280, items: sevenDestinations);
 
     expect(find.byType(NavigationRail), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('Devices'), findsOneWidget);
+    expect(find.text('Security Center'), findsOneWidget);
   });
 }
