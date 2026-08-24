@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqflite_common/sqlite_api.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:securechat_x/data/database/database.dart';
@@ -8,7 +9,8 @@ void main() {
   setUpAll(sqfliteFfiInit);
 
   test('phase 3 schema creates all required relational tables and indexes', () async {
-    final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+    final Database db =
+        await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     addTearDown(db.close);
 
     await db.execute('PRAGMA foreign_keys = ON');
@@ -62,7 +64,8 @@ void main() {
   });
 
   test('foreign keys prevent orphaned members and cascade dependent rows', () async {
-    final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+    final Database db =
+        await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     addTearDown(db.close);
 
     await db.execute('PRAGMA foreign_keys = ON');
@@ -89,14 +92,15 @@ void main() {
   });
 
   test('transaction rollback preserves atomicity', () async {
-    final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+    final Database db =
+        await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     addTearDown(db.close);
 
     await db.execute('PRAGMA foreign_keys = ON');
     await SecureChatSqliteSchema.create(_TestExecutor(db));
 
     await expectLater(
-      db.transaction<void>((txn) async {
+      db.transaction<void>((Transaction txn) async {
         await txn.insert('users', <String, Object?>{
           'id': 'rollback-user',
           'display_name': 'Rollback',
@@ -121,7 +125,7 @@ void main() {
 final class _TestExecutor implements DatabaseExecutorLike {
   const _TestExecutor(this.database);
 
-  final dynamic database;
+  final DatabaseExecutor database;
 
   @override
   Future<void> execute(String sql, [List<Object?>? arguments]) =>
