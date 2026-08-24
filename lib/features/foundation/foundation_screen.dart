@@ -6,7 +6,9 @@ import '../contacts/contacts_screen.dart';
 import '../design_system/adaptive_navigation.dart';
 import '../design_system/design_tokens.dart';
 import '../design_system/foundation_widgets.dart';
+import '../design_system/messaging_components.dart';
 import '../design_system/responsive.dart';
+import '../devices/devices_screen.dart';
 import '../home/secure_command_center.dart';
 import '../messaging/chats_screen.dart';
 import '../security/security_center_screen.dart';
@@ -34,6 +36,10 @@ class FoundationScreen extends StatelessWidget {
     FoundationDestination.calls: (
       title: 'Calls',
       icon: SecureChatIcons.calls,
+    ),
+    FoundationDestination.devices: (
+      title: 'Devices',
+      icon: SecureChatIcons.devices,
     ),
     FoundationDestination.security: (
       title: 'Security Center',
@@ -101,6 +107,8 @@ class FoundationScreen extends StatelessWidget {
         return const ChatsScreen();
       case FoundationDestination.contacts:
         return const ContactsScreen();
+      case FoundationDestination.devices:
+        return const DevicesScreen();
       case FoundationDestination.security:
         return const SecurityCenterScreen();
       case FoundationDestination.settings:
@@ -117,7 +125,7 @@ class FoundationScreen extends StatelessWidget {
     return SafeArea(
       child: SecureChatConstrained(
         maxWidth: SecureChatContentConstraints.narrow,
-        child: Padding(
+        child: SingleChildScrollView(
           padding: SecureChatResponsiveInsets.page(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,28 +136,10 @@ class FoundationScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: SecureChatSpace.lg),
-              SecureChatSurface(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(item.icon, color: SecureChatColors.primary),
-                    const SizedBox(width: SecureChatSpace.md),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SecurityStatusIndicator(
-                            status: SecurityStatus.notImplemented,
-                          ),
-                          SizedBox(height: SecureChatSpace.md),
-                          Text(
-                            'Calling and call signalling are not implemented yet.',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              SecureChatFeatureBanner(
+                title: 'Calls are not implemented',
+                message:
+                    'The presentation shell is ready for the future call state machine, signalling contract and media controls. No call security capability is claimed here.',
               ),
             ],
           ),
