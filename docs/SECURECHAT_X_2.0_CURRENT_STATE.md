@@ -79,8 +79,9 @@ Phase 1 contained interfaces/placeholders where later phases were deliberately n
 ### Database decision
 
 - ADR 0003 selects SQLite through `sqflite` as the first concrete database adapter.
-- `sqflite_common_ffi` is a development-only dependency for real SQLite schema tests without an Android emulator.
+- `sqflite_common_ffi` is a development-only dependency for real SQLite schema and repository tests without an Android emulator.
 - The selected versions intentionally remain compatible with the repository's Flutter 3.47.1 CI baseline rather than blindly selecting the newest Dart-SDK-constrained release.
+- The Dart SDK floor is now aligned with the selected SQLite test dependency baseline.
 
 ### Database boundary
 
@@ -100,6 +101,7 @@ Phase 1 contained interfaces/placeholders where later phases were deliberately n
 ### Concrete adapter
 
 - `lib/data/database/sqlite_database.dart` implements the database boundary with sqflite.
+- The adapter accepts an injectable `DatabaseFactory`, allowing the same production adapter to be exercised against real in-memory SQLite in CI tests.
 - Database configuration enables foreign-key enforcement, secure-delete and a bounded busy timeout.
 - Versioned create/upgrade hooks are explicit.
 - The application bootstrap now initializes the database before showing the main application and presents a truthful failure state if initialization fails.
@@ -113,6 +115,8 @@ Phase 1 contained interfaces/placeholders where later phases were deliberately n
 
 - `test/sqlite_schema_test.dart` executes the schema against real SQLite through the FFI adapter.
 - Tests cover table/index creation, foreign-key cascading, transaction rollback and pagination bounds.
+- `test/local_state_repository_test.dart` exercises the real SQLite adapter plus draft/settings repositories for insert/update/read/delete behavior.
+- Android integration startup now explicitly runs database migration before exercising the foundation UI.
 
 ## Explicitly NOT implemented yet
 
