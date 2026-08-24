@@ -59,18 +59,18 @@ final class DraftRecord {
   final int updatedAt;
 
   factory DraftRecord.fromRow(Map<String, Object?> row) => DraftRecord(
-        id: row['id']! as String,
-        conversationId: row['conversation_id']! as String,
-        textCiphertext: _bytesFromRow(row['text_ciphertext']),
-        updatedAt: row['updated_at']! as int,
-      );
+    id: row['id']! as String,
+    conversationId: row['conversation_id']! as String,
+    textCiphertext: _bytesFromRow(row['text_ciphertext']),
+    updatedAt: row['updated_at']! as int,
+  );
 
   Map<String, Object?> toValues() => <String, Object?>{
-        'id': id,
-        'conversation_id': conversationId,
-        'text_ciphertext': textCiphertext,
-        'updated_at': updatedAt,
-      };
+    'id': id,
+    'conversation_id': conversationId,
+    'text_ciphertext': textCiphertext,
+    'updated_at': updatedAt,
+  };
 }
 
 /// Repository for settings whose values have already been encrypted by the
@@ -114,14 +114,14 @@ final class EncryptedSettingsRepository {
   }
 
   Future<void> delete(String key) => _database.delete(
-        'app_settings',
-        where: 'key = ?',
-        whereArgs: <Object?>[key],
-      );
+    'app_settings',
+    where: 'key = ?',
+    whereArgs: <Object?>[key],
+  );
 }
 
 List<int>? _bytesFromRow(Object? value) => switch (value) {
-      null => null,
-      List<int> bytes => List<int>.unmodifiable(bytes),
-      _ => throw StateError('Database blob column has an invalid type.'),
-    };
+  null => null,
+  List<int> bytes => List<int>.unmodifiable(bytes),
+  _ => throw StateError('Database blob column has an invalid type.'),
+};

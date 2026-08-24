@@ -31,8 +31,9 @@ void main() {
     });
 
     await repository.save(draft);
-    final DraftRecord? stored =
-        await repository.findByConversation('conversation-1');
+    final DraftRecord? stored = await repository.findByConversation(
+      'conversation-1',
+    );
 
     expect(stored?.id, 'draft-1');
     expect(stored?.textCiphertext, <int>[1, 2, 3, 4]);
@@ -41,26 +42,29 @@ void main() {
     expect(await repository.findByConversation('conversation-1'), isNull);
   });
 
-  test('encrypted settings repository upserts without exposing plaintext', () async {
-    final SqliteDatabase database = SqliteDatabase(
-      databaseName: inMemoryDatabasePath,
-      databaseFactory: databaseFactoryFfi,
-    );
-    addTearDown(database.close);
-    await database.migrate();
+  test(
+    'encrypted settings repository upserts without exposing plaintext',
+    () async {
+      final SqliteDatabase database = SqliteDatabase(
+        databaseName: inMemoryDatabasePath,
+        databaseFactory: databaseFactoryFfi,
+      );
+      addTearDown(database.close);
+      await database.migrate();
 
-    final EncryptedSettingsRepository repository =
-        EncryptedSettingsRepository(database);
+      final EncryptedSettingsRepository repository =
+          EncryptedSettingsRepository(database);
 
-    expect(await repository.read('notifications.preview'), isNull);
+      expect(await repository.read('notifications.preview'), isNull);
 
-    await repository.write('notifications.preview', <int>[9, 8, 7], 10);
-    expect(await repository.read('notifications.preview'), <int>[9, 8, 7]);
+      await repository.write('notifications.preview', <int>[9, 8, 7], 10);
+      expect(await repository.read('notifications.preview'), <int>[9, 8, 7]);
 
-    await repository.write('notifications.preview', <int>[6, 5], 20);
-    expect(await repository.read('notifications.preview'), <int>[6, 5]);
+      await repository.write('notifications.preview', <int>[6, 5], 20);
+      expect(await repository.read('notifications.preview'), <int>[6, 5]);
 
-    await repository.delete('notifications.preview');
-    expect(await repository.read('notifications.preview'), isNull);
-  });
+      await repository.delete('notifications.preview');
+      expect(await repository.read('notifications.preview'), isNull);
+    },
+  );
 }

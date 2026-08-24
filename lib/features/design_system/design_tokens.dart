@@ -68,53 +68,53 @@ final class SecureChatIcons {
 }
 
 TextTheme _secureChatTextTheme() => const TextTheme(
-      displaySmall: TextStyle(
-        fontSize: 34,
-        height: 1.1,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.8,
-        color: SecureChatColors.text,
-      ),
-      headlineSmall: TextStyle(
-        fontSize: 26,
-        height: 1.15,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.4,
-        color: SecureChatColors.text,
-      ),
-      titleLarge: TextStyle(
-        fontSize: 20,
-        height: 1.2,
-        fontWeight: FontWeight.w600,
-        color: SecureChatColors.text,
-      ),
-      titleMedium: TextStyle(
-        fontSize: 16,
-        height: 1.3,
-        fontWeight: FontWeight.w600,
-        color: SecureChatColors.text,
-      ),
-      bodyLarge: TextStyle(
-        fontSize: 16,
-        height: 1.45,
-        color: SecureChatColors.text,
-      ),
-      bodyMedium: TextStyle(
-        fontSize: 14,
-        height: 1.45,
-        color: SecureChatColors.muted,
-      ),
-      bodySmall: TextStyle(
-        fontSize: 12,
-        height: 1.35,
-        color: SecureChatColors.subtle,
-      ),
-      labelLarge: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: SecureChatColors.text,
-      ),
-    );
+  displaySmall: TextStyle(
+    fontSize: 34,
+    height: 1.1,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.8,
+    color: SecureChatColors.text,
+  ),
+  headlineSmall: TextStyle(
+    fontSize: 26,
+    height: 1.15,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.4,
+    color: SecureChatColors.text,
+  ),
+  titleLarge: TextStyle(
+    fontSize: 20,
+    height: 1.2,
+    fontWeight: FontWeight.w600,
+    color: SecureChatColors.text,
+  ),
+  titleMedium: TextStyle(
+    fontSize: 16,
+    height: 1.3,
+    fontWeight: FontWeight.w600,
+    color: SecureChatColors.text,
+  ),
+  bodyLarge: TextStyle(
+    fontSize: 16,
+    height: 1.45,
+    color: SecureChatColors.text,
+  ),
+  bodyMedium: TextStyle(
+    fontSize: 14,
+    height: 1.45,
+    color: SecureChatColors.muted,
+  ),
+  bodySmall: TextStyle(
+    fontSize: 12,
+    height: 1.35,
+    color: SecureChatColors.subtle,
+  ),
+  labelLarge: TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: SecureChatColors.text,
+  ),
+);
 
 ThemeData secureChatTheme() {
   final ThemeData base = ThemeData(

@@ -11,114 +11,111 @@ class ConversationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          titleSpacing: SecureChatSpace.md,
-          title: Row(
+    appBar: AppBar(
+      titleSpacing: SecureChatSpace.md,
+      title: Row(
+        children: [
+          const SecureChatAvatar(label: 'Conversation identity', size: 36),
+          const SizedBox(width: SecureChatSpace.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Conversation preview',
+                  style: Theme.of(context).textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'Identity and session state not available',
+                  style: Theme.of(context).textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: SecureChatSpace.sm),
+          const SecurityStatusIndicator(status: SecurityStatus.notImplemented),
+        ],
+      ),
+      actions: [
+        SecureChatIconButton(
+          icon: Icons.search_rounded,
+          label: 'Search messages',
+          onPressed: () => showSecureChatDialog<void>(
+            context,
+            child: const Text(
+              'Local message search will become available with the database and messaging engine phases.',
+            ),
+          ),
+        ),
+      ],
+    ),
+    body: Column(
+      children: [
+        Expanded(
+          child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: SecureChatResponsiveInsets.page(context),
             children: [
-              const SecureChatAvatar(label: 'Conversation identity', size: 36),
-              const SizedBox(width: SecureChatSpace.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              const SecureChatFeatureBanner(
+                title: 'Conversation preview only',
+                message:
+                    'No real message content is stored, encrypted, sent, delivered, or read in this screen yet.',
+              ),
+              const SizedBox(height: SecureChatSpace.md),
+              SecureChatSurface(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SecureChatSpace.md,
+                  vertical: SecureChatSpace.sm,
+                ),
+                child: Row(
                   children: [
-                    Text(
-                      'Conversation preview',
-                      style: Theme.of(context).textTheme.titleMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    const Icon(
+                      SecureChatIcons.security,
+                      color: SecureChatColors.neutral,
+                      size: 18,
                     ),
-                    Text(
-                      'Identity and session state not available',
-                      style: Theme.of(context).textTheme.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    const SizedBox(width: SecureChatSpace.sm),
+                    Expanded(
+                      child: Text(
+                        'Secure session state is unavailable until the identity and session phases are implemented.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: SecureChatSpace.sm),
-              const SecurityStatusIndicator(
-                status: SecurityStatus.notImplemented,
+              const SizedBox(height: SecureChatSpace.lg),
+              const SecureChatMessageBubble(
+                message: 'Incoming message bubble preview',
+                timestamp: 'Preview',
+                statusLabel: 'UI only',
+              ),
+              const SecureChatMessageBubble(
+                message: 'Outgoing message layout preview',
+                timestamp: 'Preview',
+                isMine: true,
+                statusLabel: 'UI only',
+              ),
+              const SecureChatMessageBubble(
+                message:
+                    'Longer message previews are intentionally constrained to test wrapping and accessibility on compact screens.',
+                timestamp: 'Preview',
+                statusLabel: 'Not implemented',
+              ),
+              const SecureChatMotionAnimatedSecurityHint(
+                reducedMotionAware: true,
               ),
             ],
           ),
-          actions: [
-            SecureChatIconButton(
-              icon: Icons.search_rounded,
-              label: 'Search messages',
-              onPressed: () => showSecureChatDialog<void>(
-                context,
-                child: const Text(
-                  'Local message search will become available with the database and messaging engine phases.',
-                ),
-              ),
-            ),
-          ],
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: SecureChatResponsiveInsets.page(context),
-                children: [
-                  const SecureChatFeatureBanner(
-                    title: 'Conversation preview only',
-                    message:
-                        'No real message content is stored, encrypted, sent, delivered, or read in this screen yet.',
-                  ),
-                  const SizedBox(height: SecureChatSpace.md),
-                  SecureChatSurface(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: SecureChatSpace.md,
-                      vertical: SecureChatSpace.sm,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          SecureChatIcons.security,
-                          color: SecureChatColors.neutral,
-                          size: 18,
-                        ),
-                        const SizedBox(width: SecureChatSpace.sm),
-                        Expanded(
-                          child: Text(
-                            'Secure session state is unavailable until the identity and session phases are implemented.',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: SecureChatSpace.lg),
-                  const SecureChatMessageBubble(
-                    message: 'Incoming message bubble preview',
-                    timestamp: 'Preview',
-                    statusLabel: 'UI only',
-                  ),
-                  const SecureChatMessageBubble(
-                    message: 'Outgoing message layout preview',
-                    timestamp: 'Preview',
-                    isMine: true,
-                    statusLabel: 'UI only',
-                  ),
-                  const SecureChatMessageBubble(
-                    message:
-                        'Longer message previews are intentionally constrained to test wrapping and accessibility on compact screens.',
-                    timestamp: 'Preview',
-                    statusLabel: 'Not implemented',
-                  ),
-                  const SecureChatMotionAnimatedSecurityHint(
-                    reducedMotionAware: true,
-                  ),
-                ],
-              ),
-            ),
-            const SecureChatComposer(onSend: null, enabled: false),
-          ],
-        ),
-      );
+        const SecureChatComposer(onSend: null, enabled: false),
+      ],
+    ),
+  );
 }
 
 class SecureChatMotionAnimatedSecurityHint extends StatelessWidget {

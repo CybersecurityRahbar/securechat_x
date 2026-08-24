@@ -7,8 +7,9 @@ import 'package:securechat_x/app/securechat_app.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('foundation shell renders and opens Chats',
-      (WidgetTester tester) async {
+  testWidgets('foundation shell renders and opens Chats', (
+    WidgetTester tester,
+  ) async {
     final AppDependencies dependencies = AppDependencies.foundation();
     await dependencies.database.migrate();
 

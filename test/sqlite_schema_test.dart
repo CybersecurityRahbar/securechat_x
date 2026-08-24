@@ -8,94 +8,101 @@ import 'package:securechat_x/data/database/sqlite_schema.dart';
 void main() {
   setUpAll(sqfliteFfiInit);
 
-  test('phase 3 schema creates all required relational tables and indexes',
-      () async {
-    final Database db =
-        await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
-    addTearDown(db.close);
+  test(
+    'phase 3 schema creates all required relational tables and indexes',
+    () async {
+      final Database db = await databaseFactoryFfi.openDatabase(
+        inMemoryDatabasePath,
+      );
+      addTearDown(db.close);
 
-    await db.execute('PRAGMA foreign_keys = ON');
-    await SecureChatSqliteSchema.create(_TestExecutor(db));
+      await db.execute('PRAGMA foreign_keys = ON');
+      await SecureChatSqliteSchema.create(_TestExecutor(db));
 
-    final List<Map<String, Object?>> tables = await db.rawQuery('''
+      final List<Map<String, Object?>> tables = await db.rawQuery('''
       SELECT name
       FROM sqlite_master
       WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
       ORDER BY name
     ''');
 
-    final Set<String> tableNames = tables
-        .map((Map<String, Object?> row) => row['name']! as String)
-        .toSet();
+      final Set<String> tableNames = tables
+          .map((Map<String, Object?> row) => row['name']! as String)
+          .toSet();
 
-    expect(
-      tableNames,
-      containsAll(<String>[
-        'users',
-        'devices',
-        'contacts',
-        'conversations',
-        'conversation_members',
-        'messages',
-        'message_recipients',
-        'attachments',
-        'attachment_chunks',
-        'sessions',
-        'prekeys',
-        'groups',
-        'group_members',
-        'community_state',
-        'calls',
-        'call_events',
-        'delivery_receipts',
-        'read_receipts',
-        'drafts',
-        'app_settings',
-        'security_events',
-      ]),
-    );
+      expect(
+        tableNames,
+        containsAll(<String>[
+          'users',
+          'devices',
+          'contacts',
+          'conversations',
+          'conversation_members',
+          'messages',
+          'message_recipients',
+          'attachments',
+          'attachment_chunks',
+          'sessions',
+          'prekeys',
+          'groups',
+          'group_members',
+          'community_state',
+          'calls',
+          'call_events',
+          'delivery_receipts',
+          'read_receipts',
+          'drafts',
+          'app_settings',
+          'security_events',
+        ]),
+      );
 
-    final List<Map<String, Object?>> indexes = await db.rawQuery('''
+      final List<Map<String, Object?>> indexes = await db.rawQuery('''
       SELECT name
       FROM sqlite_master
       WHERE type = 'index' AND name LIKE 'idx_%'
     ''');
 
-    expect(indexes.length, SecureChatSqliteSchema.createIndexes.length);
-  });
+      expect(indexes.length, SecureChatSqliteSchema.createIndexes.length);
+    },
+  );
 
-  test('foreign keys prevent orphaned members and cascade dependent rows',
-      () async {
-    final Database db =
-        await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
-    addTearDown(db.close);
+  test(
+    'foreign keys prevent orphaned members and cascade dependent rows',
+    () async {
+      final Database db = await databaseFactoryFfi.openDatabase(
+        inMemoryDatabasePath,
+      );
+      addTearDown(db.close);
 
-    await db.execute('PRAGMA foreign_keys = ON');
-    await SecureChatSqliteSchema.create(_TestExecutor(db));
+      await db.execute('PRAGMA foreign_keys = ON');
+      await SecureChatSqliteSchema.create(_TestExecutor(db));
 
-    await db.insert('users', <String, Object?>{
-      'id': 'user-1',
-      'display_name': 'Test User',
-      'created_at': 1,
-      'updated_at': 1,
-    });
-    await db.insert('devices', <String, Object?>{
-      'id': 'device-1',
-      'user_id': 'user-1',
-      'label': 'Test Device',
-      'status': 'active',
-      'created_at': 1,
-      'updated_at': 1,
-    });
+      await db.insert('users', <String, Object?>{
+        'id': 'user-1',
+        'display_name': 'Test User',
+        'created_at': 1,
+        'updated_at': 1,
+      });
+      await db.insert('devices', <String, Object?>{
+        'id': 'device-1',
+        'user_id': 'user-1',
+        'label': 'Test Device',
+        'status': 'active',
+        'created_at': 1,
+        'updated_at': 1,
+      });
 
-    await db.delete('users', where: 'id = ?', whereArgs: <Object?>['user-1']);
+      await db.delete('users', where: 'id = ?', whereArgs: <Object?>['user-1']);
 
-    expect(await db.query('devices'), isEmpty);
-  });
+      expect(await db.query('devices'), isEmpty);
+    },
+  );
 
   test('transaction rollback preserves atomicity', () async {
-    final Database db =
-        await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+    final Database db = await databaseFactoryFfi.openDatabase(
+      inMemoryDatabasePath,
+    );
     addTearDown(db.close);
 
     await db.execute('PRAGMA foreign_keys = ON');

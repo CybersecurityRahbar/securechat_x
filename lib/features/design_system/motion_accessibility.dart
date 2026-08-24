@@ -31,11 +31,9 @@ class SecureChatAnimatedSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AnimatedSwitcher(
-        duration: SecureChatMotionPreferences.duration(context, duration),
-        switchInCurve:
-            SecureChatMotionPreferences.curve(context, switchInCurve),
-        switchOutCurve:
-            SecureChatMotionPreferences.curve(context, switchOutCurve),
-        child: child,
-      );
+    duration: SecureChatMotionPreferences.duration(context, duration),
+    switchInCurve: SecureChatMotionPreferences.curve(context, switchInCurve),
+    switchOutCurve: SecureChatMotionPreferences.curve(context, switchOutCurve),
+    child: child,
+  );
 }

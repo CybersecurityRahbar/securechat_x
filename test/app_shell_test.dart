@@ -24,21 +24,20 @@ Future<void> pumpShell(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets(
-    'application shell starts and opens chats at compact width',
-    (WidgetTester tester) async {
-      await pumpShell(tester);
+  testWidgets('application shell starts and opens chats at compact width', (
+    WidgetTester tester,
+  ) async {
+    await pumpShell(tester);
 
-      expect(find.byKey(const Key('foundation-screen-title')), findsOneWidget);
-      expect(find.text('Command Center'), findsWidgets);
+    expect(find.byKey(const Key('foundation-screen-title')), findsOneWidget);
+    expect(find.text('Command Center'), findsWidgets);
 
-      await tester.tap(find.text('Chats').last);
-      await tester.pumpAndSettle();
-      expect(find.text('Messaging engine not implemented'), findsOneWidget);
-      expect(find.text('Conversation workspace foundation'), findsOneWidget);
-      expect(find.text('Conversation UI preview'), findsOneWidget);
-    },
-  );
+    await tester.tap(find.text('Chats').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Messaging engine not implemented'), findsOneWidget);
+    expect(find.text('Conversation workspace foundation'), findsOneWidget);
+    expect(find.text('Conversation UI preview'), findsOneWidget);
+  });
 
   testWidgets('compact More menu exposes devices', (WidgetTester tester) async {
     await pumpShell(tester);
@@ -54,8 +53,9 @@ void main() {
     expect(find.text('Current device'), findsOneWidget);
   });
 
-  testWidgets('command palette navigates to security center',
-      (WidgetTester tester) async {
+  testWidgets('command palette navigates to security center', (
+    WidgetTester tester,
+  ) async {
     await pumpShell(tester);
 
     await tester.tap(find.byTooltip('Global command palette'));

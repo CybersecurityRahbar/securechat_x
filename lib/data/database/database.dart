@@ -29,11 +29,7 @@ abstract interface class Database {
     List<Object?>? whereArgs,
   });
 
-  Future<int> delete(
-    String table, {
-    String? where,
-    List<Object?>? whereArgs,
-  });
+  Future<int> delete(String table, {String? where, List<Object?>? whereArgs});
 }
 
 /// The operations exposed while a repository is inside a database transaction.
@@ -64,17 +60,13 @@ abstract interface class DatabaseTransaction {
     List<Object?>? whereArgs,
   });
 
-  Future<int> delete(
-    String table, {
-    String? where,
-    List<Object?>? whereArgs,
-  });
+  Future<int> delete(String table, {String? where, List<Object?>? whereArgs});
 }
 
 /// Bounded cursor pagination contract for repository implementations.
 final class PageRequest {
   const PageRequest({this.limit = 50, this.cursor})
-      : assert(limit > 0 && limit <= 200);
+    : assert(limit > 0 && limit <= 200);
 
   final int limit;
   final String? cursor;

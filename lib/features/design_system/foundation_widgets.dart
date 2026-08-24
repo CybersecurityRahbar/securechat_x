@@ -17,10 +17,7 @@ class SecureChatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (icon == null) {
-      return FilledButton(
-        onPressed: onPressed,
-        child: Text(label),
-      );
+      return FilledButton(onPressed: onPressed, child: Text(label));
     }
     return FilledButton.icon(
       onPressed: onPressed,
@@ -43,11 +40,8 @@ class SecureChatIconButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
   @override
-  Widget build(BuildContext context) => IconButton(
-        icon: Icon(icon),
-        tooltip: label,
-        onPressed: onPressed,
-      );
+  Widget build(BuildContext context) =>
+      IconButton(icon: Icon(icon), tooltip: label, onPressed: onPressed);
 }
 
 class SecureChatCard extends StatelessWidget {
@@ -62,11 +56,8 @@ class SecureChatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-        child: Padding(
-          padding: padding,
-          child: child,
-        ),
-      );
+    child: Padding(padding: padding, child: child),
+  );
 }
 
 class SecureChatSurface extends StatelessWidget {
@@ -85,20 +76,17 @@ class SecureChatSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
-        decoration: BoxDecoration(
-          color: color ?? SecureChatColors.surface,
-          borderRadius: borderRadius,
-          border: Border.all(color: SecureChatColors.divider),
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          borderRadius: borderRadius,
-          child: Padding(
-            padding: padding,
-            child: child,
-          ),
-        ),
-      );
+    decoration: BoxDecoration(
+      color: color ?? SecureChatColors.surface,
+      borderRadius: borderRadius,
+      border: Border.all(color: SecureChatColors.divider),
+    ),
+    child: Material(
+      type: MaterialType.transparency,
+      borderRadius: borderRadius,
+      child: Padding(padding: padding, child: child),
+    ),
+  );
 }
 
 class SecureChatTextField extends StatelessWidget {
@@ -119,14 +107,14 @@ class SecureChatTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TextField(
-        controller: controller,
-        enabled: enabled,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hintText,
-          prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
-        ),
-      );
+    controller: controller,
+    enabled: enabled,
+    decoration: InputDecoration(
+      labelText: label,
+      hintText: hintText,
+      prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
+    ),
+  );
 }
 
 class SecureChatSectionHeader extends StatelessWidget {
@@ -143,26 +131,23 @@ class SecureChatSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                if (subtitle != null) ...[
-                  const SizedBox(height: SecureChatSpace.xs),
-                  Text(
-                    subtitle!,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ],
-            ),
-          ),
-          if (trailing != null) trailing!,
-        ],
-      );
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            if (subtitle != null) ...[
+              const SizedBox(height: SecureChatSpace.xs),
+              Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ],
+        ),
+      ),
+      if (trailing != null) trailing!,
+    ],
+  );
 }
 
 class SecureChatMetric extends StatelessWidget {
@@ -181,26 +166,22 @@ class SecureChatMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      if (icon != null) ...[
+        Icon(icon, color: accentColor ?? SecureChatColors.primary, size: 20),
+        const SizedBox(width: SecureChatSpace.sm),
+      ],
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (icon != null) ...[
-            Icon(
-              icon,
-              color: accentColor ?? SecureChatColors.primary,
-              size: 20,
-            ),
-            const SizedBox(width: SecureChatSpace.sm),
-          ],
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(height: SecureChatSpace.xxs),
-              Text(value, style: Theme.of(context).textTheme.labelLarge),
-            ],
-          ),
+          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: SecureChatSpace.xxs),
+          Text(value, style: Theme.of(context).textTheme.labelLarge),
         ],
-      );
+      ),
+    ],
+  );
 }
 
 class SecureChatStatusPill extends StatelessWidget {
@@ -217,66 +198,64 @@ class SecureChatStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: SecureChatSpace.sm,
-          vertical: SecureChatSpace.xs,
+    padding: const EdgeInsets.symmetric(
+      horizontal: SecureChatSpace.sm,
+      vertical: SecureChatSpace.xs,
+    ),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: 0.10),
+      borderRadius: const BorderRadius.all(Radius.circular(999)),
+      border: Border.all(color: color.withValues(alpha: 0.28)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 12, color: color),
+        const SizedBox(width: SecureChatSpace.xs),
+        Flexible(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.10),
-          borderRadius: const BorderRadius.all(Radius.circular(999)),
-          border: Border.all(color: color.withValues(alpha: 0.28)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 12, color: color),
-            const SizedBox(width: SecureChatSpace.xs),
-            Flexible(
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.bodySmall,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 }
 
 Future<T?> showSecureChatDialog<T>(
   BuildContext context, {
   required Widget child,
-}) =>
-    showDialog<T>(
-      context: context,
-      builder: (_) => AlertDialog(content: child),
-    );
+}) => showDialog<T>(
+  context: context,
+  builder: (_) => AlertDialog(content: child),
+);
 
 Future<T?> showSecureChatBottomSheet<T>(
   BuildContext context, {
   required Widget child,
-}) =>
-    showModalBottomSheet<T>(
-      context: context,
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(SecureChatSpace.md),
-          child: child,
-        ),
-      ),
-    );
+}) => showModalBottomSheet<T>(
+  context: context,
+  builder: (_) => SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.all(SecureChatSpace.md),
+      child: child,
+    ),
+  ),
+);
 
 class LoadingState extends StatelessWidget {
   const LoadingState({super.key});
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Semantics(
-          label: 'Loading',
-          child: const CircularProgressIndicator(),
-        ),
-      );
+    child: Semantics(
+      label: 'Loading',
+      child: const CircularProgressIndicator(),
+    ),
+  );
 }
 
 class ErrorState extends StatelessWidget {
@@ -285,9 +264,8 @@ class ErrorState extends StatelessWidget {
   final String message;
 
   @override
-  Widget build(BuildContext context) => Center(
-        child: Text(message, textAlign: TextAlign.center),
-      );
+  Widget build(BuildContext context) =>
+      Center(child: Text(message, textAlign: TextAlign.center));
 }
 
 class EmptyState extends StatelessWidget {
@@ -298,15 +276,15 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: SecureChatSpace.sm),
-            Text(message, textAlign: TextAlign.center),
-          ],
-        ),
-      );
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: SecureChatSpace.sm),
+        Text(message, textAlign: TextAlign.center),
+      ],
+    ),
+  );
 }
 
 enum SecurityStatus { notImplemented, needsAttention, established }
@@ -320,17 +298,14 @@ class SecurityStatusIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final (Color, String) value = switch (status) {
       SecurityStatus.notImplemented => (
-          SecureChatColors.neutral,
-          'Not implemented',
-        ),
+        SecureChatColors.neutral,
+        'Not implemented',
+      ),
       SecurityStatus.needsAttention => (
-          SecureChatColors.warning,
-          'Needs attention',
-        ),
-      SecurityStatus.established => (
-          SecureChatColors.success,
-          'Established',
-        ),
+        SecureChatColors.warning,
+        'Needs attention',
+      ),
+      SecurityStatus.established => (SecureChatColors.success, 'Established'),
     };
     return SecureChatStatusPill(
       label: value.$2,

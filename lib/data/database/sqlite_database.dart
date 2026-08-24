@@ -8,8 +8,8 @@ final class SqliteDatabase implements Database {
   SqliteDatabase({
     String databaseName = 'securechat_x.db',
     sqlite.DatabaseFactory? databaseFactory,
-  })  : _databaseName = databaseName,
-        _databaseFactory = databaseFactory ?? sqlite.databaseFactory;
+  }) : _databaseName = databaseName,
+       _databaseFactory = databaseFactory ?? sqlite.databaseFactory;
 
   final String _databaseName;
   final sqlite.DatabaseFactory _databaseFactory;
@@ -48,10 +48,7 @@ final class SqliteDatabase implements Database {
     return database;
   }
 
-  static Future<void> _createSchema(
-    sqlite.Database db,
-    int version,
-  ) async {
+  static Future<void> _createSchema(sqlite.Database db, int version) async {
     if (version >= 1) {
       await SecureChatSqliteSchema.create(_Executor(db));
     }
@@ -191,8 +188,7 @@ final class _TransactionExecutor implements DatabaseTransaction {
     String table,
     Map<String, Object?> values, {
     String? nullColumnHack,
-  }) =>
-      _transaction.insert(table, values, nullColumnHack: nullColumnHack);
+  }) => _transaction.insert(table, values, nullColumnHack: nullColumnHack);
 
   @override
   Future<int> update(
@@ -200,15 +196,10 @@ final class _TransactionExecutor implements DatabaseTransaction {
     Map<String, Object?> values, {
     String? where,
     List<Object?>? whereArgs,
-  }) =>
-      _transaction.update(table, values, where: where, whereArgs: whereArgs);
+  }) => _transaction.update(table, values, where: where, whereArgs: whereArgs);
 
   @override
-  Future<int> delete(
-    String table, {
-    String? where,
-    List<Object?>? whereArgs,
-  }) =>
+  Future<int> delete(String table, {String? where, List<Object?>? whereArgs}) =>
       _transaction.delete(table, where: where, whereArgs: whereArgs);
 
   static void _validatePageBounds(int? limit, int? offset) {

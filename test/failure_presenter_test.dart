@@ -13,7 +13,9 @@ void main() {
   });
 
   test('maps unknown errors to a redacted generic message', () {
-    expect(FailurePresenter.messageFor(StateError('private detail')),
-        'Something unexpected occurred. Please try again.');
+    expect(
+      FailurePresenter.messageFor(StateError('private detail')),
+      'Something unexpected occurred. Please try again.',
+    );
   });
 }

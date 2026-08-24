@@ -50,12 +50,12 @@ class SecureChatConstrained extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: maxWidth ?? SecureChatContentConstraints.readable,
-          ),
-          child: child,
-        ),
-      );
+    alignment: Alignment.topCenter,
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: maxWidth ?? SecureChatContentConstraints.readable,
+      ),
+      child: child,
+    ),
+  );
 }

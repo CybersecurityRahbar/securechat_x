@@ -5,7 +5,7 @@ final class FailurePresenter {
   const FailurePresenter._();
 
   static String messageFor(Object error) => switch (error) {
-        AppFailure failure => failure.safeMessage,
-        _ => 'Something unexpected occurred. Please try again.',
-      };
+    AppFailure failure => failure.safeMessage,
+    _ => 'Something unexpected occurred. Please try again.',
+  };
 }

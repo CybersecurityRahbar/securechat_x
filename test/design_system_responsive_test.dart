@@ -45,16 +45,18 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('compact navigation uses NavigationBar',
-      (WidgetTester tester) async {
+  testWidgets('compact navigation uses NavigationBar', (
+    WidgetTester tester,
+  ) async {
     await pumpAtWidth(tester, 390);
 
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.byType(NavigationRail), findsNothing);
   });
 
-  testWidgets('compact navigation collapses excess destinations into More',
-      (WidgetTester tester) async {
+  testWidgets('compact navigation collapses excess destinations into More', (
+    WidgetTester tester,
+  ) async {
     await pumpAtWidth(tester, 390, items: sevenDestinations);
 
     expect(find.byType(NavigationBar), findsOneWidget);
@@ -86,8 +88,9 @@ void main() {
     expect(find.text('Settings'), findsOneWidget);
   });
 
-  testWidgets('expanded navigation uses NavigationRail',
-      (WidgetTester tester) async {
+  testWidgets('expanded navigation uses NavigationRail', (
+    WidgetTester tester,
+  ) async {
     await pumpAtWidth(tester, 1280, items: sevenDestinations);
 
     expect(find.byType(NavigationRail), findsOneWidget);

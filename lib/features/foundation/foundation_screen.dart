@@ -20,23 +20,17 @@ class FoundationScreen extends StatelessWidget {
   final FoundationDestination destination;
 
   static const Map<FoundationDestination, ({String title, IconData icon})>
-      _items = {
+  _items = {
     FoundationDestination.home: (
       title: 'Command Center',
       icon: SecureChatIcons.home,
     ),
-    FoundationDestination.chats: (
-      title: 'Chats',
-      icon: SecureChatIcons.chats,
-    ),
+    FoundationDestination.chats: (title: 'Chats', icon: SecureChatIcons.chats),
     FoundationDestination.contacts: (
       title: 'Contacts',
       icon: SecureChatIcons.contacts,
     ),
-    FoundationDestination.calls: (
-      title: 'Calls',
-      icon: SecureChatIcons.calls,
-    ),
+    FoundationDestination.calls: (title: 'Calls', icon: SecureChatIcons.calls),
     FoundationDestination.devices: (
       title: 'Devices',
       icon: SecureChatIcons.devices,
@@ -56,65 +50,68 @@ class FoundationScreen extends StatelessWidget {
     Navigator.of(context).pushReplacementNamed(AppRouter.pathFor(next));
   }
 
-  Future<void> _showCommandPalette(BuildContext context) =>
-      showSecureChatBottomSheet<void>(
-        context,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(context).height * 0.75,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Command Center search',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: SecureChatSpace.xs),
-                Text(
-                  'Navigation commands are available now. Content search will arrive with the database and messaging phases.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: SecureChatSpace.md),
-                for (final FoundationDestination value in [
-                  FoundationDestination.home,
-                  FoundationDestination.chats,
-                  FoundationDestination.contacts,
-                  FoundationDestination.devices,
-                  FoundationDestination.security,
-                  FoundationDestination.settings,
-                ]) ...[
-                  ListTile(
-                    leading: Icon(_items[value]!.icon),
-                    title: Text(_items[value]!.title),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      _navigate(context, value);
-                    },
-                  ),
-                  if (value != FoundationDestination.settings)
-                    const Divider(height: 1),
-                ],
-              ],
+  Future<void> _showCommandPalette(
+    BuildContext context,
+  ) => showSecureChatBottomSheet<void>(
+    context,
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.75,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Command Center search',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-          ),
+            const SizedBox(height: SecureChatSpace.xs),
+            Text(
+              'Navigation commands are available now. Content search will arrive with the database and messaging phases.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: SecureChatSpace.md),
+            for (final FoundationDestination value in [
+              FoundationDestination.home,
+              FoundationDestination.chats,
+              FoundationDestination.contacts,
+              FoundationDestination.devices,
+              FoundationDestination.security,
+              FoundationDestination.settings,
+            ]) ...[
+              ListTile(
+                leading: Icon(_items[value]!.icon),
+                title: Text(_items[value]!.title),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _navigate(context, value);
+                },
+              ),
+              if (value != FoundationDestination.settings)
+                const Divider(height: 1),
+            ],
+          ],
         ),
-      );
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
     final ({String title, IconData icon}) item = _items[destination]!;
-    final List<NavigationDestination> destinations =
-        FoundationDestination.values.map((FoundationDestination value) {
-      final ({String title, IconData icon}) data = _items[value]!;
-      return NavigationDestination(
-        icon: Icon(data.icon),
-        selectedIcon: Icon(data.icon),
-        label: data.title,
-      );
-    }).toList(growable: false);
+    final List<NavigationDestination> destinations = FoundationDestination
+        .values
+        .map((FoundationDestination value) {
+          final ({String title, IconData icon}) data = _items[value]!;
+          return NavigationDestination(
+            icon: Icon(data.icon),
+            selectedIcon: Icon(data.icon),
+            label: data.title,
+          );
+        })
+        .toList(growable: false);
 
     return SecureChatAdaptiveNavigation(
       title: 'SecureChat X',
@@ -143,10 +140,7 @@ class FoundationScreen extends StatelessWidget {
     );
   }
 
-  Widget _content(
-    BuildContext context,
-    ({String title, IconData icon}) item,
-  ) {
+  Widget _content(BuildContext context, ({String title, IconData icon}) item) {
     switch (destination) {
       case FoundationDestination.home:
         return const SecureCommandCenter();

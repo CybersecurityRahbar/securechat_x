@@ -35,19 +35,16 @@ class _SecureChatAppState extends State<SecureChatApp>
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'SecureChat X',
-        debugShowCheckedModeBanner: false,
-        theme: secureChatTheme(),
-        onGenerateRoute: AppRouter.onGenerateRoute,
-        initialRoute: AppRouter.home,
-        supportedLocales: const [
-          Locale('en'),
-          Locale('ar'),
-        ],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-      );
+    title: 'SecureChat X',
+    debugShowCheckedModeBanner: false,
+    theme: secureChatTheme(),
+    onGenerateRoute: AppRouter.onGenerateRoute,
+    initialRoute: AppRouter.home,
+    supportedLocales: const [Locale('en'), Locale('ar')],
+    localizationsDelegates: const [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+  );
 }

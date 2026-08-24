@@ -18,10 +18,13 @@ Future<void> bootstrapSecureChat({
   late final AppEnvironment resolvedEnvironment;
   late final DiagnosticsReporter reporter;
   try {
-    resolvedEnvironment = environment ??
+    resolvedEnvironment =
+        environment ??
         AppEnvironment.fromDartDefines(
-          name: const String.fromEnvironment('SECURECHAT_ENV',
-              defaultValue: 'development'),
+          name: const String.fromEnvironment(
+            'SECURECHAT_ENV',
+            defaultValue: 'development',
+          ),
           protocolVersion: const String.fromEnvironment(
             'SECURECHAT_PROTOCOL_VERSION',
             defaultValue: '1',
@@ -56,8 +59,10 @@ Future<void> bootstrapSecureChat({
 
   ErrorWidget.builder = (FlutterErrorDetails details) {
     reporter.record(
-      code:
-          diagnosticCodeFor(details.exception, fallback: 'framework.unhandled'),
+      code: diagnosticCodeFor(
+        details.exception,
+        fallback: 'framework.unhandled',
+      ),
       error: details.exception,
       stackTrace: details.stack,
     );
@@ -68,8 +73,10 @@ Future<void> bootstrapSecureChat({
 
   FlutterError.onError = (FlutterErrorDetails details) {
     reporter.record(
-      code:
-          diagnosticCodeFor(details.exception, fallback: 'framework.unhandled'),
+      code: diagnosticCodeFor(
+        details.exception,
+        fallback: 'framework.unhandled',
+      ),
       error: details.exception,
       stackTrace: details.stack,
     );
@@ -96,8 +103,7 @@ DiagnosticsReporter _reporterFor(Environment environment) =>
     switch (environment) {
       Environment.development => DevelopmentDiagnosticsReporter(),
       Environment.staging ||
-      Environment.production =>
-        MemoryDiagnosticsReporter(),
+      Environment.production => MemoryDiagnosticsReporter(),
     };
 
 DiagnosticsReporter _bootstrapReporter() {
@@ -115,13 +121,13 @@ class _BootstrapFailureApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const MaterialApp(
-        home: Scaffold(
-          body: ErrorState(
-            message:
-                'The application configuration is invalid. Please contact support.',
-          ),
-        ),
-      );
+    home: Scaffold(
+      body: ErrorState(
+        message:
+            'The application configuration is invalid. Please contact support.',
+      ),
+    ),
+  );
 }
 
 class _DatabaseFailureApp extends StatelessWidget {
@@ -129,11 +135,11 @@ class _DatabaseFailureApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const MaterialApp(
-        home: Scaffold(
-          body: ErrorState(
-            message:
-                'Secure local storage could not be initialized. Your data was not opened.',
-          ),
-        ),
-      );
+    home: Scaffold(
+      body: ErrorState(
+        message:
+            'Secure local storage could not be initialized. Your data was not opened.',
+      ),
+    ),
+  );
 }

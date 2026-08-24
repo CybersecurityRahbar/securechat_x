@@ -19,10 +19,7 @@ void main() {
     tester.view.physicalSize = phoneSize;
     tester.view.devicePixelRatio = 1;
     await tester.pumpWidget(
-      MaterialApp(
-        theme: secureChatTheme(),
-        home: screen,
-      ),
+      MaterialApp(theme: secureChatTheme(), home: screen),
     );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);

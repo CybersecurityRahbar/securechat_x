@@ -18,10 +18,10 @@ final class AppEnvironment {
       'staging' => Environment.staging,
       'production' => Environment.production,
       final String invalid => throw ConfigurationFailure(
-          safeMessage: 'The application configuration is invalid.',
-          diagnosticCode: 'environment.invalid_name',
-          diagnosticDetail: 'Unsupported environment name: $invalid',
-        ),
+        safeMessage: 'The application configuration is invalid.',
+        diagnosticCode: 'environment.invalid_name',
+        diagnosticDetail: 'Unsupported environment name: $invalid',
+      ),
     };
     final int? parsedVersion = int.tryParse(protocolVersion ?? '1');
     if (parsedVersion == null || parsedVersion < 1) {
