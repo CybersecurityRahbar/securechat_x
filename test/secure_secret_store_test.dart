@@ -26,7 +26,14 @@ void main() {
   );
 
   test('malformed encoded secret fails closed', () async {
-    final fake = _FakeSecretBackend()..values['bad'] = 'not-valid-base64';
+    final fake = _FakeSecretBackend()..values['bad'] = '%%%';
+    final store = FlutterSecureSecretStore(backend: fake);
+
+    await expectLater(store.readSecret('bad'), throwsStateError);
+  });
+
+  test('non-canonical base64url secret fails closed', () async {
+    final fake = _FakeSecretBackend()..values['bad'] = '-w==';
     final store = FlutterSecureSecretStore(backend: fake);
 
     await expectLater(store.readSecret('bad'), throwsStateError);
