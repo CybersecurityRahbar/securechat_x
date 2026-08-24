@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../database/database.dart';
 
 /// Repository for encrypted-at-rest drafts.
@@ -68,7 +70,7 @@ final class DraftRecord {
   Map<String, Object?> toValues() => <String, Object?>{
     'id': id,
     'conversation_id': conversationId,
-    'text_ciphertext': textCiphertext,
+    'text_ciphertext': _blobValue(textCiphertext),
     'updated_at': updatedAt,
   };
 }
@@ -98,7 +100,7 @@ final class EncryptedSettingsRepository {
     await _database.transaction<void>((DatabaseTransaction tx) async {
       final Map<String, Object?> values = <String, Object?>{
         'key': key,
-        'value_ciphertext': ciphertext,
+        'value_ciphertext': _blobValue(ciphertext),
         'updated_at': updatedAt,
       };
       final int updated = await tx.update(
@@ -120,8 +122,12 @@ final class EncryptedSettingsRepository {
   );
 }
 
+Uint8List? _blobValue(List<int>? value) =>
+    value == null ? null : Uint8List.fromList(value);
+
 List<int>? _bytesFromRow(Object? value) => switch (value) {
   null => null,
+  Uint8List bytes => List<int>.unmodifiable(bytes),
   List<int> bytes => List<int>.unmodifiable(bytes),
   _ => throw StateError('Database blob column has an invalid type.'),
 };
