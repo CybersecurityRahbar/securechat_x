@@ -8,7 +8,8 @@ import 'package:securechat_x/data/database/sqlite_schema.dart';
 void main() {
   setUpAll(sqfliteFfiInit);
 
-  test('phase 3 schema creates all required relational tables and indexes', () async {
+  test('phase 3 schema creates all required relational tables and indexes',
+      () async {
     final Database db =
         await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     addTearDown(db.close);
@@ -63,7 +64,8 @@ void main() {
     expect(indexes.length, SecureChatSqliteSchema.createIndexes.length);
   });
 
-  test('foreign keys prevent orphaned members and cascade dependent rows', () async {
+  test('foreign keys prevent orphaned members and cascade dependent rows',
+      () async {
     final Database db =
         await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     addTearDown(db.close);

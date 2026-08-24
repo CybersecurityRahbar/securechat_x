@@ -73,7 +73,8 @@ abstract interface class DatabaseTransaction {
 
 /// Bounded cursor pagination contract for repository implementations.
 final class PageRequest {
-  PageRequest({this.limit = 50, this.cursor}) : assert(limit > 0 && limit <= 200);
+  PageRequest({this.limit = 50, this.cursor})
+      : assert(limit > 0 && limit <= 200);
 
   final int limit;
   final String? cursor;
