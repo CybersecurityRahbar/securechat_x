@@ -20,12 +20,9 @@ void main() {
 
       await tester.tap(find.text('Chats').last);
       await tester.pumpAndSettle();
-      expect(
-        find.text(
-          'Messaging is not implemented. No conversations or message content are available yet.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Messaging engine not implemented'), findsOneWidget);
+      expect(find.text('Conversation workspace foundation'), findsOneWidget);
+      expect(find.text('Conversation UI preview'), findsOneWidget);
 
       dependencies.dispose();
     },
