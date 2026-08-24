@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import '../database/database.dart';
@@ -128,20 +129,33 @@ final class LocalDeviceRepository {
     String userId,
     PageRequest request,
   ) async {
+    final cursor = _decodeCursor(request.cursor);
+    final where = cursor == null
+        ? 'user_id = ?'
+        : 'user_id = ? AND (created_at < ? OR (created_at = ? AND id < ?))';
+    final whereArgs = cursor == null
+        ? <Object?>[userId]
+        : <Object?>[userId, cursor.createdAt, cursor.createdAt, cursor.id];
+
     final rows = await _database.query(
       'devices',
-      where: 'user_id = ?',
-      whereArgs: <Object?>[userId],
+      where: where,
+      whereArgs: whereArgs,
       orderBy: 'created_at DESC, id DESC',
       limit: request.limit + 1,
     );
     final hasMore = rows.length > request.limit;
     final visible = hasMore ? rows.take(request.limit).toList() : rows;
+    final nextCursor = hasMore && visible.isNotEmpty
+        ? _encodeCursor(
+            visible.last['created_at']! as int,
+            visible.last['id']! as String,
+          )
+        : null;
+
     return Page<DeviceRecord>(
       items: visible.map(DeviceRecord.fromRow).toList(growable: false),
-      nextCursor: hasMore && visible.isNotEmpty
-          ? visible.last['id']?.toString()
-          : null,
+      nextCursor: nextCursor,
     );
   }
 
@@ -166,6 +180,34 @@ final class LocalDeviceRepository {
       where: 'id = ?',
       whereArgs: <Object?>[deviceId],
     );
+  }
+}
+
+final class _DeviceCursor {
+  const _DeviceCursor(this.createdAt, this.id);
+
+  final int createdAt;
+  final String id;
+}
+
+String _encodeCursor(int createdAt, String id) =>
+    base64UrlEncode(utf8.encode('$createdAt|$id'));
+
+_DeviceCursor? _decodeCursor(String? cursor) {
+  if (cursor == null || cursor.isEmpty) {
+    return null;
+  }
+  try {
+    final decoded = utf8.decode(base64Url.decode(base64Url.normalize(cursor)));
+    final separator = decoded.indexOf('|');
+    if (separator <= 0 || separator == decoded.length - 1) {
+      throw const FormatException();
+    }
+    final createdAt = int.parse(decoded.substring(0, separator));
+    final id = decoded.substring(separator + 1);
+    return _DeviceCursor(createdAt, id);
+  } on FormatException {
+    throw ArgumentError.value(cursor, 'cursor', 'is not a valid device cursor');
   }
 }
 
