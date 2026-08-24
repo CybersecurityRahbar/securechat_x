@@ -90,9 +90,13 @@ class SecureChatSurface extends StatelessWidget {
           borderRadius: borderRadius,
           border: Border.all(color: SecureChatColors.divider),
         ),
-        child: Padding(
-          padding: padding,
-          child: child,
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: borderRadius,
+          child: Padding(
+            padding: padding,
+            child: child,
+          ),
         ),
       );
 }
