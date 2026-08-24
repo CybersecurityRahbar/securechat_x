@@ -51,8 +51,14 @@ final class FlutterSecureSecretStore implements SecretStore {
     if (encoded == null) {
       return null;
     }
+
     try {
-      return Uint8List.fromList(base64Decode(encoded));
+      final Uint8List decoded = base64Decode(encoded);
+      final String canonical = base64Encode(decoded);
+      if (canonical != encoded) {
+        throw const FormatException('Non-canonical Base64 encoding.');
+      }
+      return decoded;
     } on FormatException {
       throw StateError('Secure storage contains an invalid encoded value.');
     }
